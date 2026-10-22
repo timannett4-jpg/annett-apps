@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tactics Board</title>
+<meta name="theme-color" content="#0c1522">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tactics">
+<link rel="manifest" href="hockey.webmanifest">
+<link rel="icon" type="image/png" href="hockey-icon-192.png">
+<link rel="apple-touch-icon" href="hockey-icon-180.png">
+<style>
+html,body{margin:0;padding:0}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}
+#syncpill{font:600 .75rem system-ui,sans-serif;letter-spacing:.04em;border:1px solid #2b3e60;border-radius:999px;padding:6px 10px;min-height:32px;color:#93a4c2;background:#15223a}
+#syncpill[data-s="ok"]{color:#4be3a0;border-color:#2a6b52}
+#syncpill[data-s="err"]{color:#ff8a8a;border-color:#7a2f35}
+#syncpill[data-s="busy"]{color:#ffd23f}
+</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-screen app — toolbar strip on top, pitch fills the rest, frames/plays strip below. Single deliberate dark "dugout" look. */
+:root{
+  --bg:#0c1522; --panel:#15223a; --panel-2:#1d2d4a; --line:#2b3e60;
+  --fg:#eef3fb; --muted:#93a4c2;
+  --turf:#1f62ad; --turf-2:#1b579b; --chalk:#f4f7fb;
+  --home:#ffd23f; --home-ink:#2a2100; --away:#e5484d; --away-ink:#fff;
+  --cone:#ff8a1f; --accent:#ffd23f;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);margin:0;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.app{height:100%;display:flex;flex-direction:column;gap:8px;padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));box-sizing:border-box}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.brand{font-family:var(--display);font-weight:700;font-size:1.25rem;letter-spacing:.04em;text-transform:uppercase;margin-right:6px;white-space:nowrap}
+.brand span{color:var(--accent)}
+.grp{display:flex;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+button,select{font:500 .85rem var(--body);color:var(--fg);background:transparent;border:0;border-radius:7px;padding:7px 10px;cursor:pointer;min-height:36px;white-space:nowrap}
+button:hover{background:var(--panel-2)}
+button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button[aria-pressed="true"]{background:var(--accent);color:#1a1500;font-weight:600}
+select{background:var(--panel);border:1px solid var(--line);padding:7px 8px}
+.sw{width:22px;height:22px;min-height:22px;padding:0;border-radius:50%;border:2px solid transparent;margin:4px 3px}
+.sw[aria-pressed="true"]{border-color:var(--fg);box-shadow:0 0 0 2px var(--bg) inset}
+.stage{flex:1;min-height:0;display:flex;align-items:stretch;gap:10px}
+.pitchbox{flex:1;min-width:0;position:relative}
+svg#pitch{position:absolute;top:0;left:0;width:100%;height:100%;touch-action:none;-webkit-touch-callout:none;display:block}
+#squad{width:210px;flex:none;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;box-sizing:border-box;-webkit-user-select:text;user-select:text}
+#squad.closed{display:none}
+.sq-head{display:flex;align-items:baseline;gap:8px}
+.sq-head h2{font:700 1.2rem var(--display);letter-spacing:.05em;text-transform:uppercase;margin:0}
+.sq-close{margin-left:auto;min-height:28px;padding:2px 8px;display:none}
+.sq-list{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:4px}
+.sq-row{display:flex;align-items:center;gap:6px}
+.sq-row b{width:24px;flex:none;text-align:right;font:700 .95rem var(--display);color:var(--muted);font-variant-numeric:tabular-nums}
+.sq-row input{flex:1;min-width:0;font:500 .95rem var(--body);background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:6px 8px}
+.sq-row input:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+.sq-row button{min-height:30px;padding:2px 7px;color:var(--muted)}
+.sq-div{font:600 .68rem var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:6px 0 2px 30px;border-top:1px solid var(--line);margin-top:4px}
+@media (max-width:760px){
+  #squad{position:fixed;top:0;right:0;bottom:0;width:min(280px,85vw);z-index:15;border-radius:12px 0 0 12px;padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));padding-right:max(10px,env(safe-area-inset-right,0px));box-shadow:-8px 0 24px rgba(0,0,0,.45)}
+  .sq-close{display:inline-block}
+}
+.frames{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.lbl{font:600 .7rem var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.chip{background:var(--panel);border:1px solid var(--line);font-variant-numeric:tabular-nums;min-width:36px}
+.chip[aria-pressed="true"]{background:var(--panel-2);color:var(--accent);border-color:var(--accent);font-weight:600}
+.hint{color:var(--muted);font-size:.8rem;margin-left:auto}
+input,select,textarea{-webkit-user-select:text;user-select:text}
+input{font-size:16px!important}
+.sheet[hidden]{display:none}
+.sheet{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(5,10,18,.6);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;width:min(360px,100%);display:flex;flex-direction:column;gap:10px;max-height:80%;overflow:auto}
+.card h2{font:700 1.3rem var(--display);letter-spacing:.04em;text-transform:uppercase;margin:0}
+.card input{font:500 1rem var(--body);background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px}
+.row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.primary{background:var(--accent);color:#1a1500;font-weight:600}
+.ghost{border:1px solid var(--line)}
+.plays{display:flex;flex-direction:column;gap:6px}
+.play{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:4px 4px 4px 10px}
+.play span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.empty{color:var(--muted);font-size:.85rem}
+.mag{cursor:grab}
+.mag text{font-family:var(--display);font-weight:700;pointer-events:none}
+@media (max-width:560px){.hint{display:none}.brand{font-size:1.05rem}button{padding:6px 8px}}
+/* Small windows (e.g. the iPad app's artifact window): one swipeable row of controls top and bottom so the pitch keeps the space */
+@media (max-width:1000px),(max-height:760px){
+  .bar,#bottom{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex:none;padding-bottom:2px}
+  .bar::-webkit-scrollbar,#bottom::-webkit-scrollbar{display:none}
+  .bar>*,#bottom>*{flex:none}
+  #chips,#boards{flex-wrap:nowrap}
+  .brand,.hint{display:none}
+  button{padding:6px 9px;min-height:34px}
+  .app{gap:6px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="app">
+  <div class="bar" id="top">
+    <div class="brand">Tactics<span>Board</span></div>
+    <div class="grp" role="group" aria-label="Pitch view">
+      <button data-view="full" aria-pressed="true">Full pitch</button>
+      <button data-view="corner" aria-pressed="false">Penalty corner</button>
+      <button data-view="blank" aria-pressed="false">Blank board</button>
+    </div>
+    <div class="grp" role="group" aria-label="Tool">
+      <button id="t-move" data-tool="move" aria-pressed="true">Move</button>
+      <button data-tool="run" aria-pressed="false">Run</button>
+      <button data-tool="pass" aria-pressed="false">Pass</button>
+      <button data-tool="draw" aria-pressed="false">Draw</button>
+            <button data-tool="erase" aria-pressed="false">Erase</button>
+    </div>
+    <div class="grp" role="group" aria-label="Line colour">
+      <button class="sw" data-col="#f4f7fb" style="background:#f4f7fb" aria-label="White" aria-pressed="true"></button>
+      <button class="sw" data-col="#ffd23f" style="background:#ffd23f" aria-label="Yellow" aria-pressed="false"></button>
+      <button class="sw" data-col="#ff5a5f" style="background:#ff5a5f" aria-label="Red" aria-pressed="false"></button>
+      <button class="sw" data-col="#4be3a0" style="background:#4be3a0" aria-label="Green" aria-pressed="false"></button>
+    </div>
+    <select id="setup" aria-label="Formation or set piece">
+      <option value="">Formation…</option>
+      <option value="433">4-3-3</option>
+      <option value="343">3-4-3</option>
+      <option value="442">4-4-2</option>
+      <option value="3313">3-3-1-3</option>
+      <option value="pcA">Penalty corner: attack</option>
+      <option value="pcD">Penalty corner: defend</option>
+      <option value="hit">Centre pass</option>
+    </select>
+    <div class="grp">
+      <button id="b-team" aria-pressed="true">Squad list</button>
+      <button id="b-cone">+ Cone</button>
+      <button id="b-addopp">+ Opp</button>
+      <button id="b-opp" aria-pressed="true">Opposition</button>
+    </div>
+    <div class="grp">
+      <button id="b-undo">Undo</button>
+      <button id="b-clear">Clear lines</button>
+      <button id="b-reset">Reset</button>
+    </div>
+    <button id="b-fs" class="grp" hidden>Full screen</button>
+  </div>
+  <div class="stage"><div class="pitchbox" id="pitchbox"><svg id="pitch" aria-label="Field hockey pitch"></svg></div>
+    <aside id="squad" aria-label="Squad list">
+      <div class="sq-head"><h2>Squad</h2><span class="lbl" id="sq-count"></span><button class="sq-close" id="sq-close" aria-label="Close squad list">✕</button></div>
+      <div id="sq-list" class="sq-list"></div>
+      <button class="ghost" id="sq-add">+ Add player</button>
+    </aside></div>
+  <div class="frames" id="bottom">
+    <span class="lbl">Boards</span>
+    <div id="boards" class="frames"></div>
+    <button class="chip" id="b-newb" title="Copy this board, names and all, into a new board">+ New board</button>
+    <button class="chip" id="b-delb">Delete board</button>
+    <span class="lbl" style="margin-left:8px">Steps</span>
+    <div id="chips" class="frames"></div>
+    <button class="chip" id="b-addf" title="Save the board as the next step">+ Step</button>
+    <button class="chip" id="b-play">▶ Play</button>
+    <button class="chip" id="b-delf">Delete step</button>
+    <span class="lbl" style="margin-left:8px">Plays</span>
+    <button class="chip" id="b-save">Save</button>
+    <button class="chip" id="b-open">Open</button>
+    <span class="hint">Tap a player, then another to swap them · Double-tap a name to change it</span>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" hidden><div class="card" id="card"></div></div>
+
+<script>
+const NS="http://www.w3.org/2000/svg";
+const L=914,W=550,R=20; // units = 0.1 m (pitch 91.4 x 55 m)
+const svg=document.getElementById('pitch');
+const el=(t,a={},p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e};
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* ---------- Pitch ---------- */
+const defs=el('defs',{},svg);
+['f4f7fb','ffd23f','ff5a5f','4be3a0'].forEach(c=>{
+  const m=el('marker',{id:'ah'+c,viewBox:'0 0 10 10',refX:7,refY:5,markerWidth:4.5,markerHeight:4.5,orient:'auto-start-reverse'},defs);
+  el('path',{d:'M0,0 L10,5 L0,10 z',fill:'#'+c},m);
+});
+const root=el('g',{},svg);
+const field=el('g',{},root);
+el('rect',{x:-30,y:-30,width:L+60,height:W+60,fill:'#174d8a',rx:8},field);
+const benchR=el('rect',{x:-30,y:W+36,width:L+60,height:64,fill:'#13355f',rx:8},field);
+const bt=el('text',{x:-10,y:W+68,'dominant-baseline':'central',fill:'#93a4c2','font-size':15,'font-weight':600,'letter-spacing':2,'font-family':'Barlow,system-ui,sans-serif'},field);bt.textContent='BENCH';
+for(let i=0;i<10;i++)el('rect',{x:i*L/10,y:0,width:L/10,height:W,fill:i%2?'#1b579b':'#1f62ad'},field);
+const chalk={stroke:'#f4f7fb','stroke-width':3,fill:'none'};
+el('rect',{x:0,y:0,width:L,height:W,...chalk},field);
+[457,229,685].forEach(x=>el('line',{x1:x,y1:0,x2:x,y2:W,...chalk},field));
+function D(goalX,dir){
+  const r=146.3,a=W/2-18.3,b=W/2+18.3,x=goalX+dir*r,sw=dir>0?1:0;
+  el('path',{d:`M${goalX},${a-r} A${r},${r} 0 0 ${sw} ${x},${a} L${x},${b} A${r},${r} 0 0 ${sw} ${goalX},${b+r}`,...chalk},field);
+  const r2=196.3;
+  el('path',{d:`M${goalX},${a-r2} A${r2},${r2} 0 0 ${sw} ${goalX+dir*r2},${a} L${goalX+dir*r2},${b} A${r2},${r2} 0 0 ${sw} ${goalX},${b+r2}`,...chalk,'stroke-dasharray':'30 30','stroke-width':2.5},field);
+  el('circle',{cx:goalX+dir*64.75,cy:W/2,r:3,fill:'#f4f7fb'},field);
+  el('rect',{x:dir>0?goalX-12:goalX,y:a,width:12,height:36.6,fill:'rgba(255,255,255,.18)',stroke:'#f4f7fb','stroke-width':3},field);
+  [-1,1].forEach(s=>{ // 5 m & 10 m backline marks
+    [50,100].forEach(d=>el('line',{x1:goalX,y1:W/2+s*(18.3+d),x2:goalX+dir*6,y2:W/2+s*(18.3+d),...chalk},field));
+  });
+}
+D(0,1);D(L,-1);
+[[0,0],[L,0],[0,W],[L,W]].forEach(([x,y])=>el('line',{x1:x+(x?-1:1)*0,y1:y,x2:x,y2:y+(y?-12:12),...chalk},field));
+const lineLayer=el('g',{},root), coneLayer=el('g',{},root), magLayer=el('g',{},root);
+const draft=el('path',{fill:'none','stroke-width':5,'stroke-linecap':'round','stroke-linejoin':'round'},root);
+
+let VIEW='full',UP='';
+function layout(){
+  const r=pbox.getBoundingClientRect(), port=r.height>r.width*1.05;
+  if(VIEW==='corner'){
+    if(port){svg.setAttribute('viewBox','630 -30 314 720');root.setAttribute('transform','');UP=''}
+    else{svg.setAttribute('viewBox','-30 -40 720 320');root.setAttribute('transform',`translate(0 ${L}) rotate(-90)`);UP='rotate(90)'}
+  }else{
+    svg.setAttribute('viewBox',port?'-110 -30 690 974':'-30 -30 974 690');
+    root.setAttribute('transform',port?'translate(550 0) rotate(90)':'');UP=port?'rotate(-90)':'';
+  }
+}
+function backRow(){ // players who must wait beyond halfway line up along the bottom of the corner view
+  const n={h:0,a:0};
+  S.players.forEach(p=>{if(p.x<650&&p.y<W+30){const i=n[p.team]++;p.x=p.team==='h'?680:650;p.y=p.team==='h'?45+i*75:82+i*75}});
+}
+const pbox=document.getElementById('pitchbox');
+new ResizeObserver(layout).observe(pbox);
+
+/* ---------- Formations (home defends the left goal; x = metres*10 along pitch) ---------- */
+const F={
+  '433':[[25,275],[190,90],[175,215],[175,335],[190,460],[330,140],[275,275],[330,410],[400,100],[395,275],[400,450]],
+  '343':[[25,275],[170,140],[160,275],[170,410],[320,70],[300,200],[300,350],[320,480],[420,120],[440,275],[420,430]],
+  '442':[[25,275],[190,90],[175,215],[175,335],[190,460],[320,80],[300,210],[300,340],[320,470],[430,190],[430,360]],
+  '3313':[[25,275],[170,140],[160,275],[170,410],[280,110],[270,275],[280,440],[360,275],[420,100],[440,275],[420,450]],
+};
+const mir=([x,y])=>[L-x,W-y];
+const S={players:[],ball:{x:457,y:275},cones:[],lines:[],opp:true,removed:[]};
+const DEF_NAMES=['Keeper','Player 2','Player 3','Player 4','Player 5','Player 6','Player 7','Player 8','Player 9','Player 10','Player 11'];
+let NAMES=store.get('hb-names')||DEF_NAMES.slice();
+const benchPos=j=>[110+(j%9)*90,W+68];
+const hIdx=p=>+p.id.slice(1);
+function makePlayers(home,away){
+  S.players=[];
+  NAMES.forEach((n,i)=>{const q=i<home.length?home[i]:benchPos(i-home.length);S.players.push({id:'h'+i,team:'h',label:n,x:q[0],y:q[1]})});
+  away.forEach((p,i)=>{if(!S.removed.includes('a'+i))S.players.push({id:'a'+i,team:'a',label:i?String(i+1):'GK',x:p[0],y:p[1]})});
+}
+function syncRoster(){
+  S.players=S.players.filter(p=>p.team!=='h'||hIdx(p)<NAMES.length);
+  let b=S.players.filter(p=>p.team==='h'&&p.y>W+30).length;
+  NAMES.forEach((n,i)=>{if(!S.players.some(p=>p.id==='h'+i)){const q=benchPos(b++);S.players.push({id:'h'+i,team:'h',label:n,x:q[0],y:q[1]})}});
+}
+function keepLabels(fn){const old={};S.players.forEach(p=>old[p.id]=p.label);fn();S.players.forEach(p=>{if(old[p.id])p.label=old[p.id]})}
+function applySetup(k){
+  keepLabels(()=>{
+    if(F[k]){makePlayers(F[k],F[k].map(mir));S.ball={x:457,y:275}}
+    else if(k==='hit'){
+      const h=F['433'].map(([x,y],i)=>i>7?[x+(i===9?17:0),y]:[x,y]);h[9]=[452,275];
+      makePlayers(h,F['433'].map(mir));S.ball={x:457,y:275};
+    }else{
+      const att=[[30,275],[905,398],[745,275],[745,490],[760,200],[760,350],[735,130],[735,420],[430,150],[430,400],[500,275]];
+      const def=[[905,275],[925,140],[925,205],[925,345],[925,410],[440,70],[440,170],[440,275],[440,380],[440,480],[440,540]];
+      if(k==='pcA'){makePlayers(att,def);S.ball={x:900,y:398}}
+      else if(VIEW==='corner'){makePlayers(def,att);S.ball={x:900,y:398}}
+      else{makePlayers(def.map(mir),att.map(mir));S.ball={x:14,y:152}}
+      if(VIEW==='corner')backRow();
+    }
+  });
+}
+applySetup('433');
+/* ---------- Render ---------- */
+const lineD=l=>l.type==='pass'?`M${l.pts[0].join(',')} L${l.pts[l.pts.length-1].join(',')}`:'M'+l.pts.map(p=>p.join(',')).join(' L');
+function styleLine(p,l){
+  p.setAttribute('stroke',l.col);p.setAttribute('stroke-width',l.type==='draw'?4:5);
+  p.setAttribute('stroke-dasharray',l.type==='run'?'14 12':'');
+  p.setAttribute('marker-end',l.type==='draw'?'':`url(#ah${l.col.slice(1)})`);
+}
+function render(){
+  syncRoster();
+  lineLayer.innerHTML='';coneLayer.innerHTML='';magLayer.innerHTML='';
+  S.lines.forEach((l,i)=>{
+    const g=el('g',{'data-line':i},lineLayer);
+    el('path',{d:lineD(l),stroke:'transparent','stroke-width':26,fill:'none'},g);
+    const p=el('path',{d:lineD(l),fill:'none','stroke-linecap':'round','stroke-linejoin':'round'},g);styleLine(p,l);
+  });
+  S.cones.forEach((c,i)=>{
+    const g=el('g',{class:'mag','data-cone':i,transform:`translate(${c.x} ${c.y})`},coneLayer);
+    el('circle',{r:24,fill:'transparent'},g);
+    el('path',{d:'M0,-13 L11,9 L-11,9 Z',fill:'#ff8a1f',stroke:'#7a3a00','stroke-width':2,'stroke-linejoin':'round'},g);
+  });
+  S.players.forEach(p=>{
+    if(VIEW==='blank'||(p.team==='a'&&!S.opp))return;
+    const g=el('g',{class:'mag','data-p':p.id,transform:`translate(${p.x} ${p.y})`},magLayer);
+    const tf=(UP+(VIEW==='corner'?(UP?' scale(.62)':' scale(.8)'):'')).trim(), inner=el('g',tf?{transform:tf}:{},g);
+    if(p.team==='h'){
+      const name=NAMES[hIdx(p)]||p.label, w=Math.max(48,name.length*10.5+24);
+      el('rect',{x:-w/2-8,y:-30,width:w+16,height:60,fill:'transparent'},inner);
+      el('rect',{x:-w/2,y:-17,width:w,height:40,rx:20,fill:'rgba(0,0,0,.35)'},inner);
+      if(p.id===swapSel)el('rect',{x:-w/2-8,y:-28,width:w+16,height:56,rx:28,fill:'rgba(255,255,255,.18)',stroke:'#fff','stroke-width':3,'stroke-dasharray':'7 5'},inner);
+      el('rect',{x:-w/2,y:-20,width:w,height:40,rx:20,fill:p.id==='h0'?'#7ee0ff':'#ffd23f',stroke:'#0c1522','stroke-width':3},inner);
+      const t=el('text',{'text-anchor':'middle','dominant-baseline':'central','font-size':18,fill:'#2a2100'},inner);t.textContent=name;
+    }else{
+      el('circle',{r:30,fill:'transparent'},inner);
+      el('circle',{r:R+3,fill:'rgba(0,0,0,.35)',cy:3},inner);
+      if(p.id===swapSel)el('circle',{r:R+9,fill:'rgba(255,255,255,.18)',stroke:'#fff','stroke-width':3,'stroke-dasharray':'7 5'},inner);
+      el('circle',{r:R,fill:p.id==='a0'?'#b06cff':'#e5484d',stroke:'#0c1522','stroke-width':3},inner);
+      const t=el('text',{'text-anchor':'middle','dominant-baseline':'central','font-size':p.label.length>2?13:20,fill:'#fff'},inner);t.textContent=p.label.slice(0,6);
+    }
+  });
+  if(VIEW!=='blank'){const b=el('g',{class:'mag','data-ball':1,transform:`translate(${S.ball.x} ${S.ball.y})`},magLayer);
+  el('circle',{r:26,fill:'transparent'},b);
+  el('circle',{r:8,fill:'#fff',stroke:'#0c1522','stroke-width':2.5},b);}
+  renderChips();
+}
+function keepUpright(t){ if(root.getAttribute('transform'))t.setAttribute('transform','rotate(-90)'); }
+new ResizeObserver(()=>render()).observe(pbox);
+
+/* ---------- History ---------- */
+const hist=[];
+const snap=()=>JSON.stringify({players:S.players,ball:S.ball,cones:S.cones,lines:S.lines,removed:S.removed});
+const push=()=>{hist.push(snap());if(hist.length>80)hist.shift()};
+const restore=s=>{const o=JSON.parse(s);Object.assign(S,{removed:[]},o)};
+document.getElementById('b-undo').onclick=()=>{if(hist.length){restore(hist.pop());render()}};
+
+/* ---------- Pointer interaction ---------- */
+let tool='move',col='#f4f7fb',drag=null,lastTap={id:null,t:0},swapSel=null;
+function swapPlayers(a,b){
+  push();const A={x:a.x,y:a.y},B={x:b.x,y:b.y},t0=performance.now(),ms=matchMedia('(prefers-reduced-motion: reduce)').matches?0:350;
+  (function step(now){const k=ms?Math.min(1,(now-t0)/ms):1,e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    a.x=A.x+(B.x-A.x)*e;a.y=A.y+(B.y-A.y)*e;b.x=B.x+(A.x-B.x)*e;b.y=B.y+(A.y-B.y)*e;render();
+    if(k<1)requestAnimationFrame(step)})(t0);
+}
+const pt=e=>{const q=svg.createSVGPoint();q.x=e.clientX;q.y=e.clientY;const p=q.matrixTransform(root.getScreenCTM().inverse());return[Math.round(p.x),Math.round(p.y)]};
+const clampX=x=>Math.max(-25,Math.min(L+25,x)), clampY=y=>Math.max(-25,Math.min(W+88,y));
+svg.addEventListener('pointerdown',e=>{
+  const [x,y]=pt(e);
+  const tgt=e.target.closest('[data-p],[data-ball],[data-cone],[data-line]');
+  if(tool==='erase'){
+    if(tgt&&tgt.dataset.line!=null){push();S.lines.splice(+tgt.dataset.line,1);render()}
+    else if(tgt&&tgt.dataset.cone!=null){push();S.cones.splice(+tgt.dataset.cone,1);render()}
+    else if(tgt&&tgt.dataset.p&&tgt.dataset.p[0]==='a'){push();S.removed.push(tgt.dataset.p);S.players=S.players.filter(p=>p.id!==tgt.dataset.p);render()}
+    else if(tgt&&tgt.dataset.p){const p=S.players.find(z=>z.id===tgt.dataset.p);if(p.y<W+30){push();const q=benchPos(S.players.filter(z=>z.team==='h'&&z.y>W+30).length);p.x=q[0];p.y=q[1];render()}}
+    return;
+  }
+  if(tool==='swap'){
+    if(tgt&&tgt.dataset.p){const id=tgt.dataset.p;
+      if(!swapSel||swapSel===id)swapSel=swapSel===id?null:id;
+      else{const a=S.players.find(p=>p.id===swapSel),b=S.players.find(p=>p.id===id);swapSel=null;if(a&&b){swapPlayers(a,b);return}}
+    }else swapSel=null;
+    render();return;
+  }
+  if(tool==='move'&&!tgt&&swapSel){swapSel=null;render();return}
+  if(tool==='move'&&tgt&&!tgt.dataset.line){
+    let obj; if(tgt.dataset.p){obj=S.players.find(p=>p.id===tgt.dataset.p);
+      const now=Date.now(); if(lastTap.id===obj.id&&now-lastTap.t<350){lastTap={};swapSel=null;render();rename(obj);return} lastTap={id:obj.id,t:now};}
+    else if(tgt.dataset.ball)obj=S.ball; else obj=S.cones[+tgt.dataset.cone];
+    push(); drag={obj,g:tgt,dx:obj.x-x,dy:obj.y-y,moved:false};
+    tgt.parentNode.appendChild(tgt); svg.setPointerCapture(e.pointerId); return;
+  }
+  if(tool!=='move'){
+    drag={line:{type:tool,col,pts:[[x,y]]}}; svg.setPointerCapture(e.pointerId);
+    styleLine(draft,drag.line); draft.setAttribute('d',`M${x},${y}`);
+  }
+});
+svg.addEventListener('pointermove',e=>{
+  if(!drag)return; const [x,y]=pt(e);
+  if(drag.obj){drag.obj.x=clampX(x+drag.dx);drag.obj.y=clampY(y+drag.dy);drag.moved=true;
+    drag.g.setAttribute('transform',`translate(${drag.obj.x} ${drag.obj.y})`)}
+  else{const ps=drag.line.pts,l=ps[ps.length-1];
+    if(Math.hypot(x-l[0],y-l[1])>6){ if(drag.line.type==='pass'&&ps.length>1)ps[1]=[x,y]; else ps.push([x,y]); draft.setAttribute('d',lineD(drag.line))}}
+});
+const end=()=>{
+  if(!drag)return;
+  if(drag.obj){
+    const id=drag.g.dataset.p;
+    if(!drag.moved){hist.pop();
+      if(id){
+        if(swapSel&&swapSel!==id){const a=S.players.find(p=>p.id===swapSel),b=S.players.find(p=>p.id===id);swapSel=null;drag=null;if(a&&b)swapPlayers(a,b);else render();return}
+        swapSel=swapSel===id?null:id;
+      }
+      render();
+    }else{swapSel=null;render()}
+  }
+  else{const ps=drag.line.pts; if(ps.length>1){const a=ps[0],b=ps[ps.length-1]; if(Math.hypot(b[0]-a[0],b[1]-a[1])>25){push();S.lines.push(drag.line)}}
+    draft.setAttribute('d','');render()}
+  drag=null;
+};
+svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
+
+/* ---------- Toolbar ---------- */
+document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{tool=b.dataset.tool;if(swapSel){swapSel=null;render()}
+  document.querySelectorAll('[data-tool]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+document.querySelectorAll('[data-col]').forEach(b=>b.onclick=()=>{col=b.dataset.col;
+  document.querySelectorAll('[data-col]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+document.getElementById('setup').onchange=e=>{if(!e.target.value)return;push();applySetup(e.target.value);e.target.value='';render()};
+document.getElementById('b-cone').onclick=()=>{push();const n=S.cones.length;S.cones.push({x:400+(n%6)*22,y:30+Math.floor(n/6)*30});render()};
+const oppB=document.getElementById('b-opp');
+function setView(v){VIEW=v;[benchR,bt].forEach(e=>e.setAttribute('visibility',v==='blank'?'hidden':'visible'));['setup','b-addopp','b-opp'].forEach(id=>document.getElementById(id).hidden=v==='blank');document.querySelectorAll('[data-view]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.view===v));layout()}
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{
+  if(VIEW===b.dataset.view)return;push();setView(b.dataset.view);S.lines=[];
+  if(VIEW==='blank'){S.cones=[];render();return}
+  applySetup(VIEW==='corner'?'pcA':'433');
+  if(VIEW==='corner')S.lines=[{type:'pass',col:'#f4f7fb',pts:[[900,398],[752,275]]},{type:'pass',col:'#ffd23f',pts:[[752,275],[888,262]]}];
+  render()});
+oppB.onclick=()=>{S.opp=!S.opp;oppB.setAttribute('aria-pressed',S.opp);render()};
+document.getElementById('b-clear').onclick=()=>{if(!S.lines.length)return;push();S.lines=[];render()};
+document.getElementById('b-reset').onclick=()=>confirmBox('Reset the board?','Puts both teams back in 4-3-3, brings back removed opposition and clears lines, cones and steps. Team names stay.','Reset',()=>{push();S.removed=[];setView('full');applySetup('433');S.cones=[];S.lines=[];frames=[];cur=-1;render()});
+/* ---------- Full screen (only shown where the browser allows it) ---------- */
+const fsB=document.getElementById('b-fs'),de=document.documentElement;
+const fsOn=()=>document.fullscreenElement||document.webkitFullscreenElement;
+if(document.fullscreenEnabled||document.webkitFullscreenEnabled){fsB.hidden=false;
+  fsB.onclick=()=>{try{const r=fsOn()?(document.exitFullscreen||document.webkitExitFullscreen).call(document):(de.requestFullscreen||de.webkitRequestFullscreen).call(de);if(r&&r.catch)r.catch(()=>{fsB.hidden=true})}catch(e){fsB.hidden=true}};
+  const upd=()=>{fsB.textContent=fsOn()?'Exit full screen':'Full screen'};
+  document.addEventListener('fullscreenchange',upd);document.addEventListener('webkitfullscreenchange',upd);
+}
+
+/* ---------- Steps (frames) ---------- */
+let frames=[],cur=-1,playing=false;
+const chips=document.getElementById('chips');
+function renderChips(){
+  autosave();
+  chips.innerHTML='';
+  frames.forEach((f,i)=>{const b=document.createElement('button');b.className='chip';b.textContent=i+1;
+    b.setAttribute('aria-pressed',i===cur);b.onclick=()=>{if(playing)return;push();restore(f);cur=i;render()};chips.appendChild(b)});
+  if(!frames.length){const s=document.createElement('span');s.className='empty';s.textContent='No steps yet';chips.appendChild(s)}
+}
+document.getElementById('b-addf').onclick=()=>{frames.splice(cur+1,0,snap());cur++;renderChips()};
+document.getElementById('b-delf').onclick=()=>{if(cur<0)return;frames.splice(cur,1);cur=Math.min(cur,frames.length-1);renderChips()};
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+function tween(a,b,ms){
+  return new Promise(res=>{
+    const A=JSON.parse(a),B=JSON.parse(b),t0=performance.now();
+    const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    S.lines=B.lines;
+    (function step(now){
+      const k=reduce?1:ease(Math.min(1,(now-t0)/ms)), mix=(p,q)=>({x:p.x+(q.x-p.x)*k,y:p.y+(q.y-p.y)*k});
+      S.players=B.players.map(q=>{const p=A.players.find(z=>z.id===q.id)||q;return{...q,...mix(p,q)}});
+      S.ball=mix(A.ball,B.ball);
+      S.cones=B.cones.map((q,i)=>A.cones[i]?mix(A.cones[i],q):q);
+      render(); k<1?requestAnimationFrame(step):res();
+    })(t0);
+  });
+}
+const playB=document.getElementById('b-play');
+playB.onclick=async()=>{
+  if(playing){playing=false;return}
+  if(frames.length<2){confirmBox('Add at least two steps','Arrange the board, tap + Step, move players to the next position and tap + Step again.','OK');return}
+  playing=true;playB.textContent='■ Stop';
+  push();restore(frames[0]);cur=0;render();
+  for(let i=1;i<frames.length&&playing;i++){await new Promise(r=>setTimeout(r,450));if(!playing)break;await tween(frames[i-1],frames[i],1100);cur=i;renderChips()}
+  playing=false;playB.textContent='▶ Play';
+};
+
+/* ---------- Sheets ---------- */
+const sheet=document.getElementById('sheet'),card=document.getElementById('card');
+function openSheet(html){card.innerHTML=html;sheet.hidden=false;const i=card.querySelector('input');if(i){i.focus();i.select()}}
+const closeSheet=()=>{sheet.hidden=true};
+sheet.addEventListener('pointerdown',e=>{if(e.target===sheet)closeSheet()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function confirmBox(title,msg,ok,fn){
+  openSheet(`<h2>${esc(title)}</h2><p class="empty" style="margin:0">${esc(msg)}</p><div class="row">${fn?'<button class="ghost" id="x-no">Cancel</button>':''}<button class="primary" id="x-ok">${esc(ok)}</button></div>`);
+  document.getElementById('x-ok').onclick=()=>{closeSheet();fn&&fn()};
+  const n=document.getElementById('x-no');if(n)n.onclick=closeSheet;
+}
+function ask(title,val,ok,fn){
+  openSheet(`<h2>${esc(title)}</h2><form id="x-f" style="display:contents"><input id="x-in" maxlength="24" value="${esc(val)}" autocomplete="off"><div class="row"><button type="button" class="ghost" id="x-no">Cancel</button><button class="primary">${esc(ok)}</button></div></form>`);
+  document.getElementById('x-no').onclick=closeSheet;
+  document.getElementById('x-f').onsubmit=e=>{e.preventDefault();const v=document.getElementById('x-in').value.trim();closeSheet();fn(v)};
+}
+function rename(p){
+  if(p.team==='h'){const i=hIdx(p);ask('Change name',NAMES[i],'Save',v=>{if(!v)return;NAMES[i]=v.slice(0,14);store.set('hb-names',NAMES);render();renderSquad()})}
+  else ask('Rename opposition player',p.label,'Save',v=>{push();p.label=v||p.label;render()});
+}
+function teamSheet(list){
+  list=list||NAMES.slice();
+  openSheet(`<h2>Team names</h2><p class="empty" style="margin:0">First 11 start on the field in formation order (first is the keeper). Extras go on the bench.</p><div class="plays">${list.map((n,i)=>`<div class="play" style="padding:4px"><small class="empty" style="width:22px;text-align:right">${i?i+1:'GK'}</small><input id="r-${i}" maxlength="14" value="${esc(n)}" style="flex:1;min-width:0;padding:7px"><button class="ghost" data-x="${i}" aria-label="Remove ${esc(n)}">✕</button></div>`).join('')}</div><div class="row"><button class="ghost" id="r-add">+ Add player</button><button class="ghost" id="x-no">Cancel</button><button class="primary" id="r-ok">Save</button></div>`);
+  const read=()=>list.map((_,i)=>document.getElementById('r-'+i).value.trim());
+  document.getElementById('x-no').onclick=closeSheet;
+  document.getElementById('r-add').onclick=()=>{if(list.length<18){const l=read();l.push('');teamSheet(l);const n=document.getElementById('r-'+(l.length-1));n&&n.focus()}};
+  card.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{const l=read();if(l.length>1){l.splice(+b.dataset.x,1);teamSheet(l)}});
+  document.getElementById('r-ok').onclick=()=>{push();NAMES=read().map((v,i)=>v||'Player '+(i+1));store.set('hb-names',NAMES);
+    closeSheet();render()};
+}
+const sq=document.getElementById('squad'),sqList=document.getElementById('sq-list'),teamB=document.getElementById('b-team');
+function setSquad(open){sq.classList.toggle('closed',!open);teamB.setAttribute('aria-pressed',open);store.set('hb-squad',open)}
+const sqPref=store.get('hb-squad');setSquad(sqPref==null?innerWidth>760:sqPref);
+teamB.onclick=()=>setSquad(sq.classList.contains('closed'));
+document.getElementById('sq-close').onclick=()=>setSquad(false);
+function saveNames(){store.set('hb-names',NAMES)}
+function renderSquad(){
+  sqList.innerHTML='';
+  NAMES.forEach((n,i)=>{
+    if(i===11){const d=document.createElement('div');d.className='sq-div';d.textContent='Bench';sqList.appendChild(d)}
+    const r=document.createElement('div');r.className='sq-row';
+    r.innerHTML=`<b>${i?i+1:'GK'}</b><input id="sq-${i}" maxlength="14" autocomplete="off" aria-label="Player ${i+1} name"><button aria-label="Remove player">✕</button>`;
+    const inp=r.querySelector('input');inp.value=n;inp.placeholder='Player '+(i+1);
+    inp.addEventListener('input',()=>{NAMES[i]=inp.value.trim()||'Player '+(i+1);saveNames();render()});
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter'){const nx=document.getElementById('sq-'+(i+1));nx?nx.focus():inp.blur()}});
+    r.querySelector('button').onclick=()=>{if(NAMES.length<2)return;push();NAMES.splice(i,1);saveNames();renderSquad();render()};
+    sqList.appendChild(r);
+  });
+  document.getElementById('sq-count').textContent=NAMES.length+' players';
+}
+document.getElementById('sq-add').onclick=()=>{if(NAMES.length>=18)return;NAMES.push('Player '+(NAMES.length+1));saveNames();renderSquad();render();const n=document.getElementById('sq-'+(NAMES.length-1));n.focus();n.select()};
+renderSquad();
+document.getElementById('b-addopp').onclick=()=>{
+  if(!S.removed.length){confirmBox('All 11 are on','Use Erase and tap a red player to take them off.','OK');return}
+  push();const id=S.removed.pop(),i=+id.slice(1);S.players.push({id,team:'a',label:i?String(i+1):'GK',x:690+((i%3)-1)*40,y:275+((i%4)-1.5)*40});
+  if(!S.opp){S.opp=true;oppB.setAttribute('aria-pressed',true)}render()};
+
+/* ---------- Saved plays & roster ---------- */
+document.getElementById('b-save').onclick=()=>ask('Save this play','Play '+((store.get('hb-plays')||[]).length+1),'Save',name=>{
+  const plays=store.get('hb-plays')||[];
+  plays.unshift({name:name||'Untitled play',board:snap(),frames,opp:S.opp,view:VIEW});
+  store.set('hb-plays',plays);confirmBox('Saved',`“${name}” is saved in Open.`,'OK');
+});
+document.getElementById('b-open').onclick=function list(){
+  const plays=store.get('hb-plays')||[];
+  openSheet(`<h2>Saved plays</h2><div class="plays">${plays.length?plays.map((p,i)=>`<div class="play"><span>${esc(p.name)}</span><small class="empty">${p.frames.length} steps</small><button class="primary" data-o="${i}">Open</button><button class="ghost" data-d="${i}" aria-label="Delete ${esc(p.name)}">✕</button></div>`).join(''):'<p class="empty">No saved plays yet. Set up the board and tap Save.</p>'}</div><div class="row"><button class="ghost" id="x-no">Close</button></div>`);
+  document.getElementById('x-no').onclick=closeSheet;
+  card.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const p=plays[+b.dataset.o];push();restore(p.board);frames=p.frames||[];cur=frames.length?0:-1;S.opp=p.opp!==false;oppB.setAttribute('aria-pressed',S.opp);setView(p.view||'full');closeSheet();render()});
+  card.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{plays.splice(+b.dataset.d,1);store.set('hb-plays',plays);list()});
+};
+
+/* ---------- Boards: each keeps its own names, positions, lines, steps; autosaved ---------- */
+var BOARDS=[],CUR=0,saveT=null;
+const boardsEl=document.getElementById('boards');
+function saveBoard(){
+  if(!BOARDS[CUR])return;
+  Object.assign(BOARDS[CUR],{state:snap(),names:NAMES.slice(),view:VIEW,opp:S.opp,frames});
+  store.set('hb-boards',BOARDS);store.set('hb-cur',CUR);
+}
+function autosave(){if(!BOARDS||!BOARDS.length)return;clearTimeout(saveT);saveT=setTimeout(saveBoard,400)}
+function loadBoard(i){
+  CUR=i;const b=BOARDS[i];
+  if(b.state)restore(b.state);
+  if(b.names)NAMES=b.names.slice();saveNames();
+  S.opp=b.opp!==false;oppB.setAttribute('aria-pressed',S.opp);
+  frames=b.frames||[];cur=-1;hist.length=0;swapSel=null;
+  setView(b.view||'full');renderSquad();render();renderBoards();store.set('hb-cur',CUR);
+}
+function renderBoards(){
+  boardsEl.innerHTML='';
+  BOARDS.forEach((b,i)=>{const c=document.createElement('button');c.className='chip';c.textContent=b.name;c.setAttribute('aria-pressed',i===CUR);
+    c.title='Tap to open · double-tap to rename';
+    c.onclick=()=>{if(i===CUR)return;saveBoard();loadBoard(i)};
+    c.ondblclick=()=>ask('Rename board',b.name,'Save',v=>{if(v){b.name=v;saveBoard();renderBoards()}});
+    boardsEl.appendChild(c)});
+}
+document.getElementById('b-newb').onclick=()=>{
+  saveBoard();const copy=JSON.parse(JSON.stringify(BOARDS[CUR]));
+  let n=BOARDS.length+1;while(BOARDS.some(b=>b.name==='Board '+n))n++;copy.name='Board '+n;
+  BOARDS.push(copy);CUR=BOARDS.length-1;saveBoard();renderBoards();
+  confirmBox('New board made',`${copy.name} is a copy of your board with the same names and positions. Changes here won't touch the original.`,'OK');
+};
+document.getElementById('b-delb').onclick=()=>{
+  if(BOARDS.length<2){confirmBox('Only one board','Make a new board first. You always keep at least one.','OK');return}
+  confirmBox(`Delete ${BOARDS[CUR].name}?`,'This removes the board and everything on it from this device.','Delete',()=>{BOARDS.splice(CUR,1);store.set('hb-boards',BOARDS);loadBoard(Math.max(0,CUR-1))});
+};
+
+/* ---------- Sample play so the board opens ready to use ---------- */
+(function sample(){
+  S.lines=[
+    {type:'pass',col:'#f4f7fb',pts:[[395,275],[330,140]]},
+    {type:'run',col:'#ffd23f',pts:[[400,100],[500,90],[580,95],[660,110],[720,150]]},
+    {type:'pass',col:'#f4f7fb',pts:[[330,140],[720,150]]},
+  ];
+  BOARDS=store.get('hb-boards')||[];CUR=Math.min(store.get('hb-cur')||0,Math.max(0,BOARDS.length-1));
+  if(BOARDS.length)loadBoard(CUR);
+  else{BOARDS=[{name:'Board 1'}];saveBoard();layout();render();renderBoards()}
+})();
+</script>
+
+<script>
+/* ---------- Sync across devices (Google Drive via Apps Script) ---------- */
+(function(){
+  const APP='hockey', KEYS=['hb-boards','hb-names','hb-plays'], META='hb-sync';
+  const meta=()=>{try{return JSON.parse(localStorage.getItem(META))||{}}catch(e){return{}}};
+  const setMeta=m=>{try{localStorage.setItem(META,JSON.stringify(m))}catch(e){}};
+  // One-tap setup link: hockey.html#sync=<url>&key=<key>
+  if(location.hash.includes('sync=')){
+    const p=new URLSearchParams(location.hash.slice(1)),m=meta();
+    m.url=p.get('sync');m.key=p.get('key');m.updated=0;setMeta(m);
+    history.replaceState(null,'',location.pathname);
+  }
+  const pill=document.createElement('button');pill.id='syncpill';
+  document.getElementById('top').appendChild(pill);
+  const show=(s,t)=>{pill.dataset.s=s;pill.textContent=t};
+  const on=()=>{const m=meta();return m.url&&m.key};
+  show(on()?'busy':'off',on()?'Syncing…':'Sync off');
+
+  // Mark local changes so they get pushed
+  let pushT=null, applying=false;
+  const origSet=store.set;
+  store.set=function(k,v){origSet(k,v);if(!applying&&KEYS.includes(k)){const m=meta();m.updated=Date.now();setMeta(m);schedule()}};
+  function schedule(){if(!on())return;clearTimeout(pushT);show('busy','Saving…');pushT=setTimeout(push,1500)}
+  const bundle=()=>{const d={};KEYS.forEach(k=>{d[k]=localStorage.getItem(k)});return d};
+
+  function apply(r){
+    applying=true;
+    Object.entries(r.data||{}).forEach(([k,v])=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}});
+    applying=false;
+    const m=meta();m.updated=r.updated;setMeta(m);
+    location.reload();
+  }
+  async function push(){
+    const m=meta();if(!on())return;
+    try{
+      const res=await fetch(m.url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({k:m.key,app:APP,updated:m.updated||Date.now(),data:bundle()})});
+      const r=await res.json();
+      if(!r.ok)throw new Error(r.error);
+      if(r.stale){apply(r);return}
+      show('ok','Synced');
+    }catch(e){show('err',navigator.onLine?'Sync error':'Offline')}
+  }
+  async function pull(){
+    const m=meta();if(!on())return;
+    try{
+      const res=await fetch(m.url+(m.url.includes('?')?'&':'?')+'app='+APP+'&k='+encodeURIComponent(m.key));
+      const r=await res.json();
+      if(!r.ok)throw new Error(r.error);
+      if(r.data&&r.updated>(m.updated||0)){apply(r);return}
+      if((m.updated||0)>r.updated||!r.data){await push();return}
+      show('ok','Synced');
+    }catch(e){show('err',e.message==='bad key'?'Wrong key':navigator.onLine?'Sync error':'Offline')}
+  }
+  pull();
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pull()});
+  addEventListener('online',pull);
+  setInterval(()=>{if(document.visibilityState==='visible'&&!document.querySelector('.sheet:not([hidden])'))pull()},60000);
+
+  pill.onclick=()=>{
+    const m=meta();
+    openSheet(`<h2>Sync</h2><p class="empty" style="margin:0">Keeps your boards, squad and plays the same on every device. Paste the link and key from your setup once per device.</p>
+      <input id="sy-url" placeholder="Sync link (https://script.google.com/…)" value="${esc(m.url||'')}">
+      <input id="sy-key" placeholder="Key" value="${esc(m.key||'')}">
+      <div class="row"><button class="ghost" id="x-no">Cancel</button><button class="primary" id="sy-ok">Save &amp; sync</button></div>`);
+    document.getElementById('x-no').onclick=closeSheet;
+    document.getElementById('sy-ok').onclick=()=>{const n=meta();n.url=document.getElementById('sy-url').value.trim();n.key=document.getElementById('sy-key').value.trim();setMeta(n);closeSheet();show('busy','Syncing…');pull()};
+  };
+})();
+
+/* ---------- Offline support ---------- */
+if('serviceWorker' in navigator)navigator.serviceWorker.register('hockey-sw.js',{scope:'./hockey'}).catch(()=>{});
+</script>
+</body>
+</html>
