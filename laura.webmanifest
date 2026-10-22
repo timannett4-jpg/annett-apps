@@ -1,0 +1,23 @@
+{
+  "name": "Laura's Desk",
+  "short_name": "Laura's Desk",
+  "id": "./laura.html",
+  "start_url": "./laura.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7efe9",
+  "theme_color": "#f7efe9",
+  "icons": [
+    {
+      "src": "laura-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "laura-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "Annett Europe",
+  "short_name": "Europe",
+  "id": "./europe.html",
+  "start_url": "./europe.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1a2233",
+  "theme_color": "#1a2233",
+  "icons": [
+    {
+      "src": "europe-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "europe-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
