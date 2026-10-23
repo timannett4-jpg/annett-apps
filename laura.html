@@ -808,6 +808,18 @@ body[data-look="tiffany"] .focusbtn{background:linear-gradient(120deg, var(--acc
 .duechips .chip{min-height:32px; padding:0 12px; font-size:13px}
 @media (max-width:760px){ .duebtn b{display:none} .duebtn{padding:0 14px} .quick{flex-wrap:wrap} .quick input{flex:1 1 100%; min-width:0} .quick .btn.primary{flex:1} }
 body[data-look="swiss"] .duebtn{border-radius:0; background:transparent; border-color:var(--fg); color:var(--fg)}
+.recbtn{display:inline-flex; align-items:center; gap:7px}
+.recbtn i{width:10px; height:10px; border-radius:50%; background:#e5484d; box-shadow:0 0 0 2px rgba(255,255,255,.7)}
+.recbtn.live{background:#e5484d!important; color:#fff!important} .recbtn.live i{background:#fff; animation:pulse 1.2s infinite}
+form.mbox.mr-wide{width:min(860px, 96vw); max-height:92vh; overflow-y:auto}
+.mr-ctrl{display:flex; align-items:center; gap:16px; padding:12px 14px; border-radius:var(--r-sm); background:var(--surface-2); border:1px solid var(--line)}
+.mr-ctrl.live{border:2px solid #e5484d; background:color-mix(in srgb, #e5484d 8%, var(--surface-solid))}
+.mr-big{width:64px; height:64px; flex:0 0 64px; border-radius:50%; border:0; background:#e5484d; color:#fff; font-size:26px; box-shadow:0 6px 18px rgba(229,72,77,.35)}
+.mr-ctrl.live .mr-big{background:#1F1620}
+.mr-out{display:flex; flex-direction:column; gap:10px; border-top:2px solid var(--line); padding-top:12px; margin-top:6px}
+.mr-out h3, .mr-out h4{margin:6px 0 0}
+@media (max-width:760px){ .recbtn{font-size:0; padding:0 12px} .recbtn i{width:12px; height:12px} }
+body[data-look="swiss"] .mr-big{border-radius:0} body[data-look="swiss"] .recbtn{background:transparent; color:var(--fg); border:1px solid var(--fg)}
 </style>
 
 <div class="sky" aria-hidden="true"><span class="glint"></span></div>
@@ -834,6 +846,7 @@ body[data-look="swiss"] .duebtn{border-radius:0; background:transparent; border-
       <div class="today-line">
         <div class="lane" role="group" aria-label="List"><button type="button" data-lane="work">Work</button><button type="button" data-lane="home">Home</button></div>
         <button type="button" class="focusbtn" id="search-btn" aria-label="Search everything" title="Search everything"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" style="vertical-align:-3px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg> Search</button>
+        <button type="button" class="focusbtn recbtn" id="rec-btn" aria-label="Record a meeting" title="Record a meeting"><i></i> Record</button>
         <button type="button" class="focusbtn" id="focus-btn">Focus</button>
         <span class="dot" id="dot" title="Connection"></span><span id="today-label"></span>
       </div>
@@ -2494,6 +2507,7 @@ body[data-look="swiss"] .duebtn{border-radius:0; background:transparent; border-
 
   /* record kinds: fields [key, label, type, opts] ; types text|date|select|area|num|checks */
   const RK = {
+    meetings: { coll: 'meetings', noun: 'meeting', fields: [['title', 'Title', 'text']], dates: () => [] },
     invest: { coll: 'investigations', noun: 'investigation', priv: true, status: 'status', closedIf: ['Closed'],
       fields: [['ref', 'Case ref or initials', 'text', { req: 1 }], ['raised', 'Date raised', 'date'], ['status', 'Stage', 'select', ['Intake', 'Plan', 'Interviews', 'Respondent', 'Findings', 'Outcome', 'Close', 'Closed']], ['nextDate', 'Next step date', 'date'], ['nextStep', 'Next step', 'text', { full: 1 }], ['allegations', 'Allegations (one per line)', 'area', { full: 1 }], ['witnesses', 'Witnesses and interview times (one per line, e.g. “AB · Tue 4 Nov 10am”)', 'area', { full: 1 }], ['evidence', 'Evidence log (one item per line)', 'area', { full: 1 }], ['findings', 'Findings notes', 'area', { full: 1 }], ['items', 'Workflow steps (one per line: step | owner | due)', 'checks', { full: 1 }]],
       dates: r => (r.nextDate ? [[r.nextDate, 'Investigation ' + r.ref + ': ' + (r.nextStep || 'next step')]] : []).concat(chkDates(r, 'Investigation ' + r.ref)),
@@ -3744,11 +3758,105 @@ body[data-look="swiss"] .duebtn{border-radius:0; background:transparent; border-
     return s;
   }
 
+  /* ---------- Meeting recorder: live transcript (no audio kept) → write-up + actions ---------- */
+  const MR = { on: false, rec: null, since: 0, interim: '', tick: null, lock: null, err: '', title: '', kind: 'Meeting', who: '', text: '', out: null, busy: false, keep: false };
+  try { const saved = JSON.parse(ls.get('mr:live') || 'null'); if (saved && saved.text) Object.assign(MR, { title: saved.title || '', kind: saved.kind || 'Meeting', who: saved.who || '', text: saved.text }); } catch (e) {}
+  const mrSave = () => ls.set('mr:live', JSON.stringify({ title: MR.title, kind: MR.kind, who: MR.who, text: MR.text }));
+  function currentEvent(){ const t = todayStr(); const n = new Date().getHours() * 60 + new Date().getMinutes(); return R.data.events.find(e => e.date === t && toMin(e.start) != null && toMin(e.start) - 10 <= n && (toMin(e.end) || toMin(e.start) + 60) >= n); }
+  function openRecorder(){
+    if (!MR.text && !MR.title){ const ev = currentEvent(); if (ev){ MR.title = ev.title; MR.who = ev.who || ''; MR.kind = EV_KINDS.includes(ev.kind) ? ev.kind : 'Meeting'; } }
+    modal('<div id="mr-box"></div><button type="button" data-cancel hidden></button>', async () => false);
+    const m = $('#modal'); m.querySelector('form').classList.add('mr-wide');
+    mrRender();
+  }
+  function mrRender(){
+    const box = $('#mr-box'); if (!box) return; const has = !!SR_(); const mins = MR.on ? Math.floor((Date.now() - MR.since) / 60000) : 0; const o = MR.out;
+    box.innerHTML = '<div class="row"><h2 style="flex:1;margin:0">Record a meeting</h2><button type="button" class="btn small" data-mr="close">' + (MR.on ? 'Hide (keeps listening)' : 'Close') + '</button></div>' +
+      '<p class="muted small">Turns what’s said into text as the meeting goes, then Claude writes it up with action items. Only words are kept: no audio is recorded or saved. Let people know you’re taking notes this way.</p>' +
+      '<div class="mgrid"><label class="field"><span>Meeting</span><input id="mr-title" value="' + esc(MR.title) + '" placeholder="e.g. Roster consult with Line 3 delegates"></label><label class="field"><span>Type</span><select id="mr-kind">' + EV_KINDS.map(k => '<option' + (MR.kind === k ? ' selected' : '') + '>' + esc(k) + '</option>').join('') + '</select></label>' +
+      '<label class="field full"><span>Who’s there (initials and roles)</span><input id="mr-who" value="' + esc(MR.who) + '" placeholder="e.g. L.A. (HR), P.Q. (AMWU delegate), S.M. (Site Manager)"></label></div>' +
+      '<div class="mr-ctrl' + (MR.on ? ' live' : '') + '">' + (has ? '<button type="button" class="mr-big" data-mr="toggle" aria-label="' + (MR.on ? 'Stop' : 'Start') + '">' + (MR.on ? '■' : '●') + '</button>' : '') +
+        '<div><b id="mr-st">' + (MR.on ? 'Listening · ' + mins + ' min' : MR.err ? esc(MR.err) : MR.text ? 'Paused' : has ? 'Tap the red button to start' : 'Live listening isn’t available in this browser') + '</b><div class="muted small" id="mr-int">' + esc(MR.interim) + '</div></div></div>' +
+      (!has ? '<p class="note small">Tap in the transcript box and use the microphone key on the iPad keyboard to dictate instead.</p>' : '') +
+      '<div class="row"><button type="button" class="chip on" data-mr="mark" data-v="ACTION">+ Action</button><button type="button" class="chip on" data-mr="mark" data-v="DECISION">+ Decision</button><button type="button" class="chip" data-mr="mark" data-v="NEW TOPIC">Next topic</button></div>' +
+      '<label class="field"><span>Transcript (edit freely)</span><textarea id="mr-ta" class="bigta" style="min-height:180px" placeholder="Words appear here as people speak…">' + esc(MR.text) + '</textarea></label>' +
+      '<div class="row"><button type="button" class="btn small" data-mr="clear"' + (MR.text ? '' : ' disabled') + '>Clear</button><span class="grow"></span>' + (state.sample ? '<button type="button" class="btn primary" data-mr="write"' + (MR.text && !MR.busy ? '' : ' disabled') + '>' + (MR.busy ? 'Writing it up…' : o ? 'Write it up again' : 'Write it up') + '</button>' : '<button type="button" class="btn primary" data-mr="later"' + (MR.text ? '' : ' disabled') + '>Save for write-up</button>') + '</div>' +
+      (state.sample ? '' : '<p class="muted small">In the app, Claude can’t write it up on the spot. Save it here; it syncs, and you tap “Write it up” in Writing tools › Meeting notes when you next open Laura’s Desk in Claude.</p>') +
+      (o ? '<div class="mr-out">' +
+        '<h3>' + esc(o.title) + '</h3><div class="answer">' + esc(o.summary) + '</div>' +
+        (o.decisions.length ? '<h4>Decisions</h4><ul class="small">' + o.decisions.map(d => '<li>' + esc(d) + '</li>').join('') + '</ul>' : '') +
+        '<h4>Action items</h4>' + (o.actions.length ? '<ul class="steps acts">' + o.actions.map((a, i) => '<li class="step' + (a.sel ? '' : ' off') + '"><button type="button" class="sbox' + (a.sel ? ' on' : '') + '" data-mr="sel" data-i="' + i + '" aria-label="Select"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button><span>' + esc(a.title) + (a.who ? ' <span class="who">· ' + esc(a.who) + '</span>' : '') + '</span>' + (a.due ? '<span class="pill">' + esc(fmtDay(a.due)) + '</span>' : '') + (a.added ? '<span class="pill cat">Added</span>' : '') + '</li>').join('') + '</ul><div class="row"><span class="muted small">Ticked actions become tasks. Ones owned by someone else go in as “waiting on”, with your 48-hour follow-up.</span><span class="grow"></span><button type="button" class="btn primary small" data-mr="tasks">Add ticked as tasks</button></div>' : '<p class="muted">No actions came out of this one.</p>') +
+        (o.followups.length ? '<h4>Follow-ups and open questions</h4><ul class="small">' + o.followups.map(d => '<li>' + esc(d) + '</li>').join('') + '</ul>' : '') +
+        '<details class="ex"><summary>Full minutes</summary><textarea id="mr-min" class="fn" style="min-height:260px">' + esc(o.minutes) + '</textarea></details>' +
+        '<label class="row small" style="gap:8px"><input type="checkbox" id="mr-keep"' + (MR.keep ? ' checked' : '') + '> Keep the transcript with the saved notes</label>' +
+        '<div class="row"><button type="button" class="btn small" data-mr="copy">Copy write-up</button><button type="button" class="btn small" data-mr="docx"' + (state.downloads ? '' : ' disabled') + '>Word</button><span class="grow"></span><button type="button" class="btn primary" data-mr="save">Save to Meeting notes</button></div></div>' : '');
+  }
+  function mrAppend(t){ MR.text = ((MR.text || '').replace(/\s+$/, '') + (MR.text ? ' ' : '') + t); const ta = $('#mr-ta'); if (ta){ ta.value = MR.text; ta.scrollTop = ta.scrollHeight; } mrSave(); const w = $('[data-mr="write"]'); if (w && state.sample && !MR.busy) w.disabled = false; const lt = $('[data-mr="later"]'); if (lt) lt.disabled = false; const c = $('[data-mr="clear"]'); if (c) c.disabled = false; }
+  function mrStatus(){ const el = $('#mr-st'); if (el && MR.on) el.textContent = 'Listening · ' + Math.floor((Date.now() - MR.since) / 60000) + ' min'; const i = $('#mr-int'); if (i) i.textContent = MR.interim; const hb2 = $('#rec-btn'); if (hb2) hb2.classList.toggle('live', MR.on); }
+  function mrStart(){
+    const SR = SR_(); if (!SR) return; if (R.scribe && R.scribe.on) scribeStop();
+    MR.on = true; MR.err = ''; if (!MR.since || !MR.text) MR.since = Date.now();
+    const go = () => { if (!MR.on) return; let rec; try { rec = new SR(); } catch (e) { MR.on = false; MR.err = 'Couldn’t start listening.'; mrRender(); return; }
+      MR.rec = rec; rec.lang = 'en-AU'; rec.continuous = true; rec.interimResults = true;
+      rec.onresult = e => { let interim = ''; for (let i = e.resultIndex; i < e.results.length; i++){ const r = e.results[i]; if (r.isFinal){ const t = r[0].transcript.trim(); if (t) mrAppend(t.charAt(0).toUpperCase() + t.slice(1) + (/[.?!]$/.test(t) ? '' : '.')); } else interim += r[0].transcript; } MR.interim = interim; mrStatus(); };
+      rec.onerror = e => { const c = e && e.error; if (['not-allowed', 'service-not-allowed', 'audio-capture'].includes(c)){ MR.on = false; MR.err = 'Microphone access is off. Allow it for this page, or use the keyboard mic key in the transcript box.'; mrRender(); mrStatus(); } };
+      rec.onend = () => { MR.interim = ''; if (MR.on) setTimeout(go, 250); };
+      try { rec.start(); } catch (e) { setTimeout(go, 800); } };
+    go(); clearInterval(MR.tick); MR.tick = setInterval(mrStatus, 15000);
+    try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(l => { MR.lock = l; }).catch(() => {}); } catch (e) {}
+    mrRender(); mrStatus();
+  }
+  function mrStop(){ MR.on = false; MR.interim = ''; clearInterval(MR.tick); try { MR.rec && MR.rec.stop(); } catch (e) {} MR.rec = null; try { MR.lock && MR.lock.release(); } catch (e) {} MR.lock = null; mrRender(); mrStatus(); }
+  async function mrWrite(){
+    if (!state.sample || !MR.text.trim()) return; if (MR.on) mrStop();
+    MR.busy = true; mrRender(); const t = todayStr();
+    try {
+      const r = await state.sample.json('Today is ' + DAYS[fromYmd(t).getDay()] + ' ' + t + ' (Australia/Melbourne). Laura, HR Advisor at Lactalis Australia’s dairy site in Bendigo, captured this live speech-to-text transcript of a meeting. It has no speaker names and contains recognition errors, filler and crosstalk: interpret sensibly, but never invent facts, names, numbers, dates or commitments. [ACTION], [DECISION] and [NEW TOPIC] are her markers. Refer to people by initials or role where the transcript allows.\n\nReply with only JSON: {"title":"short meeting title","summary":"3–5 sentence summary","decisions":["…"],"actions":[{"title":"short imperative action","who":"owner (initials/role) or \\"\\" if Laura’s or unclear","due":"YYYY-MM-DD or \\"\\" (resolve relative dates against today)"}],"followups":["open questions or things to follow up"],"minutes":"formal minutes as plain text: Meeting, Date, Attendees, then numbered discussion items in neutral third-person past tense with outcomes, then Actions (action | owner | due)"}\n\nMEETING: ' + (MR.title || '(untitled)') + ' (' + MR.kind + ')\nATTENDEES: ' + (MR.who || 'not listed') + '\n\nTRANSCRIPT:\n' + MR.text.slice(0, 150000), { modelTier: 'default' });
+      if (!r || typeof r !== 'object') throw { code: 'upstream_error' };
+      MR.out = { title: String(r.title || MR.title || 'Meeting').slice(0, 160), summary: String(r.summary || '').slice(0, 2000), decisions: (Array.isArray(r.decisions) ? r.decisions : []).map(x => String(x).slice(0, 400)).slice(0, 20),
+        actions: (Array.isArray(r.actions) ? r.actions : []).slice(0, 30).map(x => ({ title: String(x.title || '').slice(0, 200), who: String(x.who || '').slice(0, 60), due: isYmd(x.due) ? x.due : '', sel: true, added: false })).filter(x => x.title),
+        followups: (Array.isArray(r.followups) ? r.followups : []).map(x => String(x).slice(0, 400)).slice(0, 15), minutes: String(r.minutes || '').slice(0, 30000) };
+      if (!MR.title) MR.title = MR.out.title;
+    } catch (e) { MR.err = sampleErr(e); }
+    finally { MR.busy = false; mrRender(); setTimeout(() => { const el = $('.mr-out'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); }
+  }
+  const mrWriteup = o => [o.title, fmtDay(todayStr()), MR.who ? 'Attendees: ' + MR.who : '', '', 'SUMMARY', o.summary, ''].concat(o.decisions.length ? ['DECISIONS'].concat(o.decisions.map(d => '- ' + d)).concat(['']) : []).concat(['ACTIONS'].concat(o.actions.length ? o.actions.map(a => '- ' + a.title + (a.who ? ' (' + a.who + ')' : '') + (a.due ? ' — due ' + fmtDay(a.due) : '')) : ['- None'])).concat(o.followups.length ? ['', 'FOLLOW-UPS'].concat(o.followups.map(d => '- ' + d)) : []).concat(['', 'MINUTES', ($('#mr-min') || {}).value || o.minutes]).filter(x => x !== null).join('\n');
+  async function mrClick(b){
+    const a = b.dataset.mr;
+    MR.title = ($('#mr-title') || {}).value != null ? $('#mr-title').value : MR.title; MR.kind = ($('#mr-kind') || {}).value || MR.kind; MR.who = ($('#mr-who') || {}).value != null ? $('#mr-who').value : MR.who; const kp = $('#mr-keep'); if (kp) MR.keep = kp.checked; mrSave();
+    if (a === 'close'){ closeModal(); mrStatus(); return; }
+    if (a === 'toggle') return MR.on ? mrStop() : mrStart();
+    if (a === 'mark') return mrAppend('\n[' + b.dataset.v + ']');
+    if (a === 'clear'){ if (b.dataset.sure !== '1'){ b.dataset.sure = '1'; b.textContent = 'Tap again to clear'; return; } if (MR.on) mrStop(); Object.assign(MR, { text: '', out: null, since: 0 }); mrSave(); mrRender(); return; }
+    if (a === 'write') return mrWrite();
+    if (a === 'later'){ if (MR.on) mrStop(); if (!MR.text.trim()) return; const doc = { title: MR.title || 'Meeting', kind: MR.kind, who: MR.who, date: todayStr(), transcript: MR.text.slice(0, 200000), pending: true, summary: '', decisions: [], actions: [], followups: [], minutes: '', createdAt: nowIso() };
+      if (await ebaWrite(() => state.db.collection('meetings').add(doc))){ Object.assign(MR, { text: '', out: null, since: 0, title: '', who: '', kind: 'Meeting', pendingId: '' }); mrSave(); closeModal(); toast('Saved. Write it up in Writing tools › Meeting notes when you open Laura’s Desk in Claude.', 3600); } return; }
+    if (!MR.out) return;
+    if (a === 'sel'){ const x = MR.out.actions[+b.dataset.i]; if (x){ x.sel = !x.sel; mrRender(); } return; }
+    if (a === 'tasks'){ let n = 0; for (const x of MR.out.actions.filter(x => x.sel && !x.added)){ const mine = !x.who || /^(me|laura|l\.?a\.?|hr)\b/i.test(x.who); const id = await addTask({ title: x.title, due: x.due, who: mine ? '' : x.who, status: mine ? 'open' : 'waiting', notes: 'From: ' + MR.out.title + ' (' + fmtDay(todayStr()) + ')', source: 'meeting' }); if (id){ x.added = true; n++; } } mrRender(); toast(n ? n + ' task' + (n > 1 ? 's' : '') + ' added.' : 'Nothing new to add.', 1800); return; }
+    if (a === 'copy') return copyText(mrWriteup(MR.out));
+    if (a === 'docx'){ const blob = await ccReplyDocx(mrWriteup(MR.out)); if (blob) return offerFile(safeName(MR.out.title + ' ' + todayStr()) + '.docx', blob); return; }
+    if (a === 'save'){ const o = MR.out; const pid = MR.pendingId; const ok = await ebaWrite(() => (pid ? state.db.doc('meetings/' + pid).set.bind(state.db.doc('meetings/' + pid)) : state.db.collection('meetings').add.bind(state.db.collection('meetings')))({ pending: false, title: o.title, kind: MR.kind, who: MR.who, date: todayStr(), summary: o.summary, decisions: o.decisions, actions: o.actions.map(x => ({ title: x.title, who: x.who, due: x.due, added: x.added })), followups: o.followups, minutes: (($('#mr-min') || {}).value || o.minutes).slice(0, 30000), transcript: MR.keep ? MR.text.slice(0, 200000) : '', createdAt: nowIso() }));
+      if (ok){ Object.assign(MR, { text: '', out: null, since: 0, title: '', who: '', kind: 'Meeting', pendingId: '' }); mrSave(); closeModal(); toast('Saved to Writing tools › Meeting notes.', 2400); } return; }
+  }
+  function mrInput(e){ const id = e.target.id; if (id === 'mr-ta'){ MR.text = e.target.value; mrSave(); } else if (id === 'mr-title'){ MR.title = e.target.value; mrSave(); } else if (id === 'mr-who'){ MR.who = e.target.value; mrSave(); } }
+  function tabMeetings(){
+    const ms = (R.data.meetings || []).slice().sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+    return '<div class="ebacard"><div class="row"><h3 style="flex:1">Meeting notes</h3><button type="button" class="btn primary small" data-r2="mr-open">● Record a meeting</button></div><p class="muted small">Written-up meetings from the recorder: summary, decisions, actions and minutes.</p>' +
+      (ms.length ? '<ul class="clist">' + ms.map(m => m.pending ? '<li class="ccard"><div class="kmain"><b>' + esc(m.title) + ' <span class="pill due-soon">Waiting for write-up</span></b><span>' + esc(fmtDay(m.date)) + (m.who ? ' · ' + esc(m.who) : '') + ' · ' + String(m.transcript || '').split(/\s+/).length + ' words captured</span></div><div class="cside"><button type="button" class="btn primary small" data-r2="mt-write" data-id="' + esc(m.id) + '"' + (state.sample ? '' : ' disabled title="Open Laura’s Desk in Claude to write it up"') + '>Write it up</button><button type="button" class="btn small danger" data-r2="mt-del" data-id="' + esc(m.id) + '">' + (R.armed === 'mt:' + m.id ? 'Delete?' : 'Delete') + '</button></div></li>' : '<li class="ccard"><div class="kmain"><b>' + esc(m.title) + ' <span class="pill cat">' + esc(m.kind || 'Meeting') + '</span></b><span>' + esc(fmtDay(m.date)) + (m.who ? ' · ' + esc(m.who) : '') + '</span><span class="cnote">' + esc(m.summary || '') + '</span>' +
+        '<details class="ex"><summary>Decisions, actions and minutes</summary>' + ((m.decisions || []).length ? '<div class="exitem"><b>Decisions</b><pre>' + esc(m.decisions.map(d => '- ' + d).join('\n')) + '</pre></div>' : '') + ((m.actions || []).length ? '<div class="exitem"><b>Actions</b><pre>' + esc(m.actions.map(a => '- ' + a.title + (a.who ? ' (' + a.who + ')' : '') + (a.due ? ', due ' + fmtDay(a.due) : '') + (a.added ? ' ✓ task' : '')).join('\n')) + '</pre></div>' : '') + '<div class="exitem"><b>Minutes</b><pre>' + esc(m.minutes || '') + '</pre></div>' + (m.transcript ? '<div class="exitem"><b>Transcript</b><pre>' + esc(m.transcript) + '</pre></div>' : '') + '</details></div>' +
+        '<div class="cside"><button type="button" class="btn small" data-r2="mt-copy" data-id="' + esc(m.id) + '">Copy</button><button type="button" class="btn small danger" data-r2="mt-del" data-id="' + esc(m.id) + '">' + (R.armed === 'mt:' + m.id ? 'Delete?' : 'Delete') + '</button></div></li>').join('') + '</ul>' : '<p class="muted">No meetings saved yet. Tap “Record a meeting” at the top of any screen.</p>') + '</div>';
+  }
+
   /* ---------- events ---------- */
   function setCol(k, id, patch){ return ebaWrite(() => state.db.doc(RK[k].coll + '/' + id).update(Object.assign({}, patch, { updatedAt: nowIso() }))); }
   async function r2Click(b){
     const a = b.dataset.r2, k = b.dataset.k, id = b.dataset.id;
     if (a.startsWith('jcc')) return jccClick(a, b);
+    if (a === 'mr-open') return openRecorder();
+    if (a === 'mt-write'){ const m = R.data.meetings.find(x => x.id === id); if (!m) return; if (MR.on) mrStop(); Object.assign(MR, { text: m.transcript || '', title: m.title || '', who: m.who || '', kind: m.kind || 'Meeting', out: null, pendingId: m.id, keep: false }); openRecorder(); return mrWrite(); }
+    if (a === 'mt-copy'){ const m = R.data.meetings.find(x => x.id === id); if (m) copyText([m.title, fmtDay(m.date), m.who ? 'Attendees: ' + m.who : '', '', 'SUMMARY', m.summary, '', 'DECISIONS'].concat((m.decisions || []).map(d => '- ' + d)).concat(['', 'ACTIONS']).concat((m.actions || []).map(a => '- ' + a.title + (a.who ? ' (' + a.who + ')' : '') + (a.due ? ', due ' + fmtDay(a.due) : ''))).concat(['', 'MINUTES', m.minutes || '']).join('\n')); return; }
+    if (a === 'mt-del'){ const key = 'mt:' + id; if (R.armed !== key){ R.armed = key; renderList(); setTimeout(() => { if (R.armed === key){ R.armed = ''; renderList(); } }, 3000); return; } R.armed = ''; const m = R.data.meetings.find(x => x.id === id); const snap = m ? Object.assign({}, m) : null; if (snap) delete snap.id; if (await ebaWrite(() => state.db.doc('meetings/' + id).delete())) toast('Deleted.', 5000, snap ? () => ebaWrite(() => state.db.doc('meetings/' + id).set(snap)) : null); return; }
     if (a.startsWith('cc-')) return ccClick(a, b);
     if (a.startsWith('rc-')) return rcClick(a, b);
     if (a === 'add') return recForm(k);
@@ -3834,6 +3942,9 @@ body[data-look="swiss"] .duebtn{border-radius:0; background:transparent; border-
   function wireR2(){
     document.addEventListener('click', e => { const b = e.target.closest('[data-r2]'); if (b && !b.disabled){ e.preventDefault(); r2Click(b); } });
     $('#search-btn').addEventListener('click', openSearch);
+    $('#rec-btn').addEventListener('click', openRecorder);
+    document.addEventListener('click', e => { const b = e.target.closest('[data-mr]'); if (b && !b.disabled){ e.preventDefault(); mrClick(b); } });
+    document.addEventListener('input', mrInput);
     $('#file-btn').addEventListener('click', () => { const i = $('#file-in'); i.value = ''; i.click(); });
     $('#file-in').addEventListener('change', e => importFiles(e.target.files));
     let dragN = 0; const hasFiles = e => e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
@@ -3864,7 +3975,7 @@ body[data-look="swiss"] .duebtn{border-radius:0; background:transparent; border-
     planner: [['day', 'Day'], ['week', 'Week planner'], ['calendar', 'Calendar'], ['fun', 'Countdowns & gigs']],
     study: [['units', 'Units & progress'], ['plan', 'Catch-up plan'], ['coach', 'Study coach']],
     recruit: [['roles', 'Roles'], ['onboard', 'Onboarding']],
-    writing: [['templates', 'Templates'], ['minutes', 'Minutes to actions'], ['actions', 'Actions from text'], ['notice', 'Site notices'], ['tone', 'Tone checker'], ['policy', 'Policy explainer'], ['jobad', 'Job ad & PD'], ['report', 'Monthly report']],
+    writing: [['templates', 'Templates'], ['meetings', 'Meeting notes'], ['minutes', 'Minutes to actions'], ['actions', 'Actions from text'], ['notice', 'Site notices'], ['tone', 'Tone checker'], ['policy', 'Policy explainer'], ['jobad', 'Job ad & PD'], ['report', 'Monthly report']],
     tax: [['expenses', 'Expenses'], ['car', 'Car & km'], ['wfh', 'Home office'], ['summary', 'Tax summary']]
   };
   const hb = { tab: { jcc: 'committees', planner: 'day', study: 'units', recruit: 'roles', writing: 'templates', tax: 'expenses' }, out: {}, busy: '' };
@@ -3877,7 +3988,7 @@ body[data-look="swiss"] .duebtn{border-radius:0; background:transparent; border-
     else if (h === 'planner') body.innerHTML = cur === 'week' ? tabWeek() : cur === 'fun' ? tabFun() : cur === 'day' ? tabDay() : tabCalendar();
     else if (h === 'study') body.innerHTML = cur === 'plan' ? tabStudyPlan() : cur === 'coach' ? tabCoach() : tabUnits();
     else if (h === 'recruit') body.innerHTML = cur === 'onboard' ? tabOnboard() : tabRoles();
-    else if (h === 'writing') body.innerHTML = cur === 'policy' ? tabPolicy() : cur === 'jobad' ? tabJobAd() : cur === 'templates' ? tabTemplates() : cur === 'minutes' ? tabActions('minutes') : cur === 'actions' ? tabActions('text') : cur === 'notice' ? tabNotice() : cur === 'report' ? tabReport() : tabTone();
+    else if (h === 'writing') body.innerHTML = cur === 'policy' ? tabPolicy() : cur === 'jobad' ? tabJobAd() : cur === 'templates' ? tabTemplates() : cur === 'meetings' ? tabMeetings() : cur === 'minutes' ? tabActions('minutes') : cur === 'actions' ? tabActions('text') : cur === 'notice' ? tabNotice() : cur === 'report' ? tabReport() : tabTone();
     else body.innerHTML = taxHtml(cur);
   }
   function hubBusyInput(){ const a = document.activeElement; return !!(a && $('#hub-body').contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName)); }
