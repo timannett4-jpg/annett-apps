@@ -11,7 +11,9 @@
 <link rel="icon" type="image/png" href="farm-icon-192.png">
 <link rel="apple-touch-icon" href="farm-icon-180.png">
 <style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
-<script>window.ANNETT_APP="farm";</script>
+<script>window.ANNETT_APP="farm";
+/* A photo or document not yet copied to Drive hides itself instead of showing broken. */
+addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&/_blob\//.test(t.src)){var f=t.closest('figure,.shot');(f||t).style.display='none';}},true);</script>
 <script src="claude-shim.js"></script>
 </head>
 <body>

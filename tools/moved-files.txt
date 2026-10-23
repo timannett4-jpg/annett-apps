@@ -1,4 +1,4 @@
-# Europe app photos/documents already copied to Google Drive (one id per line)
+# Photos/documents the apps reference that are already copied to Google Drive (one id per line)
 0006e430cefca4f2b7838748bd406c43
 03878d4040ce6ca2e7f08b8e27a4dfbb
 0495730094b239d1e719d48db7c0390f
