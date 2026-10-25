@@ -567,7 +567,12 @@ function render(){
 /* ===== events, lifts and clashes ===== */
 const evList=()=>listOf(S.events);
 const holidayOn=k=>HOLIDAYS[k]?{id:'hol-'+k,title:HOLIDAYS[k],allDay:true,holiday:true,who:[]}:null;
-const evOn=k=>{const h=holidayOn(k);return (h?[h]:[]).concat(evList().filter(e=>e.date===k).sort((a,b)=>(a.allDay?'':a.start||'99').localeCompare(b.allDay?'':b.start||'99')))};
+/* A repeating appointment: rep = {every: 1|2 weeks, days: [0..6], until: 'YYYY-MM-DD'|''}; skip = dates removed one at a time. */
+function occurs(e,k){if(!e.rep)return e.date===k;if(!e.date||k<e.date)return false;if(e.rep.until&&k>e.rep.until)return false;if((e.skip||[]).includes(k))return false;
+  const d=fromYmd(k);if(!(e.rep.days||[]).includes(d.getDay()))return false;const ev=+e.rep.every||1;
+  if(ev>1){const w=Math.round((monday(d)-monday(fromYmd(e.date)))/(7*864e5));if(w%ev)return false}return true}
+const repText=e=>{if(!e.rep)return'';const ds=[1,2,3,4,5,6,0].filter(n=>(e.rep.days||[]).includes(n)).map(n=>DOW[n]);return (+e.rep.every===2?'Every 2 weeks: ':'Every ')+andJoin(ds)+(e.rep.until?', until '+niceK(e.rep.until):'')};
+const evOn=k=>{const h=holidayOn(k);return (h?[h]:[]).concat(evList().filter(e=>occurs(e,k)).sort((a,b)=>(a.allDay?'':a.start||'99').localeCompare(b.allDay?'':b.start||'99')))};
 const evEnd=e=>e.end&&toMin(e.end)>toMin(e.start)?toMin(e.end):toMin(e.start)+60;
 function evWho(e){return andJoin((e.who||[]).map(id=>person(id).name))}
 /* Lift slots: drop-off covers the 30 minutes before the start, pick-up the 30 minutes after the end. */
@@ -577,7 +582,7 @@ function liftSlots(e){const s=[];if(!e.start||e.allDay)return s;
 const overlap=(a1,b1,a2,b2)=>a1<b2&&a2<b1;
 function clashes(k){
   const out={},add=(id,m)=>{(out[id]=out[id]||[]).includes(m)||out[id].push(m)};
-  const ev=evList().filter(e=>e.date===k&&!e.allDay&&e.start);
+  const ev=evList().filter(e=>occurs(e,k)&&!e.allDay&&e.start);
   for(let i=0;i<ev.length;i++)for(let j=i+1;j<ev.length;j++){const a=ev[i],b=ev[j];
     if(!overlap(toMin(a.start),evEnd(a),toMin(b.start),evEnd(b)))continue;
     const both=(a.who||[]).filter(x=>(b.who||[]).includes(x));
@@ -597,38 +602,45 @@ function evRow(e,k,cl){
   const now=new Date(),past=k===today()&&!e.allDay&&e.start&&evEnd(e)<toMin(pad(now.getHours())+':'+pad(now.getMinutes()));
   const who=(e.who||[]).map(id=>`<span class="who"><span class="pip" style="background:${colour(id)}"></span>${esc(person(id).name)}</span>`).join('');
   const warn=(cl&&cl[e.id])||[];const lt=liftText(e);
-  return `<button class="ev${past?' past':''}${warn.length?' clash':''}" data-ev="${esc(e.id)}"><span class="tm">${e.allDay||!e.start?'All day':t12(e.start)}${!e.allDay&&e.end?`<small>to ${t12(e.end)}</small>`:''}</span>
-   <span><span class="tt">${esc(e.title)}</span><span class="meta">${who}${e.type&&e.type!=='other'?`<span class="type ${esc(e.type)}">${typeName(e.type)}</span>`:''}${e.where?`<span>${esc(e.where)}</span>`:''}</span>
+  return `<button class="ev${past?' past':''}${warn.length?' clash':''}" data-ev="${esc(e.id)}" data-k="${k}"><span class="tm">${e.allDay||!e.start?'All day':t12(e.start)}${!e.allDay&&e.end?`<small>to ${t12(e.end)}</small>`:''}</span>
+   <span><span class="tt">${esc(e.title)}</span><span class="meta">${who}${e.type&&e.type!=='other'?`<span class="type ${esc(e.type)}">${typeName(e.type)}</span>`:''}${e.where?`<span>${esc(e.where)}</span>`:''}${e.rep?`<span class="type">${esc(repText(e))}</span>`:''}</span>
    ${lt?`<span class="lift">${svg('car')}${esc(lt)}</span>`:''}${warn.map(w=>`<span class="warn">${svg('warn')}${esc(w)}</span>`).join('')}</span></button>`;
 }
-function bindEv(){document.querySelectorAll('[data-ev]').forEach(b=>b.onclick=()=>editEvent(b.dataset.ev))}
-function editEvent(id,dateDefault){
+function bindEv(){document.querySelectorAll('[data-ev]').forEach(b=>b.onclick=()=>editEvent(b.dataset.ev,null,b.dataset.k))}
+function editEvent(id,dateDefault,occK){
   if(needMe())return;
   const e=id?S.events[id]:{title:'',date:dateDefault||today(),start:'',end:'',allDay:false,who:S.me?[S.me]:[],type:'appointment',where:'',notes:'',liftTo:'',liftFrom:''};
-  const who=new Set(e.who||[]);let type=e.type||'appointment',lTo=e.liftTo||'',lFrom=e.liftFrom||'';
+  const who=new Set(e.who||[]);let type=e.type||'appointment',lTo=e.liftTo||'',lFrom=e.liftFrom||'';let rp=e.rep?String(e.rep.every||1):'none';const rdays=new Set(e.rep?e.rep.days:[fromYmd(e.date).getDay()]);
   const drv=(sel,cur)=>`<div class="chips wrap">${[['','No lift'],['?','Needs a driver']].concat(DRIVERS.map(d=>[d,person(d).name])).map(([v,n])=>`<button type="button" class="chip" data-${sel}="${v}" aria-pressed="${cur===v}">${v&&v!=='?'?`<span class="pip" style="background:${colour(v)}"></span>`:''}${n}</button>`).join('')}</div>`;
   openSheet(`<h2>${id?'Edit':'New'} ${id?esc(typeName(type).toLowerCase()):'appointment'}</h2><form class="form" id="evF">
    <label class="field"><span>What</span><input id="eTitle" value="${esc(e.title)}" placeholder="e.g. Dentist, Work, Hockey game" autocomplete="off" required></label>
    <div class="field"><span>Who</span><div class="chips wrap">${FAMILY.map(p=>`<button type="button" class="chip" data-who="${p.id}" aria-pressed="${who.has(p.id)}"><span class="pip" style="background:${colour(p.id)}"></span>${p.name}</button>`).join('')}</div></div>
    <div class="field"><span>Type</span><div class="chips wrap">${TYPES.map(t=>`<button type="button" class="chip" data-type="${t[0]}" aria-pressed="${type===t[0]}">${t[1]}</button>`).join('')}</div></div>
    <label class="field"><span>Date</span><input type="date" id="eDate" value="${esc(e.date)}" required></label>
+   <div class="field"><span>Repeats</span><div class="chips wrap"><button type="button" class="chip" data-rp="none" aria-pressed="${rp==='none'}">Doesn't repeat</button><button type="button" class="chip" data-rp="1" aria-pressed="${rp==='1'}">Every week</button><button type="button" class="chip" data-rp="2" aria-pressed="${rp==='2'}">Every 2 weeks</button></div></div>
+   <div id="eRep" class="form"><div class="field"><span>On these days</span><div class="chips wrap">${[1,2,3,4,5,6,0].map(n=>`<button type="button" class="chip" data-rd="${n}" aria-pressed="${rdays.has(n)}">${DOW[n]}</button>`).join('')}</div></div>
+   <label class="field"><span>Until (optional, leave blank to keep going)</span><input type="date" id="eUntil" value="${esc(e.rep&&e.rep.until||'')}"></label></div>
    <label class="toggle"><input type="checkbox" id="eAll"${e.allDay?' checked':''}>All day</label>
    <div class="two" id="eTimes"><label class="field"><span>Starts</span><input type="time" id="eStart" value="${esc(e.start||'')}"></label><label class="field"><span>Ends</span><input type="time" id="eEnd" value="${esc(e.end||'')}"></label></div>
    <label class="field"><span>Where (optional)</span><input id="eWhere" value="${esc(e.where||'')}" placeholder="e.g. Kangaroo Flat Dental" autocomplete="off"></label>
    <div id="eLifts" class="form"><div class="field"><span>Lift there</span>${drv('lto',lTo)}</div><div class="field"><span>Lift home</span>${drv('lfrom',lFrom)}</div></div>
    <label class="field"><span>Notes (optional)</span><textarea id="eNotes">${esc(e.notes||'')}</textarea></label>
-   <div class="actions">${id?'<button type="button" class="link danger" id="eDel">Delete</button>':''}<span class="grow"></span><button type="button" class="btn ghost" id="eCancel">Cancel</button><button class="btn">Save</button></div></form>`);
+   ${id&&e.rep&&occK?`<button type="button" class="btn ghost" id="eSkip" style="justify-self:start">Remove just ${esc(niceK(occK))}</button>`:''}
+   <div class="actions">${id?`<button type="button" class="link danger" id="eDel">${e.rep?'Delete all repeats':'Delete'}</button>`:''}<span class="grow"></span><button type="button" class="btn ghost" id="eCancel">Cancel</button><button class="btn">Save</button></div></form>`);
   document.querySelectorAll('[data-who]').forEach(b=>b.onclick=()=>{const p=b.dataset.who;who.has(p)?who.delete(p):who.add(p);b.setAttribute('aria-pressed',who.has(p))});
-  pick('[data-type]','data-type',v=>type=v);pick('[data-lto]','data-lto',v=>lTo=v);pick('[data-lfrom]','data-lfrom',v=>lFrom=v);
+  pick('[data-type]','data-type',v=>type=v);const shRep=()=>$('#eRep').hidden=rp==='none';let rdTouched=!!e.rep;$('#eDate').onchange=()=>{if(rdTouched||!$('#eDate').value)return;rdays.clear();rdays.add(fromYmd($('#eDate').value).getDay());document.querySelectorAll('[data-rd]').forEach(x=>x.setAttribute('aria-pressed',rdays.has(+x.dataset.rd)))};pick('[data-rp]','data-rp',v=>{rp=v;shRep()});shRep();
+  document.querySelectorAll('[data-rd]').forEach(b=>b.onclick=()=>{const n=+b.dataset.rd;rdTouched=true;rdays.has(n)?rdays.delete(n):rdays.add(n);b.setAttribute('aria-pressed',rdays.has(n))});
+  pick('[data-lto]','data-lto',v=>lTo=v);pick('[data-lfrom]','data-lfrom',v=>lFrom=v);
   const times=()=>{$('#eTimes').hidden=$('#eAll').checked;$('#eLifts').hidden=$('#eAll').checked};$('#eAll').onchange=times;times();
   $('#eCancel').onclick=closeSheet;
   $('#evF').onsubmit=async ev=>{ev.preventDefault();const t=$('#eTitle').value.trim(),d=$('#eDate').value;if(!t||!d)return;
     if(!who.size){toast('Pick who it is for');return}
     const all=$('#eAll').checked;
     const r={title:t.slice(0,100),date:d,allDay:all,start:all?'':$('#eStart').value,end:all?'':$('#eEnd').value,who:[...who],type,where:$('#eWhere').value.trim().slice(0,120),notes:$('#eNotes').value.trim().slice(0,1000),
-      liftTo:all?'':lTo,liftFrom:all?'':lFrom,addedBy:id?(e.addedBy||S.me):S.me,addedAt:id?(e.addedAt||nowIso()):nowIso(),updatedBy:S.me,updatedAt:nowIso()};
+      liftTo:all?'':lTo,liftFrom:all?'':lFrom,rep:rp==='none'?null:{every:+rp,days:(rdays.size?[...rdays]:[fromYmd(d).getDay()]).sort(),until:$('#eUntil').value||''},skip:rp==='none'?[]:(e.skip||[]),addedBy:id?(e.addedBy||S.me):S.me,addedAt:id?(e.addedAt||nowIso()):nowIso(),updatedBy:S.me,updatedAt:nowIso()};
     if(await write(db=>db.doc('events/'+(id||rid())).set(r))){closeSheet();toast(id?'Saved':'Added to the calendar')}};
   const del=$('#eDel');if(del)del.onclick=async()=>{if(await write(db=>db.doc('events/'+id).delete())){closeSheet();toast('Deleted')}};
+  const sk=$('#eSkip');if(sk)sk.onclick=async()=>{const r=Object.assign({},e,{skip:[...new Set([...(e.skip||[]),occK])],updatedBy:S.me,updatedAt:nowIso()});if(await write(db=>db.doc('events/'+id).set(r))){closeSheet();toast('Removed '+niceK(occK)+' only')}};
 }
 
 /* ===== shared lookups for Today ===== */
@@ -636,6 +648,7 @@ function schoolDue(){const t=today();return listOf(S.school).filter(s=>!s.done&&
 function nextBday(b,from){const f=fromYmd(from);let d=new Date(f.getFullYear(),+b.md.slice(0,2)-1,+b.md.slice(3,5));if(ymd(d)<from)d=new Date(f.getFullYear()+1,d.getMonth(),d.getDate());return ymd(d)}
 function bdaysSoon(n){const t=today();return listOf(S.birthdays).filter(b=>b.md).map(b=>Object.assign({next:nextBday(b,t)},b)).filter(b=>daysBetween(t,b.next)<=n).sort((a,b)=>a.next.localeCompare(b.next))}
 function jobDue(j){if(!j.last)return today();const d=fromYmd(j.last);const n=+j.every||1;if(j.unit==='weeks')return ymd(addDays(d,7*n));const x=new Date(d);x.setMonth(x.getMonth()+n);return ymd(x)}
+const jobWho=j=>Array.isArray(j.who)?j.who:(j.who?[j.who]:[]);
 function jobsDue(){const t=today();return listOf(S.homejobs).map(j=>Object.assign({due:jobDue(j)},j)).filter(j=>daysBetween(t,j.due)<=7).sort((a,b)=>a.due.localeCompare(b.due))}
 const liveNotes=()=>{const t=today();return listOf(S.notes).filter(n=>n.pinned||!n.until||n.until>=t).sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0)||(b.at||'').localeCompare(a.at||''))};
 
@@ -663,9 +676,9 @@ VIEWS.home=function(v){
   const nClash=Object.keys(cl).length;
   const slot=(i,idx)=>{
     const past=idx<nowAt&&!(i.e&&evEnd(i.e)>toMin(now));
-    if(i.dinner)return `<div class="slot${past?' past':''}"><span class="tm">${t12(i.t)}</span><button class="blk dinnerblk" id="tlDinner"><b>Dinner: ${esc(i.dinner.dinner)}</b><span>${i.dinner.cook?esc(person(i.dinner.cook).name)+' cooking':'No cook chosen yet'}</span></button></div>`;
+    if(i.dinner)return `<div class="slot${past?' past':''}"><span class="tm">${t12(i.t)}</span><button class="blk dinnerblk" id="tlDinner"><b>Dinner: ${esc(i.dinner.dinner)}</b><span>${i.dinner.cook?esc(person(i.dinner.cook).name)+' cooking':'No cook chosen yet'}</span>${i.dinner.notes?`<span class="bl">${esc(i.dinner.notes)}</span>`:''}</button></div>`;
     const e=i.e,c=(e.who||[])[0],w=cl[e.id]||[],lt=liftText(e);
-    return `<div class="slot${past?' past':''}"><span class="tm">${t12(e.start)}</span><button class="blk${w.length?' clash':''}" data-ev="${esc(e.id)}" style="background:${colour(c)}"><b>${esc(e.title)}${e.end?` <em>until ${t12(e.end)}</em>`:''}</b><span>${esc(evWho(e))}${e.where?', '+esc(e.where):''}</span>${lt?`<span class="bl">${svg('car')}${esc(lt)}</span>`:''}${w.map(x=>`<span class="bw">${svg('warn')}${esc(x)}</span>`).join('')}</button></div>`};
+    return `<div class="slot${past?' past':''}"><span class="tm">${t12(e.start)}</span><button class="blk${w.length?' clash':''}" data-ev="${esc(e.id)}" data-k="${k}" style="background:${colour(c)}"><b>${esc(e.title)}${e.end?` <em>until ${t12(e.end)}</em>`:''}</b><span>${esc(evWho(e))}${e.where?', '+esc(e.where):''}</span>${lt?`<span class="bl">${svg('car')}${esc(lt)}</span>`:''}${w.map(x=>`<span class="bw">${svg('warn')}${esc(x)}</span>`).join('')}</button></div>`};
   const nowLine=`<div class="slot nowslot"><span class="tm">Now</span><div class="nowline"></div></div>`;
   let tl='';items.forEach((i,idx)=>{if(idx===nowAt)tl+=nowLine;tl+=slot(i,idx)});if(nowAt===items.length&&items.length)tl+=nowLine;
   // home for dinner
@@ -689,7 +702,7 @@ VIEWS.home=function(v){
     </div>
     <section class="tl"><h2>Today</h2>
       ${nClash?`<div class="clashbar">${svg('warn')}${nClash===1?'One thing needs sorting today':nClash+' things need sorting today'}</div>`:''}
-      ${allDay.length?`<div class="allday">${allDay.map(e=>e.holiday?`<span class="adchip hol">${esc(e.title)}<small>Public holiday</small></span>`:`<button class="adchip" data-ev="${esc(e.id)}"><span class="pip" style="background:${colour((e.who||[])[0])}"></span>${esc(e.title)}<small>${esc(evWho(e))}</small></button>`).join('')}</div>`:''}
+      ${allDay.length?`<div class="allday">${allDay.map(e=>e.holiday?`<span class="adchip hol">${esc(e.title)}<small>Public holiday</small></span>`:`<button class="adchip" data-ev="${esc(e.id)}" data-k="${k}"><span class="pip" style="background:${colour((e.who||[])[0])}"></span>${esc(e.title)}<small>${esc(evWho(e))}</small></button>`).join('')}</div>`:''}
       ${items.length?tl:`<p class="tlempty">${allDay.length?'Nothing else on today.':'Nothing on today.'} Add appointments, work shifts and sport so everyone knows who's where.</p>`}
       <div class="tlacts"><button class="btn ghost" id="homeAddEv">${svg('plus')}Add to today</button>${m.dinner?'':`<button class="btn ghost" id="planTonight">${svg('plus')}Plan dinner</button>`}</div>
     </section>
@@ -710,7 +723,7 @@ VIEWS.cal=function(v){
   const days=[...Array(7)].map((_,i)=>addDays(S.calWeek,i));const t=today();
   const filt=e=>e.holiday||!S.calWho||(e.who||[]).includes(S.calWho);
   const keys=days.map(ymd);
-  const work=evList().filter(e=>e.type==='work'&&keys.includes(e.date)).sort((a,b)=>(a.date+(a.start||'')).localeCompare(b.date+(b.start||'')));
+  const work=keys.flatMap(k=>evList().filter(e=>e.type==='work'&&occurs(e,k)).map(e=>Object.assign({},e,{date:k}))).sort((a,b)=>(a.date+(a.start||'')).localeCompare(b.date+(b.start||'')));
   const workers={};for(const e of work)for(const w of (e.who||[]))(workers[w]=workers[w]||[]).push(e);
   v.innerHTML=`<div class="ph"><div><h1>Calendar</h1><p>${nice(days[0])} to ${nice(days[6])}</p></div>
     <div class="wk"><button class="round" id="cPrev" aria-label="Previous week">${svg('left')}</button><button class="btn ghost" id="cToday">This week</button><button class="round" id="cNext" aria-label="Next week">${svg('right')}</button></div></div>
@@ -896,22 +909,22 @@ function editGift(names){
 VIEWS.hjobs=function(v){
   const t=today(),js=listOf(S.homejobs).map(j=>Object.assign({due:jobDue(j)},j)).sort((a,b)=>a.due.localeCompare(b.due));
   v.innerHTML=`<div class="ph"><div><h1>Home jobs</h1><p>Jobs that come round every few weeks or months. Tick one when it's done and the next due date resets.</p></div><button class="btn" id="newJob">${svg('plus')}New job</button></div>
-  <section class="card">${js.length?js.map(j=>{const n=daysBetween(t,j.due);return `<div class="row" data-job="${esc(j.id)}" role="button" tabindex="0"><span class="check">${svg('check')}</span><span class="txt"><b>${esc(j.title)}</b><small>${j.who?`<span class="pip" style="background:${colour(j.who)}"></span>${esc(person(j.who).name)}, `:''}every ${j.every} ${j.unit}${j.last?', last done '+niceK(j.last):''}</small></span><span class="due ${n<0?'late':n<=7?'soon':''}">${n<0?'Overdue':n===0?'Due today':'Due '+niceK(j.due)}</span><button class="icon" data-ejob="${esc(j.id)}" aria-label="Edit">${svg('pen')}</button></div>`}).join(''):'<div style="padding:18px"><div class="empty"><b>No jobs yet</b>For example: clean the gutters every 6 months, test smoke alarms every 12 months, clean air-con filters every 3 months.</div></div>'}</section>`;
+  <section class="card">${js.length?js.map(j=>{const n=daysBetween(t,j.due);return `<div class="row" data-job="${esc(j.id)}" role="button" tabindex="0"><span class="check">${svg('check')}</span><span class="txt"><b>${esc(j.title)}</b><small>${jobWho(j).length?jobWho(j).map(w=>`<span class="pip" style="background:${colour(w)}"></span>${esc(person(w).name)}`).join(' ')+', ':''}every ${j.every} ${j.unit}${j.last?', last done '+niceK(j.last):''}</small></span><span class="due ${n<0?'late':n<=7?'soon':''}">${n<0?'Overdue':n===0?'Due today':'Due '+niceK(j.due)}</span><button class="icon" data-ejob="${esc(j.id)}" aria-label="Edit">${svg('pen')}</button></div>`}).join(''):'<div style="padding:18px"><div class="empty"><b>No jobs yet</b>For example: clean the gutters every 6 months, test smoke alarms every 12 months, clean air-con filters every 3 months.</div></div>'}</section>`;
   $('#newJob').onclick=()=>editJob(null);v.querySelectorAll('[data-ejob]').forEach(b=>b.onclick=()=>editJob(b.dataset.ejob));
   tapRows('[data-job]',async function(e){if(e.target.closest('.icon'))return;if(needMe())return;const id=this.dataset.job,j=S.homejobs[id];
     if(await write(db=>db.doc('homejobs/'+id).set(Object.assign({},j,{last:today(),lastBy:S.me}))))toast(j.title+' done. Next due '+niceK(jobDue(Object.assign({},j,{last:today()}))))});
 };
 function editJob(id){
-  if(needMe())return;const j=id?S.homejobs[id]:{title:'',every:6,unit:'months',last:'',who:''};let unit=j.unit||'months',who=j.who||'';
+  if(needMe())return;const j=id?S.homejobs[id]:{title:'',every:6,unit:'months',last:'',who:''};let unit=j.unit||'months';const who=new Set(jobWho(j));
   openSheet(`<h2>${id?'Edit job':'New home job'}</h2><form class="form" id="jF">
    <label class="field"><span>Job</span><input id="jT" value="${esc(j.title)}" placeholder="e.g. Clean the gutters" autocomplete="off" required></label>
    <div class="two"><label class="field"><span>Every</span><input type="number" id="jE" min="1" max="60" value="${esc(j.every)}"></label><div class="field"><span>&nbsp;</span><div class="chips"><button type="button" class="chip" data-ju="weeks" aria-pressed="${unit==='weeks'}">Weeks</button><button type="button" class="chip" data-ju="months" aria-pressed="${unit==='months'}">Months</button></div></div></div>
    <label class="field"><span>Last done (leave blank if not sure)</span><input type="date" id="jL" value="${esc(j.last||'')}"></label>
-   <div class="field"><span>Usually done by</span><div class="chips wrap">${[['','Anyone']].concat(USERS.map(u=>[u.id,u.name])).map(([k,n])=>`<button type="button" class="chip" data-jw="${k}" aria-pressed="${who===k}">${n}</button>`).join('')}</div></div>
+   <div class="field"><span>Usually done by (pick as many as you like, or none for anyone)</span><div class="chips wrap">${USERS.map(u=>`<button type="button" class="chip" data-jw="${u.id}" aria-pressed="${who.has(u.id)}"><span class="pip" style="background:${colour(u.id)}"></span>${u.name}</button>`).join('')}</div></div>
    <div class="actions">${id?'<button type="button" class="link danger" id="jX">Delete</button>':''}<span class="grow"></span><button class="btn">Save</button></div></form>`);
-  pick('[data-ju]','data-ju',x=>unit=x);pick('[data-jw]','data-jw',x=>who=x);
+  pick('[data-ju]','data-ju',x=>unit=x);document.querySelectorAll('[data-jw]').forEach(b=>b.onclick=()=>{const w=b.dataset.jw;who.has(w)?who.delete(w):who.add(w);b.setAttribute('aria-pressed',who.has(w))});
   $('#jF').onsubmit=async e=>{e.preventDefault();const t=$('#jT').value.trim();if(!t)return;
-    const r={title:t.slice(0,80),every:Math.max(1,Math.min(60,+$('#jE').value||1)),unit,last:$('#jL').value,who,addedBy:j.addedBy||S.me};
+    const r={title:t.slice(0,80),every:Math.max(1,Math.min(60,+$('#jE').value||1)),unit,last:$('#jL').value,who:[...who],addedBy:j.addedBy||S.me};
     if(await write(db=>db.doc('homejobs/'+(id||rid())).set(r)))closeSheet()};
   const x=$('#jX');if(x)x.onclick=async()=>{if(await write(db=>db.doc('homejobs/'+id).delete()))closeSheet()};
 }
@@ -949,7 +962,7 @@ function showRecipe(id){
    <div class="field"><span>Cook it on</span><div class="chips wrap">${[...Array(7)].map((_,i)=>{const k=ymd(addDays(new Date(),i));const m=S.meals[k];return `<button type="button" class="chip" data-on="${k}">${i===0?'Tonight':i===1?'Tomorrow':DOW[fromYmd(k).getDay()]}${m&&m.dinner?' <small>(has '+esc(m.dinner)+')</small>':''}</button>`}).join('')}</div></div>
    <div class="actions"><button type="button" class="btn ghost" id="rShop">Add ingredients to shopping</button><span class="grow"></span><button type="button" class="link" id="rEdit">Edit</button></div>`);
   document.querySelectorAll('[data-on]').forEach(b=>b.onclick=async()=>{if(needMe())return;const k=b.dataset.on,m=S.meals[k]||{};
-    const rr={dinner:r.title,recipe:id,time:m.time||'18:30',cook:m.cook||'',ingredients:r.ingredients||[],updatedBy:S.me,updatedAt:nowIso()};
+    const rr={dinner:r.title,recipe:id,time:m.time||'18:30',notes:m.notes||'',cook:m.cook||'',ingredients:r.ingredients||[],updatedBy:S.me,updatedAt:nowIso()};
     if(await write(db=>db.doc('meals/'+k).set(rr))){closeSheet();toast(r.title+' is on for '+(k===today()?'tonight':niceK(k)))}});
   $('#rShop').onclick=async()=>{if(needMe())return;toast(await ingToShop(r.ingredients||[],''))};
   $('#rEdit').onclick=()=>editRecipe(id);
@@ -1050,7 +1063,7 @@ VIEWS.meals=function(v){
   <section class="card">${days.map(d=>{const k=ymd(d),m=S.meals[k]||{};const ing=(m.ingredients||[]).filter(Boolean);
     return `<button class="night${k===t?' tonight':''}" data-day="${k}"><span class="dn"><b>${DOW[d.getDay()]}</b><small>${nice(d)}</small></span>
       <span><span class="dish${m.dinner?'':' none'}">${m.dinner?esc(m.dinner):'Nothing planned'}</span>
-      ${m.dinner&&(m.cook||ing.length)?`<span class="dmeta">${m.cook?`<span class="pip" style="background:${colour(m.cook)}"></span>${esc(person(m.cook).name)} cooking`:''}${m.cook&&ing.length?'. ':''}${ing.length?ing.length+' ingredient'+(ing.length===1?'':'s'):''}</span>`:''}</span>
+      ${m.dinner&&(m.cook||ing.length)?`<span class="dmeta">${m.cook?`<span class="pip" style="background:${colour(m.cook)}"></span>${esc(person(m.cook).name)} cooking`:''}${m.cook&&ing.length?'. ':''}${ing.length?ing.length+' ingredient'+(ing.length===1?'':'s'):''}</span>`:''}${m.dinner&&m.notes?`<span class="dmeta">${esc(m.notes)}</span>`:''}</span>
       ${k===t?'<span class="tag">Tonight</span>':`<span style="color:var(--faint)">${svg('right','  width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"')}</span>`}</button>`}).join('')}</section>`;
   $('#toRec').onclick=()=>setTab('recipes');$('#wkPrev').onclick=()=>{S.week=addDays(S.week,-7);render()};$('#wkNext').onclick=()=>{S.week=addDays(S.week,7);render()};$('#wkNow').onclick=()=>{S.week=monday(new Date());render()};
   v.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>editMeal(b.dataset.day));
@@ -1062,12 +1075,13 @@ function editMeal(k){
     <label class="field"><span>Dinner</span><input id="mDinner" value="${esc(m.dinner||'')}" placeholder="e.g. Lamb roast" autocomplete="off"></label>
     <label class="field"><span>Dinner time</span><input type="time" id="mTime" value="${esc(m.time||'18:30')}"></label>
     <div class="field"><span>Who's cooking</span><div class="chips wrap">${[{id:'',name:'Not decided'}].concat(USERS).map(p=>`<button type="button" class="chip" data-cook="${p.id}" aria-pressed="${cook===p.id}">${p.id?`<span class="pip" style="background:${colour(p.id)}"></span>`:''}${p.name}</button>`).join('')}</div></div>
+    <label class="field"><span>Notes (sides and reminders, e.g. cook rice, make mash)</span><input id="mNotes" value="${esc(m.notes||'')}" placeholder="e.g. Cook rice, steam greens" autocomplete="off"></label>
     <label class="field"><span>Ingredients, one per line</span><textarea id="mIng" placeholder="Leg of lamb&#10;Potatoes&#10;Rosemary">${esc((m.ingredients||[]).join('\n'))}</textarea></label>
     <div class="actions"><button type="button" class="btn ghost" id="mToList">Add ingredients to shopping</button><span class="grow"></span><button class="btn">Save</button></div>
     ${m.dinner?'<button type="button" class="link danger" id="mClear" style="justify-self:start">Clear this night</button>':''}</form>`);
   document.querySelectorAll('[data-cook]').forEach(b=>b.onclick=()=>{cook=b.dataset.cook;document.querySelectorAll('[data-cook]').forEach(c=>c.setAttribute('aria-pressed',c===b))});
   document.querySelectorAll('[data-mrec]').forEach(b=>b.onclick=()=>{const r=S.recipes[b.dataset.mrec];if(!r)return;recipe=b.dataset.mrec;document.querySelectorAll('[data-mrec]').forEach(x=>x.setAttribute('aria-pressed',x===b));$('#mDinner').value=r.title;$('#mIng').value=(r.ingredients||[]).join('\n')});
-  const read=()=>({recipe:($('#mDinner').value.trim()===(S.recipes[recipe]||{}).title)?recipe:'',dinner:$('#mDinner').value.trim().slice(0,120),time:$('#mTime').value||'18:30',cook,ingredients:$('#mIng').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,40),updatedBy:S.me,updatedAt:nowIso()});
+  const read=()=>({recipe:($('#mDinner').value.trim()===(S.recipes[recipe]||{}).title)?recipe:'',dinner:$('#mDinner').value.trim().slice(0,120),time:$('#mTime').value||'18:30',notes:$('#mNotes').value.trim().slice(0,200),cook,ingredients:$('#mIng').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,40),updatedBy:S.me,updatedAt:nowIso()});
   $('#mealF').onsubmit=async e=>{e.preventDefault();const r=read();if(await write(db=>r.dinner?db.doc('meals/'+k).set(r):db.doc('meals/'+k).delete()))closeSheet()};
   const mc=$('#mClear');if(mc)mc.onclick=async()=>{if(await write(db=>db.doc('meals/'+k).delete()))closeSheet()};
   $('#mToList').onclick=async()=>{const r=read();if(!r.ingredients.length){toast('Add some ingredients first');return}
