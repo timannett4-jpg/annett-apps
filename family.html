@@ -31,7 +31,7 @@ addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&/_b
   --ink:#1c1a3a; --muted:#66637e; --faint:#9e9bb3;
   --side:#24215a; --side2:#312d72; --side-ink:#efeefb; --side-muted:#a5a1d6;
   --accent:#ff6b5a; --accent-ink:#24215a; --accent-deep:#d4402f; --accent-soft:#ffe8e4;
-  --tim:#3f6fb0; --laura:#c4487a; --sienna:#7b55c7; --erika:#2f9a5a; --archer:#d9771f;
+  --tim:#3f6fb0; --laura:#c4487a; --sienna:#7b55c7; --erika:#2f9a5a; --archer:#d9771f; --kris:#0e8f9a; --neville:#5b6b86; --maria:#9a6b2f;
   --font:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --tab:66px; --top:60px; --r:16px;
 }
@@ -329,7 +329,9 @@ nav.tabs button[aria-current="true"]::before{content:"";position:absolute;top:0;
 
 <script>
 /* ---------- family ---------- */
-const FAMILY=[{id:'tim',name:'Tim',kid:false},{id:'laura',name:'Laura',kid:false},{id:'sienna',name:'Sienna',kid:true},{id:'erika',name:'Erika',kid:true},{id:'archer',name:'Archer',kid:true}];
+const FAMILY=[{id:'tim',name:'Tim',kid:false,user:true},{id:'laura',name:'Laura',kid:false,user:true},{id:'sienna',name:'Sienna',kid:true,user:true},{id:'erika',name:'Erika',kid:true,user:true},{id:'archer',name:'Archer',kid:true,user:true},
+  {id:'kris',name:'Kris',kid:false,user:true},{id:'neville',name:'Neville',kid:false,user:false},{id:'maria',name:'Maria',kid:false,user:false}];
+const USERS=FAMILY.filter(p=>p.user);
 const KIDS=FAMILY.filter(p=>p.kid);
 const person=id=>FAMILY.find(p=>p.id===id)||{id:'',name:'Someone'};
 const colour=id=>person(id).id?`var(--${id})`:'var(--faint)';
@@ -404,7 +406,7 @@ function nextFreeNight(){for(let i=0;i<14;i++){const k=ymd(addDays(new Date(),i)
 /* ---------- who's using this device ---------- */
 function pickMe(){
   openSheet(`<h2>Who's using this device?</h2><p class="sub">Whatever you add or tick shows your name and colour.</p>
-  <div class="people">${FAMILY.map(p=>`<button class="person" data-me="${p.id}" aria-pressed="${S.me===p.id}"><span class="av" style="background:${colour(p.id)}">${p.name[0]}</span>${p.name}</button>`).join('')}</div>`);
+  <div class="people">${USERS.map(p=>`<button class="person" data-me="${p.id}" aria-pressed="${S.me===p.id}"><span class="av" style="background:${colour(p.id)}">${p.name[0]}</span>${p.name}</button>`).join('')}</div>`);
   document.querySelectorAll('[data-me]').forEach(b=>b.onclick=()=>{S.me=b.dataset.me;store.set('fh-me',S.me);closeSheet();render()});
 }
 $('#sideMe').onclick=pickMe;$('#mePhone').onclick=pickMe;
@@ -505,7 +507,7 @@ function renderHome(v){
   let tl='';items.forEach((i,idx)=>{if(idx===nowAt)tl+=nowLine;tl+=slot(i,idx)});if(nowAt===items.length&&items.length)tl+=nowLine;
   v.innerHTML=`<section class="sky sky-${sky.k}" style="background:${sky.bg}"><span class="orb ${sky.orb}"></span>${sky.k==='night'?'<span class="stars"></span>':''}
       <p class="sd">${DOWL[d.getDay()]} ${d.getDate()} ${MONL[d.getMonth()]}</p><h1>${part}${p.id?', '+esc(p.name):''}.</h1>
-      <div class="faces">${FAMILY.map(f=>`<span class="av${f.id===S.me?' me':''}" style="background:${colour(f.id)}" title="${f.name}">${f.name[0]}</span>`).join('')}</div></section>
+      <div class="faces">${USERS.map(f=>`<span class="av${f.id===S.me?' me':''}" style="background:${colour(f.id)}" title="${f.name}">${f.name[0]}</span>`).join('')}</div></section>
   <div class="homegrid">
     <div class="side">
       <button class="pin" id="toShop"><span class="pc">${open.length}</span><span class="pt"><b>Shopping list</b><span>${open.length?esc(open.slice(0,3).map(i=>i.text).join(', '))+(open.length>3?' and '+(open.length-3)+' more':''):'Nothing to buy right now'}</span></span></button>
@@ -591,7 +593,7 @@ function editMeal(k){
   openSheet(`<h2>Dinner, ${DOWL[d.getDay()]} ${nice(d)}</h2><form class="form" id="mealF">
     <label class="field"><span>Dinner</span><input id="mDinner" value="${esc(m.dinner||'')}" placeholder="e.g. Lamb roast" autocomplete="off"></label>
     <label class="field"><span>Dinner time</span><input type="time" id="mTime" value="${esc(m.time||'18:30')}"></label>
-    <div class="field"><span>Who's cooking</span><div class="chips wrap">${[{id:'',name:'Not decided'}].concat(FAMILY).map(p=>`<button type="button" class="chip" data-cook="${p.id}" aria-pressed="${cook===p.id}">${p.id?`<span class="pip" style="background:${colour(p.id)}"></span>`:''}${p.name}</button>`).join('')}</div></div>
+    <div class="field"><span>Who's cooking</span><div class="chips wrap">${[{id:'',name:'Not decided'}].concat(USERS).map(p=>`<button type="button" class="chip" data-cook="${p.id}" aria-pressed="${cook===p.id}">${p.id?`<span class="pip" style="background:${colour(p.id)}"></span>`:''}${p.name}</button>`).join('')}</div></div>
     <label class="field"><span>Ingredients, one per line</span><textarea id="mIng" placeholder="Leg of lamb&#10;Potatoes&#10;Rosemary">${esc((m.ingredients||[]).join('\n'))}</textarea></label>
     <div class="actions"><button type="button" class="btn ghost" id="mToList">Add ingredients to shopping</button><span class="grow"></span><button class="btn">Save</button></div>
     ${m.dinner?'<button type="button" class="link danger" id="mClear" style="justify-self:start">Clear this night</button>':''}</form>`);
