@@ -579,6 +579,21 @@ body[data-look="day"] #routemap .lbl{fill:#111; stroke:#fff}
 .w-done .fxB p{opacity:.55}
 .fxW{display:block; font-family:var(--mono); font-size:10.5px; color:var(--faint); margin-top:6px}
 
+.crewRow{display:flex; flex-direction:column; align-items:flex-start; gap:4px; width:100%;
+  text-align:left; padding:15px 0; border-bottom:1px solid var(--rule)}
+.crewRow:last-child{border-bottom:0}
+.crewRow b{font-family:var(--disp); font-weight:500; font-size:20px; letter-spacing:.05em;
+  text-transform:uppercase; color:var(--ink)}
+.crewRow span{font-size:13.5px; color:var(--dim)}
+.youTag{font-family:var(--disp); font-size:9.5px; letter-spacing:.14em; color:var(--amber);
+  padding:2px 6px; box-shadow:inset 0 0 0 1px var(--amber); border-radius:1px; margin-left:6px}
+.jbM{font-family:var(--mono); font-size:11px; color:var(--faint); margin-top:4px!important}
+.jb.late .ckb b{color:var(--red)}
+.jb.late .jbM{color:var(--red)}
+.compose input[type=date]{font-family:var(--mono); font-size:13px}
+@media (max-width:420px){#nav button{font-size:8.5px; letter-spacing:.06em}
+  #nav svg{width:18px;height:18px}}
+
 @media (min-width:900px){
   :root{--bar:0px}
   #nav{position:sticky; top:0; border-top:0; border-bottom:1px solid var(--rule);
@@ -688,6 +703,7 @@ const hueOf=c=>HUE[c]!=null?HUE[c]:210;
 const markOf=c=>'<svg viewBox="0 0 120 64" aria-hidden="true">'+(G[MARK[c]]||G.field)+'</svg>';
 const setHue=c=>{};
 
+const CREW=['Tim','Laura','Sienna','Erika','Archer'];
 const KEY='annett-eu-2027';
 let local={}; try{local=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){}
 const saveLocal=()=>{try{localStorage.setItem(KEY,JSON.stringify(local))}catch(e){}};
@@ -723,7 +739,7 @@ function riffle(root){
 }
 
 let DB=null,ME=null,ASSETS=null,SAMPLE=null,CANWRITE=false,connected=false;
-const SHARED={notes:[],spend:[],book:{},pack:{},photos:[],asks:[],fixes:{}};
+const SHARED={notes:[],spend:[],book:{},pack:{},photos:[],asks:[],fixes:{},shop:[],jobs:[],diary:[]};
 const NAMES={};
 
 const utcMins=d=>d.getUTCHours()*60+d.getUTCMinutes();
@@ -940,6 +956,19 @@ function spineHTML(day,isToday){
 }
 
 /* ================= blocks shared across views ================= */
+function diaryBlock(date){
+  if(!connected)return'';
+  const rows=(SHARED.diary||[]).filter(x=>x.day===date);
+  return `<div class="sec">${secH('The diary',rows.length||'')}
+    <div class="panel" style="padding:4px 16px 16px">
+    ${rows.map(x=>`<div class="note">${esc(x.text)}
+      <div class="who">${esc(x.person||whoName(x.by))} &middot; ${esc(when(x.at))}</div></div>`).join('')}
+    ${CANWRITE?(local.me?`<div class="compose"><textarea rows="2" id="dyTx"
+        placeholder="${esc(local.me)}, what happened today?"></textarea>
+      <button class="btn primary" data-diary="${date}">Add</button></div>`
+      :`<p class="muted" style="padding:10px 0">Say who you are on the Crew page and you can write
+        your own line here.</p>`):''}</div></div>`;
+}
 function notesBlock(date){
   if(!connected)return'';
   const ns=notesFor(date);
@@ -1042,6 +1071,7 @@ function dayView(day,isToday){
       <div class="photos" style="margin-top:0">${ps.map(p=>`<img src="_blob/${esc(p.asset)}" alt="" loading="lazy">`).join('')}
       ${ASSETS&&CANWRITE?`<button class="addPhoto" data-photo="${day.date}">+ Add</button>`:''}</div></div></div>`
       :photosBlock(day.date)}
+    ${diaryBlock(day.date)}
     ${notesBlock(day.date)}${spendBlock(day.date)}`;
 }
 V.today=function(){
@@ -1223,6 +1253,58 @@ V.check=function(){
         it is not a gap.</p></div></div>`;
 };
 
+/* ================= CREW: a page each ================= */
+function meChip(){
+  return `<div class="panel" style="margin-top:14px">
+    <h3 class="ckS" style="padding-top:0">Which one are you?</h3>
+    <p class="muted" style="margin-bottom:10px">So your notes and pictures get your name on them.
+      You only pick this once, on this phone.</p>
+    <div class="chips" style="margin-top:0">${CREW.map(c=>
+      `<button class="chip${local.me===c?' on':''}" data-me="${esc(c)}">${esc(c)}</button>`).join('')}</div></div>`;
+}
+V.crew=function(){
+  const cur=currentDay(); if(cur)setHue(cur.city);
+  const sel=local.crewSel;
+  if(!sel){
+    return `<h1 class="ttl">The <em>five</em> of you</h1>
+      <p class="lede">A page each &mdash; what you still have to pack, the pictures you have taken
+        and the line you wrote about each day.</p>
+      ${local.me?'':meChip()}
+      <div class="sec">${CREW.map(c=>{
+        const items=D.packing[c]||[], st=SHARED.pack[c]||{};
+        const done=items.filter((_,i)=>connected?!!st['i'+i]:!!local['pk:'+c+':'+i]).length;
+        const dn=(SHARED.diary||[]).filter(x=>x.person===c).length;
+        return `<button class="crewRow" data-crew="${esc(c)}">
+          <b>${esc(c)}${local.me===c?' <span class="youTag">you</span>':''}</b>
+          <span>${done} of ${items.length} packed${dn?' &middot; '+dn+' note'+(dn>1?'s':''):''}</span></button>`}).join('')}
+      </div>`;
+  }
+  const items=D.packing[sel]||[], st=SHARED.pack[sel]||{};
+  const on=i=>connected?!!st['i'+i]:!!local['pk:'+sel+':'+i];
+  const done=items.filter((_,i)=>on(i)).length;
+  const pct=items.length?Math.round(done/items.length*100):0;
+  const mine=(SHARED.diary||[]).filter(x=>x.person===sel);
+  const pics=(SHARED.photos||[]).filter(x=>x.person===sel);
+  return `<button class="btn" data-crew="" style="margin-top:16px">&larr; All five</button>
+    <h1 class="ttl" style="margin-top:14px">${esc(sel)}</h1>
+    <div class="sec">${secH('Packing',done+' of '+items.length)}
+      <div class="panel"><div class="meter" style="margin-top:0"><i style="width:${pct}%"></i></div>
+      <p class="muted" style="margin-top:11px">${items.length-done} still to go.
+        The full list is under Kit.</p>
+      <button class="btn" data-kitjump="${esc(sel)}" style="width:100%;margin-top:11px">Open ${esc(sel)}&rsquo;s list</button>
+      </div></div>
+    <div class="sec">${secH('The diary',mine.length||'')}
+      <div class="panel" style="padding:4px 16px 16px">
+      ${mine.length?mine.map(x=>`<div class="note">${esc(x.text)}
+        <div class="who">${x.day?pretty(x.day):''} &middot; ${esc(when(x.at))}</div></div>`).join('')
+        :'<p class="muted" style="padding:12px 0">Nothing written yet.</p>'}
+      </div></div>
+    ${pics.length?`<div class="sec">${secH('Pictures',pics.length+'')}
+      <div class="panel"><div class="photos" style="margin-top:0">
+      ${pics.map(p=>`<img src="_blob/${esc(p.asset)}" alt="" loading="lazy">`).join('')}
+      </div></div></div>`:''}`;
+};
+
 /* ================= ROUTE ================= */
 V.map=function(){
   const sel=local.mapSel||null,cur=currentDay(),b=D.bases,selB=b.find(x=>x.k===sel);
@@ -1345,8 +1427,97 @@ V.money=function(){
 };
 
 /* ================= KIT ================= */
+const WHOFOR=['Everyone','Tim','Laura','Sienna','Erika','Archer'];
+function shopView(){
+  const all=SHARED.shop||[];
+  const open=all.filter(x=>!x.done), done=all.filter(x=>x.done);
+  const showDone=!!local.shopDone;
+  const groups=WHOFOR.map(w=>[w,open.filter(x=>(x.who||'Everyone')===w)]).filter(g=>g[1].length);
+  const stray=open.filter(x=>WHOFOR.indexOf(x.who||'Everyone')<0);
+  if(stray.length)groups.push(['Other',stray]);
+  if(!connected)return `<div class="panel" style="margin-top:14px">
+    <p class="muted">The shopping list is shared between all of you, so it needs a connection.
+      Open this page again when you have one.</p></div>`;
+  return `<div class="panel" style="margin-top:14px">
+      <div class="compose" style="margin-top:0">
+        <input id="shTx" placeholder="What do we need?" autocomplete="off">
+        <button class="btn primary" data-shopadd="1">Add</button></div>
+      <div class="chips" style="margin-top:10px">${WHOFOR.map(w=>
+        `<button class="chip${(local.shopWho||'Everyone')===w?' on':''}" data-shopwho="${esc(w)}">${esc(w)}</button>`).join('')}</div>
+      <p class="tiny" style="margin-top:9px">Anyone can add. Tick it and it comes off the list.</p>
+    </div>
+    ${open.length?groups.map(([w,list])=>`<div class="sec">${secH(esc(w),list.length+'')}
+      <div class="panel" style="padding:4px 16px">
+      ${list.map(x=>`<button class="ck" data-shop="${esc(x._id)}" aria-pressed="false">
+        <span class="box"><svg viewBox="0 0 24 24"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span>
+        <span class="ckb"><b>${esc(x.text)}</b>
+        <p>${esc(whoName(x.by))} &middot; ${esc(when(x.at))}</p></span></button>`).join('')}
+      </div></div>`).join('')
+      :`<div class="panel" style="margin-top:14px"><p class="muted">Nothing on the list.
+        Either it is all bought, or nobody has asked for anything yet.</p></div>`}
+    ${done.length?`<div class="sec">
+      <button class="btn" data-shopdone="1" style="width:100%">${showDone?'Hide':'Show'} the ${done.length} already bought</button>
+      ${showDone?`<div class="panel" style="padding:4px 16px;margin-top:9px">
+        ${done.slice(0,60).map(x=>`<button class="ck" data-shop="${esc(x._id)}" aria-pressed="true">
+          <span class="box"><svg viewBox="0 0 24 24"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span>
+          <span class="ckb"><b>${esc(x.text)}</b>
+          <p>Got by ${esc(whoName(x.doneBy||x.by))} &middot; ${esc(when(x.doneAt||x.at))}</p></span></button>`).join('')}
+        </div>`:''}</div>`:''}`;
+}
+function jobsView(){
+  if(!connected)return `<div class="panel" style="margin-top:14px"><p class="muted">The jobs list is
+    shared, so it needs a connection.</p></div>`;
+  const all=(SHARED.jobs||[]), t=todayISO();
+  const open=all.filter(x=>!x.done), done=all.filter(x=>x.done);
+  const bucket=x=>!x.due?3:(x.due<t?0:(x.due<=new Date(Date.now()+12096e5).toISOString().slice(0,10)?1:2));
+  const names=['Overdue','In the next fortnight','Later','No date on it'];
+  const groups=[0,1,2,3].map(i=>[names[i],open.filter(x=>bucket(x)===i)
+    .sort((a,b)=>(a.due||'9')<(b.due||'9')?-1:1)]).filter(g=>g[1].length);
+  return `<div class="panel" style="margin-top:14px">
+      <div class="compose" style="margin-top:0">
+        <input id="jbTx" placeholder="What needs doing?" autocomplete="off">
+        <input id="jbDue" type="date" style="flex:0 0 150px">
+        <button class="btn primary" data-jobadd="1">Add</button></div>
+      <div class="chips" style="margin-top:10px">${['Anyone'].concat(CREW).map(w=>
+        `<button class="chip${(local.jobWho||'Anyone')===w?' on':''}" data-jobwho="${esc(w)}">${esc(w)}</button>`).join('')}</div>
+      <p class="tiny" style="margin-top:9px">${open.length} to do, ${done.length} done.</p></div>
+    ${groups.map(([t2,list])=>`<div class="sec">${secH(esc(t2),list.length+'')}
+      <div class="panel" style="padding:4px 16px">
+      ${list.map(x=>`<button class="ck jb${bucket(x)===0?' late':''}" data-job="${esc(x._id)}" aria-pressed="false">
+        <span class="box"><svg viewBox="0 0 24 24"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span>
+        <span class="ckb"><b>${esc(x.text)}</b>
+        ${x.note?`<p>${esc(x.note)}</p>`:''}
+        <p class="jbM">${x.due?shortD(x.due)+' &middot; ':''}${esc(x.who&&x.who!=='Anyone'?x.who:'anyone')}</p>
+        </span></button>`).join('')}</div></div>`).join('')}
+    ${done.length?`<div class="sec">
+      <button class="btn" data-jobdone="1" style="width:100%">${local.jobDone?'Hide':'Show'} the ${done.length} done</button>
+      ${local.jobDone?`<div class="panel" style="padding:4px 16px;margin-top:9px">
+        ${done.map(x=>`<button class="ck" data-job="${esc(x._id)}" aria-pressed="true">
+          <span class="box"><svg viewBox="0 0 24 24"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span>
+          <span class="ckb"><b>${esc(x.text)}</b>
+          <p>Done by ${esc(whoName(x.doneBy||x.by))} &middot; ${esc(when(x.doneAt||x.at))}</p></span></button>`).join('')}
+        </div>`:''}</div>`:''}`;
+}
 V.kit=function(){
   const cur=currentDay(); if(cur)setHue(cur.city);
+  const nb=(SHARED.shop||[]).filter(x=>!x.done).length;
+  const nj=(SHARED.jobs||[]).filter(x=>!x.done).length;
+  const seg=m=>`<div class="chips">
+    <button class="chip${m==='pack'?' on':''}" data-kitmode="pack">Pack</button>
+    <button class="chip${m==='buy'?' on':''}" data-kitmode="buy">Buy${nb?' &middot; '+nb:''}</button>
+    <button class="chip${m==='jobs'?' on':''}" data-kitmode="jobs">Jobs${nj?' &middot; '+nj:''}</button></div>`;
+  if((local.kitMode||'pack')==='jobs'){
+    return `<h1 class="ttl">Before you <em>go</em></h1>
+      <p class="lede">Everything that has to happen before 29 December. Put a name and a date on it,
+        tick it when it is done. Shared, so nobody does the same job twice.</p>
+      ${seg('jobs')}${jobsView()}`;
+  }
+  if((local.kitMode||'pack')==='buy'){
+    return `<h1 class="ttl">The <em>list</em></h1>
+      <p class="lede">Everything still to buy before you go. Anyone can add to it from their own
+        phone, and it comes off the list the moment somebody ticks it.</p>
+      ${seg('buy')}${shopView()}`;
+  }
   const who=local.kitWho||'Tim',items=D.packing[who]||[],st=SHARED.pack[who]||{};
   const on=i=>connected?!!st['i'+i]:!!local['pk:'+who+':'+i];
   const done=items.filter((_,i)=>on(i)).length;
@@ -1363,6 +1534,7 @@ V.kit=function(){
   return `<h1 class="ttl">The <em>kit</em></h1>
     <p class="lede">20 kg each, and five apartments with washing machines, so this is deliberately short.
       ${connected?'Ticks are shared &mdash; everyone sees the same list.':'Not connected, so ticks save on this device only.'}</p>
+    ${seg('pack')}
     <div class="chips">${Object.keys(D.packing).map(k=>
       `<button class="chip${k===who?' on':''}" data-kit="${esc(k)}">${esc(k)}</button>`).join('')}</div>
     <div class="sec">${secH(esc(who),done+' of '+items.length)}
@@ -1404,7 +1576,8 @@ const TABS=[['today','Today','<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V
  ['map','Route','<path d="M9 3 3 5.5v15L9 18l6 3 6-2.5v-15L15 6 9 3z"/><path d="M9 3v15M15 6v15"/>'],
  ['stays','Beds','<path d="M3 18.5v-7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7M3 15h18M7 9.5V7a1.5 1.5 0 0 1 1.5-1.5h7A1.5 1.5 0 0 1 17 7v2.5"/>'],
  ['money','Money','<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M2.5 10h19"/>'],
- ['kit','Kit','<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>']];
+ ['kit','Kit','<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>'],
+ ['crew','Crew','<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.2 2.7-5.2 6-5.2s6 2 6 5.2"/><path d="M16 5.5a3.2 3.2 0 0 1 0 6.4M17.5 14.6c2 .7 3.5 2.5 3.5 5.4"/>']];
 let cur=(location.hash||'').replace('#','');
 if(!TABS.some(t=>t[0]===cur)&&cur!=='sos'&&cur!=='check')cur='today';
 document.getElementById('navIn').innerHTML=TABS.map(([k,l,ic])=>
@@ -1448,6 +1621,7 @@ async function boot(){
   const sub=(c,k,o)=>{let q=DB.collection(c); if(o)q=q.orderBy(o,'desc').limit(300);
     q.onSnapshot(s=>{SHARED[k]=s.docs.map(d=>Object.assign({_id:d.id},d.data()));names();render()},()=>{})};
   sub('notes','notes','at');sub('spend','spend','at');sub('photos','photos','at');sub('asks','asks','at');
+  sub('shop','shop','at');sub('jobs','jobs','at');sub('diary','diary','at');
   DB.collection('fixes').onSnapshot(s=>{SHARED.fixes={};
     s.docs.forEach(d=>SHARED.fixes[d.id]=d.data()||{});render()},()=>{});
   DB.collection('bookings').onSnapshot(s=>{SHARED.book={};s.docs.forEach(d=>SHARED.book[d.id]=d.data());render()},()=>{});
@@ -1456,8 +1630,9 @@ async function boot(){
 }
 async function names(){
   if(!ME||!ME.profiles)return;
-  const ids=[...new Set([...SHARED.notes,...SHARED.spend,...SHARED.photos,...SHARED.asks]
-    .map(x=>x.by).filter(Boolean))].filter(i=>!(i in NAMES));
+  const ids=[...new Set([...SHARED.notes,...SHARED.spend,...SHARED.photos,...SHARED.asks,
+    ...SHARED.shop,...SHARED.jobs,...SHARED.diary]
+    .map(x=>x&&x.by).filter(Boolean))].filter(i=>!(i in NAMES));
   if(!ids.length)return;
   try{const ps=await ME.profiles(ids);ids.forEach(i=>NAMES[i]=(ps[i]&&ps[i].name)||'Someone');render()}
   catch(e){ids.forEach(i=>NAMES[i]='Someone')}
@@ -1522,10 +1697,29 @@ function search(term){
 
 let pendingDay=null;
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kit],[data-pack],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug]');
+  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kitmode],[data-shopadd],[data-shopwho],[data-shopdone],[data-shop],[data-kit],[data-pack],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug]');
   if(!t)return; const s=t.dataset;
   if(s.tab)return go(s.tab);
   if(s.l!==undefined){local.look=s.l||null;saveLocal();return applyLook()}
+  if(s.kitmode){local.kitMode=s.kitmode;saveLocal();window.scrollTo(0,0);return render()}
+  if(s.shopwho){local.shopWho=s.shopwho;saveLocal();return render()}
+  if(s.shopdone){local.shopDone=!local.shopDone;saveLocal();return render()}
+  if(s.shopadd){
+    const tx=document.getElementById('shTx');
+    if(!tx||!tx.value.trim())return toast('Type something first.');
+    const v=tx.value.trim(); tx.value='';
+    return addDoc('shop',{text:v,who:local.shopWho||'Everyone',done:false})}
+  if(s.shop){
+    const it=(SHARED.shop||[]).find(x=>x._id===s.shop); if(!it)return;
+    if(!DB||!CANWRITE)return toast('Not connected.');
+    const nd=!it.done, r=t.getBoundingClientRect();
+    const id=await(ME&&ME.id?ME.id():null);
+    it.done=nd; it.doneBy=nd?id:null; it.doneAt=nd?new Date().toISOString():null;
+    if(nd)burst(r.left+20,r.top+16);
+    render();
+    try{await DB.doc('shop/'+s.shop).set({text:it.text,who:it.who||'Everyone',by:it.by,at:it.at,
+      done:nd,doneBy:it.doneBy,doneAt:it.doneAt})}catch(e){toast('Could not save that.')}
+    return}
   if(s.kit){local.kitWho=s.kit;saveLocal();return render()}
   if(s.base){local.mapSel=local.mapSel===s.base?null:s.base;saveLocal();return render()}
   if(s.fix){
@@ -1578,11 +1772,16 @@ document.addEventListener('click',async e=>{
     if(h.who)local.kitWho=h.who;
     saveLocal();go(h.tab)}
 });
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target&&e.target.id==='shTx'){
+    e.preventDefault();
+    const b=document.querySelector('[data-shopadd]'); if(b)b.click();
+  }});
 document.getElementById('photoInput').addEventListener('change',async e=>{
   const f=e.target.files&&e.target.files[0];e.target.value='';
   if(!f||!ASSETS)return; toast('Uploading…');
   try{const b=await shrink(f);const r=await ASSETS.upload(b);
-    await addDoc('photos',{day:pendingDay,asset:r.id});toast('Photo added.')}
+    await addDoc('photos',{day:pendingDay,asset:r.id,person:local.me||''});toast('Photo added.')}
   catch(err){toast('That photo would not upload.')}
 });
 function shrink(file){
