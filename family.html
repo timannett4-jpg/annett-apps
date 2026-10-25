@@ -662,9 +662,9 @@ function editEvent(id,dateDefault,occK){
 function schoolDue(){const t=today();return listOf(S.school).filter(s=>!s.done&&s.due&&daysBetween(t,s.due)<=7).sort((a,b)=>a.due.localeCompare(b.due))}
 function nextBday(b,from){const f=fromYmd(from);let d=new Date(f.getFullYear(),+b.md.slice(0,2)-1,+b.md.slice(3,5));if(ymd(d)<from)d=new Date(f.getFullYear()+1,d.getMonth(),d.getDate());return ymd(d)}
 function bdaysSoon(n){const t=today();return listOf(S.birthdays).filter(b=>b.md).map(b=>Object.assign({next:nextBday(b,t)},b)).filter(b=>daysBetween(t,b.next)<=n).sort((a,b)=>a.next.localeCompare(b.next))}
-function jobDue(j){if(!j.last)return today();const d=fromYmd(j.last);const n=+j.every||1;if(j.unit==='weeks')return ymd(addDays(d,7*n));const x=new Date(d);x.setMonth(x.getMonth()+n);return ymd(x)}
+function jobDue(j){if(j.once)return j.due||'';if(!j.last)return today();const d=fromYmd(j.last);const n=+j.every||1;if(j.unit==='weeks')return ymd(addDays(d,7*n));const x=new Date(d);x.setMonth(x.getMonth()+n);return ymd(x)}
 const jobWho=j=>Array.isArray(j.who)?j.who:(j.who?[j.who]:[]);
-function jobsDue(){const t=today();return listOf(S.homejobs).map(j=>Object.assign({due:jobDue(j)},j)).filter(j=>daysBetween(t,j.due)<=7).sort((a,b)=>a.due.localeCompare(b.due))}
+function jobsDue(){const t=today();return listOf(S.homejobs).map(j=>Object.assign({due:jobDue(j)},j)).filter(j=>!(j.once&&j.done)&&j.due&&daysBetween(t,j.due)<=7).sort((a,b)=>a.due.localeCompare(b.due))}
 const liveNotes=()=>{const t=today();return listOf(S.notes).filter(n=>n.pinned||!n.until||n.until>=t).sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0)||(b.at||'').localeCompare(a.at||''))};
 
 /* ===== Today (landing): sky that follows the time of day, then the family's day on one timeline ===== */
@@ -982,24 +982,34 @@ function editGift(names){
 
 /* ===== Home maintenance ===== */
 VIEWS.hjobs=function(v){
-  const t=today(),js=listOf(S.homejobs).map(j=>Object.assign({due:jobDue(j)},j)).sort((a,b)=>a.due.localeCompare(b.due));
-  v.innerHTML=`<div class="ph"><div><h1>Home jobs</h1><p>Jobs that come round every few weeks or months. Tick one when it's done and the next due date resets.</p></div><button class="btn" id="newJob">${svg('plus')}New job</button></div>
-  <section class="card">${js.length?js.map(j=>{const n=daysBetween(t,j.due);return `<div class="row" data-job="${esc(j.id)}" role="button" tabindex="0"><span class="check">${svg('check')}</span><span class="txt"><b>${esc(j.title)}</b><small>${jobWho(j).length?jobWho(j).map(w=>`<span class="pip" style="background:${colour(w)}"></span>${esc(person(w).name)}`).join(' ')+', ':''}every ${j.every} ${j.unit}${j.last?', last done '+niceK(j.last):''}</small></span><span class="due ${n<0?'late':n<=7?'soon':''}">${n<0?'Overdue':n===0?'Due today':'Due '+niceK(j.due)}</span><button class="icon" data-ejob="${esc(j.id)}" aria-label="Edit">${svg('pen')}</button></div>`}).join(''):'<div style="padding:18px"><div class="empty"><b>No jobs yet</b>For example: clean the gutters every 6 months, test smoke alarms every 12 months, clean air-con filters every 3 months.</div></div>'}</section>`;
+  const t=today(),all=listOf(S.homejobs).map(j=>Object.assign({due:jobDue(j)},j));
+  const js=all.filter(j=>!(j.once&&j.done)).sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999'));
+  const done=all.filter(j=>j.once&&j.done).sort((a,b)=>(b.doneAt||'').localeCompare(a.doneAt||'')).slice(0,15);
+  const whoTxt=j=>jobWho(j).length?jobWho(j).map(w=>`<span class="pip" style="background:${colour(w)}"></span>${esc(person(w).name)}`).join(' ')+', ':'';
+  const row=j=>{const n=j.due?daysBetween(t,j.due):null;return `<div class="row${j.once&&j.done?' done':''}" data-job="${esc(j.id)}" role="button" tabindex="0"><span class="check">${svg('check')}</span><span class="txt"><b>${esc(j.title)}</b><small>${whoTxt(j)}${j.once?(j.done?'one-off, done'+(j.doneBy?' by '+esc(person(j.doneBy).name):''):'one-off'):`every ${j.every} ${j.unit}${j.last?', last done '+niceK(j.last):''}`}</small></span>${j.once&&j.done?'':`<span class="due ${n!=null&&n<0?'late':n!=null&&n<=7?'soon':''}">${n==null?'No date':n<0?'Overdue':n===0?'Due today':'Due '+niceK(j.due)}</span>`}<button class="icon" data-ejob="${esc(j.id)}" aria-label="Edit">${svg('pen')}</button></div>`};
+  v.innerHTML=`<div class="ph"><div><h1>Home jobs</h1><p>One-off jobs, and jobs that come round every few weeks or months. Tick a repeating job and its next due date resets.</p></div><button class="btn" id="newJob">${svg('plus')}New job</button></div>
+  <section class="card">${js.length?js.map(row).join(''):'<div style="padding:18px"><div class="empty"><b>No jobs yet</b>For example: fix the side gate (one-off), clean the gutters every 6 months, test smoke alarms every 12 months.</div></div>'}</section>
+  ${done.length?`<section class="card"><div class="glabel">Done<span>${done.length}</span></div>${done.map(row).join('')}</section>`:''}`;
   $('#newJob').onclick=()=>editJob(null);v.querySelectorAll('[data-ejob]').forEach(b=>b.onclick=()=>editJob(b.dataset.ejob));
   tapRows('[data-job]',async function(e){if(e.target.closest('.icon'))return;if(needMe())return;const id=this.dataset.job,j=S.homejobs[id];
+    if(j.once){if(await write(db=>db.doc('homejobs/'+id).set(Object.assign({},j,j.done?{done:false,doneBy:'',doneAt:''}:{done:true,doneBy:S.me,doneAt:nowIso()}))))toast(j.done?j.title+' back on the list':j.title+' done');return}
     if(await write(db=>db.doc('homejobs/'+id).set(Object.assign({},j,{last:today(),lastBy:S.me}))))toast(j.title+' done. Next due '+niceK(jobDue(Object.assign({},j,{last:today()}))))});
 };
 function editJob(id){
-  if(needMe())return;const j=id?S.homejobs[id]:{title:'',every:6,unit:'months',last:'',who:''};let unit=j.unit||'months';const who=new Set(jobWho(j));
+  if(needMe())return;const j=id?S.homejobs[id]:{title:'',every:6,unit:'months',last:'',who:[],once:false,due:''};let unit=j.unit||'months',kind=j.once?'once':'repeat';const who=new Set(jobWho(j));
   openSheet(`<h2>${id?'Edit job':'New home job'}</h2><form class="form" id="jF">
-   <label class="field"><span>Job</span><input id="jT" value="${esc(j.title)}" placeholder="e.g. Clean the gutters" autocomplete="off" required></label>
-   <div class="two"><label class="field"><span>Every</span><input type="number" id="jE" min="1" max="60" value="${esc(j.every)}"></label><div class="field"><span>&nbsp;</span><div class="chips"><button type="button" class="chip" data-ju="weeks" aria-pressed="${unit==='weeks'}">Weeks</button><button type="button" class="chip" data-ju="months" aria-pressed="${unit==='months'}">Months</button></div></div></div>
-   <label class="field"><span>Last done (leave blank if not sure)</span><input type="date" id="jL" value="${esc(j.last||'')}"></label>
-   <div class="field"><span>Usually done by (pick as many as you like, or none for anyone)</span><div class="chips wrap">${USERS.map(u=>`<button type="button" class="chip" data-jw="${u.id}" aria-pressed="${who.has(u.id)}"><span class="pip" style="background:${colour(u.id)}"></span>${u.name}</button>`).join('')}</div></div>
+   <label class="field"><span>Job</span><input id="jT" value="${esc(j.title)}" placeholder="e.g. Fix the side gate" autocomplete="off" required></label>
+   <div class="field"><span>How often</span><div class="chips"><button type="button" class="chip" data-jk="once" aria-pressed="${kind==='once'}">One-off</button><button type="button" class="chip" data-jk="repeat" aria-pressed="${kind==='repeat'}">Repeating</button></div></div>
+   <label class="field" id="jOnce"><span>Do by (optional)</span><input type="date" id="jD" value="${esc(j.once?j.due||'':'')}"></label>
+   <div id="jRep" class="form"><div class="two"><label class="field"><span>Every</span><input type="number" id="jE" min="1" max="60" value="${esc(j.every||6)}"></label><div class="field"><span>&nbsp;</span><div class="chips"><button type="button" class="chip" data-ju="weeks" aria-pressed="${unit==='weeks'}">Weeks</button><button type="button" class="chip" data-ju="months" aria-pressed="${unit==='months'}">Months</button></div></div></div>
+   <label class="field"><span>Last done (leave blank if not sure)</span><input type="date" id="jL" value="${esc(j.last||'')}"></label></div>
+   <div class="field"><span>Done by (pick as many as you like, or none for anyone)</span><div class="chips wrap">${USERS.map(u=>`<button type="button" class="chip" data-jw="${u.id}" aria-pressed="${who.has(u.id)}"><span class="pip" style="background:${colour(u.id)}"></span>${u.name}</button>`).join('')}</div></div>
    <div class="actions">${id?'<button type="button" class="link danger" id="jX">Delete</button>':''}<span class="grow"></span><button class="btn">Save</button></div></form>`);
+  const sh=()=>{$('#jOnce').hidden=kind!=='once';$('#jRep').hidden=kind!=='repeat'};pick('[data-jk]','data-jk',x=>{kind=x;sh()});sh();
   pick('[data-ju]','data-ju',x=>unit=x);document.querySelectorAll('[data-jw]').forEach(b=>b.onclick=()=>{const w=b.dataset.jw;who.has(w)?who.delete(w):who.add(w);b.setAttribute('aria-pressed',who.has(w))});
   $('#jF').onsubmit=async e=>{e.preventDefault();const t=$('#jT').value.trim();if(!t)return;
-    const r={title:t.slice(0,80),every:Math.max(1,Math.min(60,+$('#jE').value||1)),unit,last:$('#jL').value,who:[...who],addedBy:j.addedBy||S.me};
+    const base={title:t.slice(0,80),who:[...who],addedBy:j.addedBy||S.me};
+    const r=kind==='once'?Object.assign(base,{once:true,due:$('#jD').value,done:!!j.done&&!!j.once,doneBy:j.once?j.doneBy||'':'',doneAt:j.once?j.doneAt||'':''}):Object.assign(base,{once:false,every:Math.max(1,Math.min(60,+$('#jE').value||1)),unit,last:$('#jL').value});
     if(await write(db=>db.doc('homejobs/'+(id||rid())).set(r)))closeSheet()};
   const x=$('#jX');if(x)x.onclick=async()=>{if(await write(db=>db.doc('homejobs/'+id).delete()))closeSheet()};
 }
