@@ -17,7 +17,6 @@ addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&/_b
 <script src="claude-shim.js"></script>
 </head>
 <body>
-
 <title>Annett Family Hub</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -334,6 +333,20 @@ main>*{min-width:0}
 nav.tabs button{font-size:.66rem}
 nav.tabs button svg{width:22px;height:22px}
 
+
+/* ---------- round 2 ---------- */
+.recgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.reccard{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:16px;padding:16px;text-align:left;display:grid;gap:6px}
+.reccard b{font-size:1.05rem;font-weight:800}
+.reccard span{color:var(--muted);font-size:.88rem}
+.reccard small{display:flex;align-items:center;gap:6px;color:var(--faint);font-size:.8rem}
+.ing{margin:0;padding-left:20px;display:grid;gap:4px}
+.method{display:grid;gap:8px}.method p{margin:0;display:flex;gap:10px}.method p b{width:24px;height:24px;border-radius:50%;background:var(--side);color:#fff;display:grid;place-items:center;font-size:.78rem;flex:none}
+.btn.small{min-height:36px;padding:0 12px;font-size:.84rem}
+.btn.small.on{background:var(--accent-soft);border-color:#ffcdc5;color:var(--accent-deep)}
+.lowrow{background:#fffaf3}
+.chip small{font-weight:500;opacity:.7}
+
 /* bottom tabs (phone) */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);display:flex;padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
 nav.tabs button{flex:1;height:var(--tab);display:grid;place-items:center;align-content:center;gap:3px;color:var(--faint);font-weight:700;font-size:.72rem;position:relative}
@@ -436,6 +449,9 @@ const I={
  car:'<path d="M5 16V11l2-5h10l2 5v5z"/><path d="M5 11h14"/><circle cx="8" cy="16" r="1.6"/><circle cx="16" cy="16" r="1.6"/>',
  warn:'<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
  star:'<path d="M12 4l2.4 5 5.4.6-4 3.7 1.1 5.3L12 16l-4.9 2.6 1.1-5.3-4-3.7 5.4-.6z"/>',
+ book:'<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>',
+ box:'<path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/>',
+ lunch:'<rect x="3.5" y="8" width="17" height="11" rx="3"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
  x:'<path d="M7 7l10 10M17 7L7 17"/>',
  pen:'<path d="M5 19l1-4L16 5l3 3L9 18z"/>',
@@ -475,10 +491,10 @@ function pick(sel,attr,fn){document.querySelectorAll(sel).forEach(b=>b.onclick=(
 
 /* ---------- state ---------- */
 const S={me:store.get('fh-me')||'',tab:store.get('fh-tab2')||'home',aisle:store.get('fh-aisle')||'Other',list:store.get('fh-list')||'super',calWho:'',editUsuals:false,
-  events:{},shop:{},meals:{},chores:{},log:{},regulars:{},dinnerin:{},notes:{},school:{},birthdays:{},gifts:{},homejobs:{},settings:{},
+  events:{},shop:{},meals:{},chores:{},log:{},regulars:{},dinnerin:{},notes:{},school:{},birthdays:{},gifts:{},homejobs:{},settings:{},recipes:{},pantry:{},lunches:{},
   week:monday(new Date()),calWeek:monday(new Date()),ready:false,db:null};
 const PAGES=[['home','Today','home'],['cal','Calendar','cal'],['shop','Shopping','shop'],['meals','Dinners','meal'],['chores','Chores','chore']];
-const EXTRA=[['notice','Noticeboard','note'],['school','School','school'],['bdays','Birthdays & gifts','gift'],['hjobs','Home jobs','tool'],['colours','Colours','palette']];
+const EXTRA=[['notice','Noticeboard','note'],['school','School','school'],['recipes','Recipes','book'],['pantry','Pantry & freezer','box'],['lunch',"Archer's lunches",'lunch'],['bdays','Birthdays & gifts','gift'],['hjobs','Home jobs','tool'],['colours','Colours','palette']];
 const PHONE=[...PAGES,['more','More','more']];
 function paintNav(){
   const open=Object.values(S.shop).filter(i=>!i.done).length;
@@ -533,7 +549,7 @@ async function write(fn){if(!S.db){toast('Not connected yet. Try again in a mome
   const sub=(name,key)=>db.collection(name).onSnapshot(s=>{const o={};s.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});
     const j=JSON.stringify(o);const first=!(key in seen);if(!first&&seen[key]===j)return;seen[key]=j;S[key]=o;S.ready=true;soon()},()=>{});
   sub('events','events');sub('shopping','shop');sub('meals','meals');sub('chores','chores');sub('chorelog','log');
-  sub('regulars','regulars');sub('dinnerin','dinnerin');sub('notes','notes');sub('school','school');sub('birthdays','birthdays');sub('gifts','gifts');sub('homejobs','homejobs');sub('settings','settings');
+  sub('regulars','regulars');sub('dinnerin','dinnerin');sub('notes','notes');sub('school','school');sub('birthdays','birthdays');sub('gifts','gifts');sub('homejobs','homejobs');sub('settings','settings');sub('recipes','recipes');sub('pantry','pantry');sub('lunches','lunches');
 })();
 
 /* ---------- render ---------- */
@@ -665,7 +681,7 @@ VIEWS.home=function(v){
   <div class="homegrid">
     <div class="side">
       <button class="pin" id="toShop"><span class="pc">${open.length}</span><span class="pt"><b>Shopping</b><span>${open.length?esc(open.slice(0,3).map(i=>i.text).join(', '))+(open.length>3?' and '+(open.length-3)+' more':''):'Nothing to buy right now'}</span></span></button>
-      <button class="pin tmw" id="toCal"><span class="pt"><b>Tomorrow</b><span>${tomorrow.length?tomorrow.join('<br>')+(tev.length>3?'<br>and '+(tev.length-3)+' more':''):'Nothing on yet'}${tm.dinner?`<br>Dinner: ${esc(tm.dinner)}`:''}</span></span></button>
+      <button class="pin tmw" id="toCal"><span class="pt"><b>Tomorrow</b><span>${tomorrow.length?tomorrow.join('<br>')+(tev.length>3?'<br>and '+(tev.length-3)+' more':''):'Nothing on yet'}${tm.dinner?`<br>Dinner: ${esc(tm.dinner)}`:''}${S.lunches[tk]&&S.lunches[tk].main?`<br>Archer's lunch: ${esc(S.lunches[tk].main)}`:''}</span></span></button>
       <section class="card mini-card"><div class="mh"><b>Home for dinner tonight</b><span>${homeN} of ${USERS.length}</span></div>
         <div class="dinin">${USERS.map(u=>{const out=din[u.id]==='out';return `<button class="dpill${out?' out':''}" data-din="${u.id}" aria-pressed="${!out}"><span class="av" style="background:${colour(u.id)}">${u.name[0]}</span>${esc(u.name)}<small>${out?'Out':'Home'}</small></button>`}).join('')}</div></section>
       ${notes.length?`<section class="card mini-card"><div class="mh"><b>Noticeboard</b><button class="more" id="toNotes">All notes</button></div>${notes.map(n=>`<button class="noteline" data-note="${esc(n.id)}"><span class="pip" style="background:${colour(n.by)}"></span><span>${esc(n.text)}<small>${esc(person(n.by).name)}</small></span></button>`).join('')}</section>`:''}
@@ -909,23 +925,139 @@ VIEWS.colours=function(v){
   v.querySelectorAll('[data-col]').forEach(b=>b.onclick=()=>{if(needMe())return;const doc=S.settings.colours||{};const r=Object.assign({},doc,{[b.dataset.col]:b.dataset.c});write(db=>db.doc('settings/colours').set(r))});
 };
 
+
+/* ===== Recipe box ===== */
+const splitLines=s=>String(s||'').split('\n').map(x=>x.trim()).filter(Boolean);
+VIEWS.recipes=function(v){
+  const q=(S.rq||'').toLowerCase();
+  const rs=listOf(S.recipes).filter(r=>!q||(r.title+' '+(r.ingredients||[]).join(' ')).toLowerCase().includes(q)).sort((a,b)=>a.title.localeCompare(b.title));
+  const lastMade=t=>{let best='';for(const [k,m] of Object.entries(S.meals))if(m&&m.recipe===t&&k<=today()&&k>best)best=k;return best};
+  v.innerHTML=`<div class="ph"><div><h1>Recipes</h1><p>The family's recipes. Put one on a night or send its ingredients to the shopping list.</p></div><button class="btn" id="newRec">${svg('plus')}New recipe</button></div>
+  <div class="inline"><input id="rq" placeholder="Search recipes or ingredients" value="${esc(S.rq||'')}" autocomplete="off" aria-label="Search recipes"></div>
+  ${rs.length?`<div class="recgrid">${rs.map(r=>{const lm=lastMade(r.id);return `<button class="reccard" data-rec="${esc(r.id)}"><b>${esc(r.title)}</b><span>${[(r.ingredients||[]).length+' ingredients',r.time?esc(r.time):'',r.serves?'serves '+esc(r.serves):''].filter(Boolean).join(', ')}</span><small><span class="pip" style="background:${colour(r.by)}"></span>${esc(person(r.by).name)}${lm?', last cooked '+niceK(lm):''}</small></button>`}).join('')}</div>`:
+  `<section class="card" style="padding:18px"><div class="empty"><b>${q?'No recipes match':'No recipes yet'}</b>${q?'Try another word.':'Add the family favourites so they live next to the meal plan.'}</div></section>`}`;
+  $('#newRec').onclick=()=>editRecipe(null);
+  const rq=$('#rq');rq.oninput=()=>{S.rq=rq.value;clearTimeout(rq.t);rq.t=setTimeout(()=>{render();const x=$('#rq');if(x){x.focus();x.setSelectionRange(x.value.length,x.value.length)}},250)};
+  v.querySelectorAll('[data-rec]').forEach(b=>b.onclick=()=>showRecipe(b.dataset.rec));
+};
+function showRecipe(id){
+  const r=S.recipes[id];if(!r)return;
+  openSheet(`<h2>${esc(r.title)}</h2><p class="sub">${[r.time?esc(r.time):'',r.serves?'Serves '+esc(r.serves):'','Added by '+esc(person(r.by).name)].filter(Boolean).join('. ')}</p>
+   <div class="field"><span>Ingredients</span><ul class="ing">${(r.ingredients||[]).map(i=>`<li>${esc(i)}</li>`).join('')||'<li>None listed</li>'}</ul></div>
+   ${r.method?`<div class="field"><span>Method</span><div class="method">${splitLines(r.method).map((m,i)=>`<p><b>${i+1}</b>${esc(m)}</p>`).join('')}</div></div>`:''}
+   <div class="field"><span>Cook it on</span><div class="chips wrap">${[...Array(7)].map((_,i)=>{const k=ymd(addDays(new Date(),i));const m=S.meals[k];return `<button type="button" class="chip" data-on="${k}">${i===0?'Tonight':i===1?'Tomorrow':DOW[fromYmd(k).getDay()]}${m&&m.dinner?' <small>(has '+esc(m.dinner)+')</small>':''}</button>`}).join('')}</div></div>
+   <div class="actions"><button type="button" class="btn ghost" id="rShop">Add ingredients to shopping</button><span class="grow"></span><button type="button" class="link" id="rEdit">Edit</button></div>`);
+  document.querySelectorAll('[data-on]').forEach(b=>b.onclick=async()=>{if(needMe())return;const k=b.dataset.on,m=S.meals[k]||{};
+    const rr={dinner:r.title,recipe:id,time:m.time||'18:30',cook:m.cook||'',ingredients:r.ingredients||[],updatedBy:S.me,updatedAt:nowIso()};
+    if(await write(db=>db.doc('meals/'+k).set(rr))){closeSheet();toast(r.title+' is on for '+(k===today()?'tonight':niceK(k)))}});
+  $('#rShop').onclick=async()=>{if(needMe())return;toast(await ingToShop(r.ingredients||[],''))};
+  $('#rEdit').onclick=()=>editRecipe(id);
+}
+async function ingToShop(ings,forMeal){
+  if(!ings.length)return 'No ingredients listed';
+  const have=new Set(Object.values(S.shop).filter(i=>!i.done).map(i=>i.text.toLowerCase()));let n=0;
+  for(const t of ings){if(have.has(t.toLowerCase()))continue;await write(db=>db.collection('shopping').doc(rid()).set({text:t.slice(0,120),list:'super',aisle:'Other',qty:'',note:'',addedBy:S.me,addedAt:nowIso(),done:false,doneBy:'',doneAt:'',forMeal}));n++}
+  return n?'Added '+n+' to shopping':'Already on the shopping list';
+}
+function editRecipe(id){
+  if(needMe())return;const r=id?S.recipes[id]:{title:'',serves:'',time:'',ingredients:[],method:''};
+  openSheet(`<h2>${id?'Edit recipe':'New recipe'}</h2><form class="form" id="rF">
+   <label class="field"><span>Name</span><input id="rT" value="${esc(r.title)}" placeholder="e.g. Laura's lasagne" autocomplete="off" required></label>
+   <div class="two"><label class="field"><span>Serves</span><input id="rS" value="${esc(r.serves||'')}" placeholder="e.g. 6" autocomplete="off"></label><label class="field"><span>Time</span><input id="rTi" value="${esc(r.time||'')}" placeholder="e.g. 1 hour" autocomplete="off"></label></div>
+   <label class="field"><span>Ingredients, one per line</span><textarea id="rI" placeholder="500g beef mince&#10;Lasagne sheets&#10;Passata">${esc((r.ingredients||[]).join('\n'))}</textarea></label>
+   <label class="field"><span>Method, one step per line (optional)</span><textarea id="rM" placeholder="Brown the mince&#10;Add the passata and simmer 20 minutes">${esc(r.method||'')}</textarea></label>
+   <div class="actions">${id?'<button type="button" class="link danger" id="rX">Delete</button>':''}<span class="grow"></span><button class="btn">Save</button></div></form>`);
+  $('#rF').onsubmit=async e=>{e.preventDefault();const t=$('#rT').value.trim();if(!t)return;
+    const rr={title:t.slice(0,80),serves:$('#rS').value.trim().slice(0,10),time:$('#rTi').value.trim().slice(0,30),ingredients:splitLines($('#rI').value).slice(0,60).map(x=>x.slice(0,120)),method:$('#rM').value.trim().slice(0,4000),by:id?(r.by||S.me):S.me,updatedBy:S.me,updatedAt:nowIso()};
+    const nid=id||rid();if(await write(db=>db.doc('recipes/'+nid).set(rr))){closeSheet();toast(id?'Saved':'Recipe added')}};
+  const x=$('#rX');if(x)x.onclick=async()=>{if(await write(db=>db.doc('recipes/'+id).delete()))closeSheet()};
+}
+
+/* ===== Pantry, fridge and freezer ===== */
+const PLACES=[['pantry','Pantry'],['fridge','Fridge'],['freezer','Freezer']];
+VIEWS.pantry=function(v){
+  const all=listOf(S.pantry);const cur=S.place||'pantry';
+  const items=all.filter(p=>(p.where||'pantry')===cur).sort((a,b)=>(b.low?1:0)-(a.low?1:0)||a.name.localeCompare(b.name));
+  const t=today();
+  v.innerHTML=`<div class="ph"><div><h1>Pantry and freezer</h1><p>What's in the house. Tap "Running low" to put it on the shopping list.</p></div><button class="btn" id="newP">${svg('plus')}Add</button></div>
+  <div class="chips">${PLACES.map(([k,n])=>`<button class="chip" data-place="${k}" aria-pressed="${cur===k}">${n} <b class="cnum">${all.filter(p=>(p.where||'pantry')===k).length}</b></button>`).join('')}</div>
+  <section class="card">${items.length?items.map(p=>{const age=p.since?daysBetween(p.since,t):null;return `<div class="row${p.low?' lowrow':''}"><span class="txt"><b>${p.qty?`<span class="q">${esc(p.qty)}</span> `:''}${esc(p.name)}</b><small>${cur==='freezer'&&p.since?'Frozen '+niceK(p.since)+(age>90?', <span class="late">over 3 months</span>':''):p.low?'<span class="soon">Running low, on the shopping list</span>':'Added by '+esc(person(p.by).name)}</small></span>
+    <button class="btn ghost small${p.low?' on':''}" data-low="${esc(p.id)}">${p.low?'Restocked':'Running low'}</button><button class="icon" data-ep="${esc(p.id)}" aria-label="Edit ${esc(p.name)}">${svg('pen')}</button><button class="icon" data-dp="${esc(p.id)}" aria-label="Used up ${esc(p.name)}">${svg('x')}</button></div>`}).join(''):
+  `<div style="padding:18px"><div class="empty"><b>Nothing in the ${PLACES.find(x=>x[0]===cur)[1].toLowerCase()} list</b>${cur==='freezer'?'Add meals and meat when they go in, so they get used in time.':'Add the things you keep stocked.'}</div></div>`}</section>`;
+  v.querySelectorAll('[data-place]').forEach(b=>b.onclick=()=>{S.place=b.dataset.place;render()});
+  $('#newP').onclick=()=>editPantry(null);
+  v.querySelectorAll('[data-ep]').forEach(b=>b.onclick=()=>editPantry(b.dataset.ep));
+  v.querySelectorAll('[data-dp]').forEach(b=>b.onclick=async()=>{const p=S.pantry[b.dataset.dp];if(await write(db=>db.doc('pantry/'+b.dataset.dp).delete()))toast(p.name+' removed')});
+  v.querySelectorAll('[data-low]').forEach(b=>b.onclick=async()=>{if(needMe())return;const id=b.dataset.low,p=S.pantry[id];
+    if(p.low){await write(db=>db.doc('pantry/'+id).set(Object.assign({},p,{low:false})));toast(p.name+' restocked');return}
+    await write(db=>db.doc('pantry/'+id).set(Object.assign({},p,{low:true,lowBy:S.me})));
+    const on=Object.values(S.shop).some(i=>!i.done&&i.text.toLowerCase()===p.name.toLowerCase());
+    if(!on)await addShop(p.name,'super',p.aisle||'Other','');toast(on?p.name+' is already on the list':p.name+' added to shopping')});
+};
+function editPantry(id){
+  if(needMe())return;const p=id?S.pantry[id]:{name:'',where:S.place||'pantry',qty:'',since:today(),aisle:'Pantry'};let where=p.where||'pantry';
+  openSheet(`<h2>${id?'Edit':'Add to the house list'}</h2><form class="form" id="pF">
+   <div class="field"><span>Where</span><div class="chips">${PLACES.map(([k,n])=>`<button type="button" class="chip" data-pw="${k}" aria-pressed="${where===k}">${n}</button>`).join('')}</div></div>
+   <div class="two"><label class="field"><span>What</span><input id="pN" value="${esc(p.name)}" placeholder="e.g. Spag bol" autocomplete="off" required></label><label class="field"><span>How many (optional)</span><input id="pQ" value="${esc(p.qty||'')}" placeholder="e.g. 2 tubs" autocomplete="off"></label></div>
+   <label class="field" id="pSw"><span>Went in the freezer on</span><input type="date" id="pS" value="${esc(p.since||today())}"></label>
+   <div class="actions"><span class="grow"></span><button class="btn">Save</button></div></form>`);
+  const sh=()=>$('#pSw').hidden=where!=='freezer';pick('[data-pw]','data-pw',x=>{where=x;sh()});sh();
+  $('#pF').onsubmit=async e=>{e.preventDefault();const n=$('#pN').value.trim();if(!n)return;
+    const r=Object.assign({},p,{name:n.slice(0,80),where,qty:$('#pQ').value.trim().slice(0,20),since:where==='freezer'?$('#pS').value:'',by:p.by||S.me,low:!!p.low});
+    if(await write(db=>db.doc('pantry/'+(id||rid())).set(r))){closeSheet();S.place=where;render()}};
+}
+
+/* ===== Archer's lunchbox planner ===== */
+const LUNCH_FOR='archer';
+VIEWS.lunch=function(v){
+  const wk=S.lunchWeek||monday(addDays(new Date(),new Date().getDay()===6||new Date().getDay()===0?2:0));
+  const days=[...Array(5)].map((_,i)=>addDays(wk,i));const t=today();
+  const planned=days.filter(d=>S.lunches[ymd(d)]).length;
+  v.innerHTML=`<div class="ph"><div><h1>Archer's lunches</h1><p>${nice(days[0])} to ${nice(days[4])}. ${planned} of 5 school days planned</p></div>
+    <div class="wk"><button class="round" id="lPrev" aria-label="Previous week">${svg('left')}</button><button class="btn ghost" id="lNow">This week</button><button class="round" id="lNext" aria-label="Next week">${svg('right')}</button></div></div>
+  <section class="card">${days.map(d=>{const k=ymd(d),l=S.lunches[k];const hol=HOLIDAYS[k];
+    return `<button class="night${k===t?' tonight':''}" data-lunch="${k}"><span class="dn"><b>${DOW[d.getDay()]}</b><small>${nice(d)}</small></span>
+      <span>${hol?`<span class="dish none">${esc(hol)} (public holiday)</span>`:l?`<span class="dish">${esc(l.main||'Lunch planned')}</span><span class="dmeta">${esc([l.snacks,l.fruit,l.drink].filter(Boolean).join(', '))}</span>`:'<span class="dish none">Nothing planned</span>'}</span>
+      ${k===t?'<span class="tag">Today</span>':''}</button>`}).join('')}</section>
+  <div class="actions"><button class="btn ghost" id="lCopy">Copy last week</button><button class="btn ghost" id="lShop">Add this week's lunch items to shopping</button></div>`;
+  $('#lPrev').onclick=()=>{S.lunchWeek=addDays(wk,-7);render()};$('#lNext').onclick=()=>{S.lunchWeek=addDays(wk,7);render()};$('#lNow').onclick=()=>{S.lunchWeek=null;render()};
+  v.querySelectorAll('[data-lunch]').forEach(b=>b.onclick=()=>editLunch(b.dataset.lunch));
+  $('#lCopy').onclick=async()=>{if(needMe())return;let n=0;for(const d of days){const k=ymd(d),prev=S.lunches[ymd(addDays(d,-7))];if(!prev||S.lunches[k]||HOLIDAYS[k])continue;await write(db=>db.doc('lunches/'+k).set(Object.assign({},prev,{by:S.me,at:nowIso()})));n++}
+    toast(n?'Copied '+n+' day'+(n===1?'':'s')+' from last week':'Nothing to copy (last week empty or this week already planned)')};
+  $('#lShop').onclick=async()=>{if(needMe())return;const items=[];for(const d of days){const l=S.lunches[ymd(d)];if(!l)continue;for(const f of [l.main,l.snacks,l.fruit,l.drink])String(f||'').split(',').map(x=>x.trim()).filter(Boolean).forEach(x=>{if(!items.some(y=>y.toLowerCase()===x.toLowerCase()))items.push(x)})}
+    toast(items.length?await ingToShop(items,'lunch'):'Plan some lunches first')};
+};
+function editLunch(k){
+  if(needMe())return;const l=S.lunches[k]||{};const d=fromYmd(k);
+  openSheet(`<h2>Archer's lunch, ${DOWL[d.getDay()]} ${nice(d)}</h2><form class="form" id="luF">
+   <label class="field"><span>Main</span><input id="luM" value="${esc(l.main||'')}" placeholder="e.g. Ham and cheese wrap" autocomplete="off"></label>
+   <label class="field"><span>Snacks</span><input id="luS" value="${esc(l.snacks||'')}" placeholder="e.g. Muesli bar, crackers" autocomplete="off"></label>
+   <div class="two"><label class="field"><span>Fruit</span><input id="luF2" value="${esc(l.fruit||'')}" placeholder="e.g. Apple" autocomplete="off"></label><label class="field"><span>Drink</span><input id="luD" value="${esc(l.drink||'')}" placeholder="e.g. Water" autocomplete="off"></label></div>
+   <div class="actions">${S.lunches[k]?'<button type="button" class="link danger" id="luX">Clear</button>':''}<span class="grow"></span><button class="btn">Save</button></div></form>`);
+  $('#luF').onsubmit=async e=>{e.preventDefault();const r={main:$('#luM').value.trim().slice(0,80),snacks:$('#luS').value.trim().slice(0,120),fruit:$('#luF2').value.trim().slice(0,60),drink:$('#luD').value.trim().slice(0,40),who:LUNCH_FOR,by:S.me,at:nowIso()};
+    const empty=!r.main&&!r.snacks&&!r.fruit&&!r.drink;if(await write(db=>empty?db.doc('lunches/'+k).delete():db.doc('lunches/'+k).set(r)))closeSheet()};
+  const x=$('#luX');if(x)x.onclick=async()=>{if(await write(db=>db.doc('lunches/'+k).delete()))closeSheet()};
+}
+
+
 /* ===== Dinners ===== */
 VIEWS.meals=function(v){
   const days=[...Array(7)].map((_,k)=>addDays(S.week,k));const t=today();
   const planned=days.filter(d=>(S.meals[ymd(d)]||{}).dinner).length;
   v.innerHTML=`<div class="ph"><div><h1>Dinners</h1><p>${nice(days[0])} to ${nice(days[6])}. ${planned} of 7 nights planned</p></div>
-    <div class="wk"><button class="round" id="wkPrev" aria-label="Previous week">${svg('left')}</button><button class="btn ghost" id="wkNow">This week</button><button class="round" id="wkNext" aria-label="Next week">${svg('right')}</button></div></div>
+    <div class="wk"><button class="btn ghost" id="toRec">${svg('book')}Recipes</button><button class="round" id="wkPrev" aria-label="Previous week">${svg('left')}</button><button class="btn ghost" id="wkNow">This week</button><button class="round" id="wkNext" aria-label="Next week">${svg('right')}</button></div></div>
   <section class="card">${days.map(d=>{const k=ymd(d),m=S.meals[k]||{};const ing=(m.ingredients||[]).filter(Boolean);
     return `<button class="night${k===t?' tonight':''}" data-day="${k}"><span class="dn"><b>${DOW[d.getDay()]}</b><small>${nice(d)}</small></span>
       <span><span class="dish${m.dinner?'':' none'}">${m.dinner?esc(m.dinner):'Nothing planned'}</span>
       ${m.dinner&&(m.cook||ing.length)?`<span class="dmeta">${m.cook?`<span class="pip" style="background:${colour(m.cook)}"></span>${esc(person(m.cook).name)} cooking`:''}${m.cook&&ing.length?'. ':''}${ing.length?ing.length+' ingredient'+(ing.length===1?'':'s'):''}</span>`:''}</span>
       ${k===t?'<span class="tag">Tonight</span>':`<span style="color:var(--faint)">${svg('right','  width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"')}</span>`}</button>`}).join('')}</section>`;
-  $('#wkPrev').onclick=()=>{S.week=addDays(S.week,-7);render()};$('#wkNext').onclick=()=>{S.week=addDays(S.week,7);render()};$('#wkNow').onclick=()=>{S.week=monday(new Date());render()};
+  $('#toRec').onclick=()=>setTab('recipes');$('#wkPrev').onclick=()=>{S.week=addDays(S.week,-7);render()};$('#wkNext').onclick=()=>{S.week=addDays(S.week,7);render()};$('#wkNow').onclick=()=>{S.week=monday(new Date());render()};
   v.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>editMeal(b.dataset.day));
 }
 function editMeal(k){
-  if(needMe())return;const m=S.meals[k]||{};const d=fromYmd(k);let cook=m.cook||'';
+  if(needMe())return;const m=S.meals[k]||{};const d=fromYmd(k);let cook=m.cook||'',recipe=m.recipe||'';const recs=listOf(S.recipes).sort((a,b)=>a.title.localeCompare(b.title));
   openSheet(`<h2>Dinner, ${DOWL[d.getDay()]} ${nice(d)}</h2><form class="form" id="mealF">
+    ${recs.length?`<div class="field"><span>From the recipe box</span><div class="chips">${recs.map(r=>`<button type="button" class="chip" data-mrec="${esc(r.id)}" aria-pressed="${recipe===r.id}">${esc(r.title)}</button>`).join('')}</div></div>`:''}
     <label class="field"><span>Dinner</span><input id="mDinner" value="${esc(m.dinner||'')}" placeholder="e.g. Lamb roast" autocomplete="off"></label>
     <label class="field"><span>Dinner time</span><input type="time" id="mTime" value="${esc(m.time||'18:30')}"></label>
     <div class="field"><span>Who's cooking</span><div class="chips wrap">${[{id:'',name:'Not decided'}].concat(USERS).map(p=>`<button type="button" class="chip" data-cook="${p.id}" aria-pressed="${cook===p.id}">${p.id?`<span class="pip" style="background:${colour(p.id)}"></span>`:''}${p.name}</button>`).join('')}</div></div>
@@ -933,7 +1065,8 @@ function editMeal(k){
     <div class="actions"><button type="button" class="btn ghost" id="mToList">Add ingredients to shopping</button><span class="grow"></span><button class="btn">Save</button></div>
     ${m.dinner?'<button type="button" class="link danger" id="mClear" style="justify-self:start">Clear this night</button>':''}</form>`);
   document.querySelectorAll('[data-cook]').forEach(b=>b.onclick=()=>{cook=b.dataset.cook;document.querySelectorAll('[data-cook]').forEach(c=>c.setAttribute('aria-pressed',c===b))});
-  const read=()=>({dinner:$('#mDinner').value.trim().slice(0,120),time:$('#mTime').value||'18:30',cook,ingredients:$('#mIng').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,40),updatedBy:S.me,updatedAt:nowIso()});
+  document.querySelectorAll('[data-mrec]').forEach(b=>b.onclick=()=>{const r=S.recipes[b.dataset.mrec];if(!r)return;recipe=b.dataset.mrec;document.querySelectorAll('[data-mrec]').forEach(x=>x.setAttribute('aria-pressed',x===b));$('#mDinner').value=r.title;$('#mIng').value=(r.ingredients||[]).join('\n')});
+  const read=()=>({recipe:($('#mDinner').value.trim()===(S.recipes[recipe]||{}).title)?recipe:'',dinner:$('#mDinner').value.trim().slice(0,120),time:$('#mTime').value||'18:30',cook,ingredients:$('#mIng').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,40),updatedBy:S.me,updatedAt:nowIso()});
   $('#mealF').onsubmit=async e=>{e.preventDefault();const r=read();if(await write(db=>r.dinner?db.doc('meals/'+k).set(r):db.doc('meals/'+k).delete()))closeSheet()};
   const mc=$('#mClear');if(mc)mc.onclick=async()=>{if(await write(db=>db.doc('meals/'+k).delete()))closeSheet()};
   $('#mToList').onclick=async()=>{const r=read();if(!r.ingredients.length){toast('Add some ingredients first');return}
@@ -986,7 +1119,6 @@ function editChore(id){
 render();
 if(!S.me)setTimeout(pickMe,400);
 </script>
-
 
 </body>
 </html>
