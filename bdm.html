@@ -10377,7 +10377,7 @@ let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(renderChart
     adds.forEach(a=>{const stops=(a.stops&&a.stops.length)?a.stops:[a.place];const t={place:stops.join(" → "),stops:stops.length>1?stops:null,what:a.what||"Trip",dt:a.date,time:a.time?hm12(a.time):"",hhmm:a.time||"",ts:a.date+"T"+(a.time||"00:00")};
       const key=stops.length>1?"route:"+stops.map(kmKey).join("|"):kmKey(stops[0]);const d=+a.km>0?{km:+a.km,src:"edited"}:kmDist(key);
       out.push({...t,key,dist:d,evKey:"add:"+a._id,addId:a._id,calId:a.calId||"",calState:a.calId?"done":(a.calState||"pending"),added:true,inBook:!!saved["add:"+a._id],bookKm:saved["add:"+a._id]?+saved["add:"+a._id].km:null,hidden:false})});
-    return out.sort((a,b)=>(a.dt+(a.hhmm||"")).localeCompare(b.dt+(b.hhmm||"")))}
+    return kmFixTrips(p,E,out,saved,hide,kmOv).sort((a,b)=>(a.dt+(a.hhmm||"")).localeCompare(b.dt+(b.hhmm||"")))}
   kmBuild=function(p){const all=kmAll(p);if(!all)return null;const days={};all.filter(t=>!t.hidden).forEach(t=>{(days[t.dt]=days[t.dt]||[]).push(t)});return Object.keys(days).sort().map(dt=>({dt,trips:days[dt]}))};
   kmMaps=function(a){const o=encodeURIComponent(KM_OFFICE);return `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${o}&waypoints=${encodeURIComponent(String(a).split(" → ").join("|"))}&travelmode=driving`};
 
@@ -10446,12 +10446,12 @@ let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(renderChart
       ${nk.map(([k,v])=>`<div class="kmrow"><div class="w"><b>${esc(v.place)}</b><small>${v.stops&&v.stops.length>1?`One run: office → ${v.stops.length} stops → office · `:""}${v.n} trip${v.n===1?"":"s"} this fortnight</small></div>${v.stops&&!v.stops.length?"":`<a class="btn ghost" href="${v.stops&&v.stops.length>1?routeMaps(v.stops):kmMaps(v.place)}" target="_blank" rel="noopener">Maps</a>`}<input type="number" inputmode="decimal" step="0.1" min="0" placeholder="km return" data-kmset="${esc(k)}" data-place="${esc(v.place)}"></div>`).join("")}</section>`:"";
     const byDay={};all.forEach(t=>{(byDay[t.dt]=byDay[t.dt]||[]).push(t)});const W=canWrite&&db;
     const leg=t=>{const k=t.dist?t.dist.km.toFixed(1):"—";const id=esc(t.evKey);
-      const tags=(t.caravan||(t.stops&&t.stops.length>1)?`<span class="kmtag car">${t.stops&&t.stops.length?t.stops.length+" stops, one run":"caravan"}</span>`:"")+(t.added?`<span class="kmtag nw">${t.calState==="done"||t.calId?"added · in calendar":"added · calendar on next sync"}</span>`:"")+(t.inBook&&!t.hidden?`<span class="kmtag ok">in log book</span>`:"");
+      const tags=(t.caravan||(t.stops&&t.stops.length>1)?`<span class="kmtag car">${t.stops&&t.stops.length?t.stops.length+" stops, one run":"caravan"}</span>`:"")+(t.added?`<span class="kmtag nw">${t.calState==="done"||t.calId?"added · in calendar":"added · calendar on next sync"}</span>`:"")+(t.fixed?`<span class="kmtag nw">${t.calState==="done"?"address added · in calendar":"address added · calendar on next sync"}</span>`:"")+(t.inBook&&!t.hidden?`<span class="kmtag ok">in log book</span>`:"");
       const sub=t.caravan||(t.stops&&t.stops.length>1)?`<small>Office → ${esc((t.stops||[]).join(" → ")||"no addresses found")} → Office</small>`:`<small>${esc(t.place||"")}</small>`;
       const btns=!W||t.book?"":t.hidden?`<button class="kmx" data-kmrestore="${id}">Put back</button>`:`<button class="kmx" data-kmkm="${id}" aria-label="Change the km">Edit</button><button class="kmx warn" data-kmhide="${id}" aria-label="Remove this trip">${t.added?"Delete":"Remove"}</button>`;
       const ed=editKey===t.evKey&&!t.hidden?`<div class="kmedit"><input type="number" inputmode="decimal" step="0.1" min="0" value="${t.dist?t.dist.km:""}" data-kmkmin="${id}" aria-label="Km for this trip, there and back"><button class="btn primary" data-kmkmok="${id}">Save km</button><button class="kmx" data-kmkmx="1">Cancel</button>${t.dist&&t.dist.src==="edited"&&!t.added?`<button class="kmx" data-kmkmreset="${id}">Use the measured distance</button>`:""}</div>`:"";
       return `<div class="kmleg2${t.hidden?" off":""}"><div class="w"><b>${esc(t.time?t.time+" · ":"")}${esc(t.what||"")}</b>${tags}${sub}${ed}</div><div class="r"><span class="k${t.dist||t.hidden?"":" miss"}">${t.hidden?"removed":k}</span>${btns}</div></div>`};
-    $("#kmDays").innerHTML=(Object.keys(byDay).length?Object.keys(byDay).sort().map(dt=>{const ts=byDay[dt],on=ts.filter(t=>!t.hidden),sum=on.reduce((s,t)=>s+(t.dist?t.dist.km:0),0),g=on.filter(t=>!t.dist).length;
+    $("#kmDays").innerHTML=kmCheckHtml(p)+(Object.keys(byDay).length?Object.keys(byDay).sort().map(dt=>{const ts=byDay[dt],on=ts.filter(t=>!t.hidden),sum=on.reduce((s,t)=>s+(t.dist?t.dist.km:0),0),g=on.filter(t=>!t.dist).length;
       return `<div class="kmday"><div class="h"><b>${esc(fmtDay(dt))}</b><span class="${g?"part":""}">${!on.length?"removed":g?g+" to measure":sum.toFixed(1)+" km"}</span></div>${ts.map(leg).join("")}</div>`}).join(""):(noCal?`<p class="sub2">Waiting for your calendar trips to sync to this device (hourly). They'll appear here with Edit and Remove.</p>`:`<p class="sub2">No trips found in your calendar for this fortnight.</p>`))
       +(W?(addOpen?addForm(p):`<div class="kmfoot" style="margin-top:10px"><button class="btn ghost" data-kmaddopen="1">+ Add a trip</button></div>`):"");
     paintBook(p,all);paintLodge(p)}catch(e){console.error(e)}}
@@ -10505,6 +10505,66 @@ let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(renderChart
     if(b.dataset.kmlodgeq){const g=(kmAll(p)||[]).filter(t=>!t.hidden&&!t.dist).length;if(g){toast(`${g} trip${g===1?" has":"s have"} no distance yet. Measure ${g===1?"it":"them"} or remove ${g===1?"it":"them"} first`);return}b.disabled=true;await queue(p,true);return}},true);
   document.addEventListener("input",e=>{if(!e.target.closest("#kmAdd"))return;const a=$("#kaMaps");if(!a)return;const stops=$("#kaWhere").value.split(/\n|;/).map(s=>s.trim()).filter(Boolean);a.href=stops.length?routeMaps(stops):"#"});
   document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches&&e.target.matches("[data-kmkmin]")){e.preventDefault();const b=document.querySelector(`[data-kmkmok="${CSS.escape(e.target.dataset.kmkmin)}"]`);if(b)b.click()}});
+
+  /* ---------- v141 (Tim, 26 Oct): check appointments that look like site visits but have no proper street address ---------- */
+  {const c2=document.createElement("style");c2.textContent=`
+  .kmchk{background:var(--amber-bg);border-radius:12px;padding:12px 14px;margin:0 0 12px}
+  .kmchk h4{margin:0 0 2px;font-size:14px;color:var(--amber);display:flex;gap:8px;align-items:center}
+  .kmchk h4 span{background:var(--amber);color:#fff;border-radius:999px;font-size:11px;padding:1px 7px}
+  .kmchk .sub2{margin:0 0 6px}
+  .kmck{padding:8px 0;border-top:1px solid rgba(138,90,0,.15)}
+  .kmck b{color:var(--ink);font-weight:600}.kmck small{display:block;font-size:12px;color:var(--muted)}
+  .kmckr{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px}
+  .kmckr input{flex:1;min-width:200px;font:inherit;font-size:16px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);min-height:38px}
+  .kmckr .kmx.pick{background:#fff;border-color:var(--gold-soft)}
+  `;document.head.appendChild(c2)}
+  let kmCheck={};
+  const CK_SITE=/\b(hand ?over|on ?site|site visit|builder|inspection|inspect|appraisal|pre-?settlement|settlement|keys?|photos?|photographer|open (home|for inspection)|walk ?through|vacate|move in|entry|exit|condition report|routine|meet (the )?(owner|tenant|buyer)|owner meeting|signing|sign up|property)\b/i;
+  const CK_STREET=/\b[A-Z][a-z']{2,}\s+(St|Street|Rd|Road|Ave|Avenue|Dr|Drive|Ct|Crt|Court|Pl|Place|Pde|Parade|Cres|Crescent|Way|Lane|Ln|Tce|Terrace|Hwy|Highway|Cct|Circuit|Cl|Close|Gr|Grove|Blvd|Rise|Track|Prom|Promenade|Retreat)\b/;
+  const CK_NOT=/^(lunch|massage|gym|school|prospecting|daily prospecting|team meeting|sales meeting|zoom|teams|performance review|lodge)|is on leave|27 queen st|birthday/i;
+  const CK_VIRTUAL=/https?:\/\/|zoom|teams|meet\.google|downstairs|office|boardroom/i;
+  const CK_STOP=new Set("lot unit street st road rd place pl court ct drive dr avenue ave way huntly bendigo the and with on site handover check in builder vic".split(" "));
+  const CK_NAME=/\d+[a-z]?\s+([a-z' ]+?)\s+(st|street|rd|road|ave|avenue|dr|drive|ct|crt|court|pl|place|pde|parade|cres|crescent|way|lane|tce|terrace|hwy|cct|circuit|cl|close|gr|grove|blvd|rise|prom|promenade|retreat)\b/i;
+  const ckWords=s=>new Set((String(s||"").toLowerCase().match(/[a-z']{3,}/g)||[]).filter(w=>!CK_STOP.has(w)));
+  function ckPicks(text){const tw=ckWords(text),out=[],seen=new Set();(typeof deals!=="undefined"&&Array.isArray(deals)?deals:[]).forEach(d=>{const a=String(d&&d.address||"");const m=a.match(CK_NAME);if(!m||seen.has(a))return;const nm=[...ckWords(m[1])];if(nm.length&&nm.every(w=>tw.has(w))){seen.add(a);out.push({a,lost:d.lost||d.archived?1:0})}});
+    return out.sort((x,y)=>x.lost-y.lost||x.a.localeCompare(y.a)).map(x=>x.a).slice(0,4)}
+  function ckIsCandidate(ev){const s=ev&&ev.start&&ev.start.dateTime;if(!s||ev.status==="cancelled"||(ev.attendees||[]).some(a=>a.self&&a.responseStatus==="declined"))return false;
+    try{if(kmTripOf(ev))return false}catch(e){}
+    const t=String(ev.summary||""),loc=String(ev.location||"");if(CK_NOT.test(t)||(loc&&CK_VIRTUAL.test(loc)))return false;
+    return CK_SITE.test(t)||CK_STREET.test(t)||CK_STREET.test(loc)}
+  function ckItems(p){let items=[];
+    if(live()&&Array.isArray(kmEv[p.s]))items=kmEv[p.s].filter(ckIsCandidate).map(ev=>({evKey:String(ev.id||ev.iCalUID),id:String(ev.id||""),calId:calIdOf(ev),summary:String(ev.summary||"").slice(0,160),location:String(ev.location||"").slice(0,200),start:String(ev.start.dateTime),picks:ckPicks((ev.summary||"")+" "+(ev.location||""))}));
+    else if(kmCheck[p.s]&&Array.isArray(kmCheck[p.s].items))items=kmCheck[p.s].items;
+    const done=new Set(editsFor(p).filter(x=>x.kind==="fix"||x.kind==="skip").map(x=>x.evKey));
+    return items.filter(i=>{const dt=String(i.start||"").slice(0,10);return i.evKey&&dt>=p.s&&dt<=p.e&&!done.has(i.evKey)}).sort((a,b)=>String(a.start).localeCompare(String(b.start)))}
+  function kmFixTrips(p,E,out,saved,hide,kmOv){const have=new Set(out.map(t=>t.evKey));
+    E.filter(x=>x.kind==="fix"&&!x.off&&x.place&&x.evKey&&!have.has(x.evKey)).forEach(x=>{const key=kmKey(x.place);
+      const bk=kmBookTrips().find(b=>b.eventId&&(String(b.eventId)===String(x.calId)||String(b.eventId)===String(x.eventId)));
+      let d=null;if(kmOv[x.evKey])d={km:kmOv[x.evKey],src:"edited"};else if(bk&&+bk.km>0)d={km:+bk.km,src:"log book"};else d=kmDist(key);
+      const st=String(x.start||"");
+      out.push({place:x.place,what:x.what||"Appointment",key,dist:d,evKey:x.evKey,calId:x.calId||"",inBook:!!bk||!!saved[x.evKey],bookKm:bk?+bk.km:(saved[x.evKey]?+saved[x.evKey].km:null),hidden:hide.has(x.evKey),
+        ts:st||x.date+"T00:00",dt:x.date,time:st?new Date(st).toLocaleTimeString("en-AU",{timeZone:"Australia/Melbourne",hour:"numeric",minute:"2-digit"}):"",hhmm:st?hm(st):"",fixed:true,calState:x.calState||"pending"})});
+    return out}
+  function kmCheckHtml(p){try{const W=canWrite&&db,items=ckItems(p),sk=editsFor(p).filter(x=>x.kind==="skip").length;if(!items.length)return sk&&W?`<p class="sub2" style="margin:0 0 10px"><button class="link" data-ckundo="1">Show ${sk} appointment${sk===1?"":"s"} marked not a trip</button></p>`:"";
+    return `<section class="kmchk"><h4>Check these appointments <span>${items.length}</span></h4><p class="sub2">These look like site visits, but the calendar entry has no street address, so they aren't in the claim yet. Pick or type the address: it's added to this claim and saved into the calendar entry. Or mark it not a trip.</p>
+      ${items.map(i=>{const id=esc(i.evKey),dt=String(i.start).slice(0,10);
+        return `<div class="kmck"><b>${esc(i.summary||"(no title)")}</b><small>${esc(fmtDay(dt))} · ${esc(hm12(hm(i.start)))}${i.location?" · "+esc(i.location):" · no address in the entry"}</small>
+        ${W?`<div class="kmckr">${(i.picks||[]).map(a=>`<button class="kmx pick" data-ckpick="${id}" data-addr="${esc(a)}">${esc(a)}</button>`).join("")}</div><div class="kmckr"><input type="text" data-ckin="${id}" placeholder="${(i.picks||[]).length?"Or type the address":"e.g. 12 Union St, West Bendigo"}" aria-label="Address for ${esc(i.summary||"this appointment")}"><button class="btn primary" data-ckok="${id}">Add to claim</button><button class="kmx warn" data-ckskip="${id}">Not a trip</button></div>`:""}</div>`}).join("")}
+      ${sk&&W?`<p class="sub2" style="margin:6px 0 0"><button class="link" data-ckundo="1">Show ${sk} marked not a trip</button></p>`:""}</section>`}catch(e){console.error(e);return ""}}
+  async function ckSave(p,evKey,addr){const i=ckItems(p).find(x=>x.evKey===evKey);if(!i)return;addr=String(addr||"").replace(/\s+/g," ").trim();
+    if(!/\d/.test(addr)||addr.length<6){toast("Type the street number and street, e.g. 12 Union St, West Bendigo");return}
+    const id="f-"+safeId(evKey);const d={kind:"fix",evKey,eventId:i.id,calId:i.calId,what:i.summary,place:addr.slice(0,160),oldLocation:i.location||"",start:i.start,date:String(i.start).slice(0,10),periodStart:p.s,calState:"pending"};
+    kmEdits[id]={...d,_id:id};renderKmc();if(!(await putEdit(id,d)))return;
+    if(live()&&i.id){try{await mcp.callTool("Google Calendar","update_event",{eventId:i.id,location:d.place,notificationLevel:"NONE"});const nd={...d,calState:"done"};kmEdits[id]={...nd,_id:id};await putEdit(id,nd);toast("Added to the claim, and the address is in your calendar")}
+      catch(err){toast("Added to the claim. Couldn't update the calendar: "+(err&&err.code?mcpErr(err,"Google Calendar"):"Claude tries again on the next sync"))}}
+    else toast(`Added to the claim. Claude puts the address in your calendar around ${nextRun()}`);renderKmc()}
+  document.addEventListener("click",async e=>{const b=e.target.closest("[data-ckpick],[data-ckok],[data-ckskip],[data-ckundo]");if(!b)return;e.preventDefault();e.stopPropagation();const p=kmPeriod(kmOff);
+    if(b.dataset.ckpick){b.disabled=true;await ckSave(p,b.dataset.ckpick,b.dataset.addr);return}
+    if(b.dataset.ckok){const i=document.querySelector(`[data-ckin="${CSS.escape(b.dataset.ckok)}"]`);await ckSave(p,b.dataset.ckok,i&&i.value);return}
+    if(b.dataset.ckskip){const it=ckItems(p).find(x=>x.evKey===b.dataset.ckskip);if(!it)return;const id="s-"+safeId(it.evKey);const d={kind:"skip",evKey:it.evKey,what:it.summary,date:String(it.start).slice(0,10),periodStart:p.s};kmEdits[id]={...d,_id:id};renderKmc();await putEdit(id,d);toast("Marked not a trip");return}
+    if(b.dataset.ckundo){const ids=editsFor(p).filter(x=>x.kind==="skip").map(x=>x._id);ids.forEach(i=>delete kmEdits[i]);renderKmc();for(const i of ids)await dropEdit(i);return}},true);
+  document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches&&e.target.matches("[data-ckin]")){e.preventDefault();const b=document.querySelector(`[data-ckok="${CSS.escape(e.target.dataset.ckin)}"]`);if(b)b.click()}});
+  {const t=setInterval(()=>{if(!db||!db.collection)return;clearInterval(t);db.collection("kmcheck").onSnapshot(s=>{kmCheck={};s.docs.forEach(d=>{kmCheck[d.id]=d.data()});renderKmc()},()=>{})},500)}
 
   /* ---------- live data ---------- */
   {const t=setInterval(()=>{if(!db||!db.collection)return;clearInterval(t);
