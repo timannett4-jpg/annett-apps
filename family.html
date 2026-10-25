@@ -209,6 +209,58 @@ main>*{min-width:0}
 .kids{display:grid;gap:16px}
 @media (min-width:1000px){.kids{grid-template-columns:repeat(3,1fr);align-items:start}}
 
+
+/* ---------- Today: sky + timeline ---------- */
+.sky{position:relative;overflow:hidden;color:#fff;border-radius:24px;padding:30px 24px 30px;min-height:190px;display:flex;flex-direction:column;justify-content:flex-end}
+.sky .sd{margin:0;font-weight:700;opacity:.85;font-size:.9rem;position:relative}
+.sky h1{margin:4px 0 0;font-size:clamp(1.9rem,7vw,2.6rem);font-weight:800;line-height:1.08;letter-spacing:-.02em;max-width:15ch;position:relative;text-wrap:balance}
+.sky .faces{display:flex;margin-top:16px;position:relative}
+.sky .faces .av{border:2px solid rgba(255,255,255,.9);margin-right:-6px;width:32px;height:32px;font-size:.82rem}
+.sky .faces .av.me{box-shadow:0 0 0 3px rgba(255,255,255,.45)}
+.orb{position:absolute;border-radius:50%}
+.orb.sun-low{right:30px;bottom:-34px;width:104px;height:104px;background:#ffc9a6;box-shadow:0 0 60px 24px rgba(255,170,130,.5)}
+.orb.sun-high{right:34px;top:30px;width:64px;height:64px;background:#fff4c8;box-shadow:0 0 50px 18px rgba(255,240,180,.55)}
+.orb.moon{right:40px;top:34px;width:52px;height:52px;background:#f4efdc;box-shadow:0 0 36px 8px rgba(244,239,220,.25)}
+.orb.moon::after{content:"";position:absolute;width:48px;height:48px;border-radius:50%;left:-14px;top:-8px;background:#1d1a4a}
+.stars{position:absolute;inset:0;background-image:radial-gradient(1.4px 1.4px at 12% 22%,#fff 50%,transparent),radial-gradient(1px 1px at 30% 12%,#fff 50%,transparent),radial-gradient(1.2px 1.2px at 52% 30%,#fff 50%,transparent),radial-gradient(1px 1px at 68% 14%,#fff 50%,transparent),radial-gradient(1.3px 1.3px at 22% 48%,#fff 50%,transparent),radial-gradient(1px 1px at 60% 52%,#fff 50%,transparent);opacity:.8}
+.sky.sky-day .sd,.sky.sky-day h1{text-shadow:0 1px 12px rgba(30,60,140,.35)}
+.homegrid{display:grid;gap:16px;margin-top:-6px}
+.homegrid .side{display:grid;gap:12px;align-content:start}
+@media (min-width:900px){.homegrid{grid-template-columns:1fr 320px;align-items:start;margin-top:0}.homegrid .side{order:2;position:sticky;top:84px}}
+.pin{display:flex;gap:14px;align-items:center;background:var(--surface);border-radius:20px;padding:14px 16px;text-align:left;width:100%;box-shadow:0 12px 26px -18px rgba(36,33,90,.55);border:1px solid var(--line)}
+.pin .pc{width:46px;height:46px;border-radius:14px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:800;font-size:1.15rem;flex:none}
+.pin .pt{min-width:0}
+.pin .pt b{display:block;font-weight:800}
+.pin .pt span{display:block;font-size:.86rem;color:var(--muted);line-height:1.45;overflow-wrap:anywhere}
+.pin.tmw{background:var(--side);color:#fff;border-color:var(--side)}
+.pin.tmw .pt span{color:var(--side-muted)}
+.tl h2{margin:0 0 12px;font-size:1.2rem;font-weight:800}
+.allday{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.adchip{display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:700;font-size:.9rem}
+.adchip small{color:var(--muted);font-weight:500}
+.slot{display:grid;grid-template-columns:62px 1fr;gap:12px;align-items:start}
+.slot .tm{font-size:.82rem;font-weight:700;color:var(--muted);padding-top:14px;text-align:right;font-variant-numeric:tabular-nums}
+.blk{display:grid;gap:2px;border-radius:18px;padding:12px 16px;margin:5px 0;color:#fff;text-align:left;width:100%;box-shadow:0 8px 18px -14px rgba(36,33,90,.7)}
+.blk b{font-weight:800;font-size:1rem}
+.blk b em{font-style:normal;font-weight:600;opacity:.85;font-size:.85rem}
+.blk span{font-size:.84rem;opacity:.92}
+.dinnerblk{background:var(--side)}
+.slot.past .blk{opacity:.5;box-shadow:none}
+.slot.past .tm{color:var(--faint)}
+.nowslot .tm{color:var(--accent-deep);padding-top:6px}
+.nowline{height:2px;background:var(--accent);margin-top:14px;position:relative;border-radius:1px}
+.nowline::before{content:"";position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.tlempty{margin:0 0 4px;color:var(--muted);background:var(--surface);border:1px dashed var(--line2);border-radius:18px;padding:18px}
+.tlacts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+@media (max-width:899px){
+  body[data-tab="home"] .top{position:absolute;left:0;right:0;background:transparent;border-bottom:0;color:#fff}
+  body[data-tab="home"] .topin .brand .mark{background:rgba(255,255,255,.18);color:#fff}
+  body[data-tab="home"] main{padding-top:0}
+  body[data-tab="home"] .sky{margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));border-radius:0 0 28px 28px;padding:calc(var(--top) + env(safe-area-inset-top,0px) + 34px) 22px 34px;min-height:300px}
+  body[data-tab="home"] .orb.sun-high,body[data-tab="home"] .orb.moon{top:calc(var(--top) + env(safe-area-inset-top,0px) + 22px)}
+  .homegrid .side{margin-top:-34px;position:relative;z-index:1;padding:0 4px}
+}
+
 /* bottom tabs (phone) */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);display:flex;padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
 nav.tabs button{flex:1;height:var(--tab);display:grid;place-items:center;align-content:center;gap:3px;color:var(--faint);font-weight:700;font-size:.72rem;position:relative}
@@ -376,7 +428,7 @@ async function write(fn){if(!S.db){toast('Not connected yet. Try again in a mome
 
 /* ---------- render ---------- */
 function render(){
-  paintNav();paintTop();
+  document.body.dataset.tab=S.ready&&!S.offline?S.tab:'';paintNav();paintTop();
   const v=$('#view');
   const ae=document.activeElement,keep=ae&&(ae.id==='shopText'||ae.id==='quickShop')?{id:ae.id,v:ae.value}:null;
   if(!S.ready){v.innerHTML='<div class="empty">Opening the family hub…</div>';return}
@@ -422,32 +474,54 @@ function editEvent(id,dateDefault){
   const del=$('#eDel');if(del)del.onclick=async()=>{if(await write(db=>db.doc('events/'+id).delete())){closeSheet();toast('Deleted')}};
 }
 
-/* ===== Today (landing) ===== */
+/* ===== Today (landing): sky that follows the time of day, then the family's day on one timeline ===== */
+function skyFor(h){
+  if(h>=21||h<5)return{k:'night',bg:'linear-gradient(180deg,#0e0c30 0%,#24215a 60%,#3b2f7a 100%)',orb:'moon'};
+  if(h<8)return{k:'dawn',bg:'linear-gradient(180deg,#3a3480 0%,#b8669c 55%,#ffb48a 100%)',orb:'sun-low'};
+  if(h<17)return{k:'day',bg:'linear-gradient(180deg,#3567cf 0%,#6f9ff0 60%,#b9d4ff 100%)',orb:'sun-high'};
+  return{k:'dusk',bg:'linear-gradient(180deg,#24215a 0%,#5b3a86 55%,#ff8a6a 100%)',orb:'sun-low'};
+}
+const hm=d=>pad(d.getHours())+':'+pad(d.getMinutes());
+function evWho(e){return (e.who||[]).map(id=>person(id).name).join(', ').replace(/, ([^,]*)$/,' and $1')}
 function renderHome(v){
-  const d=new Date(),h=d.getHours(),p=person(S.me),k=today();
-  const part=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
-  const evs=evOn(k);const m=S.meals[k]||{};
+  const d=new Date(),h=d.getHours(),p=person(S.me),k=today(),tk=ymd(addDays(d,1));
+  const part=h<5?'Good night':h<12?'Good morning':h<17?'Good afternoon':h<21?'Good evening':'Good night';
+  const sky=skyFor(h);
+  const evs=evOn(k),allDay=evs.filter(e=>e.allDay||!e.start),timed=evs.filter(e=>!e.allDay&&e.start);
+  const m=S.meals[k]||{};
+  const items=timed.map(e=>({t:e.start,e}));
+  if(m.dinner)items.push({t:m.time||'18:30',dinner:m});
+  items.sort((a,b)=>a.t.localeCompare(b.t));
+  const now=hm(d);let nowAt=items.findIndex(i=>i.t>now);if(nowAt<0)nowAt=items.length;
   const open=Object.values(S.shop).filter(i=>!i.done).sort((a,b)=>(b.addedAt||'').localeCompare(a.addedAt||''));
-  const people=new Set(evs.flatMap(e=>e.who||[]));
-  v.innerHTML=`<div class="hello"><h1>${part}${p.id?', '+esc(p.name):''}.</h1><p>${DOWL[d.getDay()]} ${d.getDate()} ${MONL[d.getMonth()]}. ${evs.length?evs.length+' thing'+(evs.length===1?'':'s')+' on today'+(people.size?' for '+[...people].map(x=>person(x).name).join(', ').replace(/, ([^,]*)$/,' and $1'):''):'Nothing on the calendar today'}.</p></div>
-  <div class="grid home">
-    <section class="card span"><div class="ch"><span class="ico">${svg('cal')}</span><h2>Who's where today</h2><button class="more" id="toCal">Calendar</button></div>
-      ${evs.length?evs.map(e=>evRow(e,k)).join(''):`<div class="cb"><div class="empty"><b>Nothing on today</b>Add appointments, work shifts and sport so everyone knows who's where.</div></div>`}
-      <div class="cb" style="padding-top:14px"><button class="btn ghost" id="homeAddEv">${svg('plus')}Add appointment</button></div></section>
-    <section class="card"><div class="ch"><span class="ico">${svg('meal')}</span><h2>Tonight's dinner</h2><button class="more" id="toMeals">This week</button></div>
-      <div class="dinner"><div class="dish${m.dinner?'':' none'}">${m.dinner?esc(m.dinner):'Nothing planned yet'}</div>
-      ${m.dinner?`<div class="meta">${m.cook?`<span class="pip" style="background:${colour(m.cook)}"></span>${esc(person(m.cook).name)} is cooking`:'No cook chosen yet'}</div>`:''}
-      <div><button class="btn ${m.dinner?'ghost':''}" id="planTonight">${m.dinner?'Change':'Plan tonight'}</button></div></div></section>
-    <section class="card"><div class="ch"><span class="ico">${svg('shop')}</span><h2>Shopping</h2><button class="more" id="toShop">Full list</button></div>
-      <div class="stat"><b>${open.length}</b><span>${open.length===1?'thing':'things'} to buy</span></div>
-      ${open.length?`<ul class="mini">${open.slice(0,4).map(i=>`<li><span class="pip" style="background:${colour(i.addedBy)}"></span>${esc(i.text)}<small>${esc(person(i.addedBy).name)}</small></li>`).join('')}</ul>`:''}
-      <form class="quick" id="quickF"><input id="quickShop" placeholder="Add to the list" autocomplete="off" aria-label="Add to the shopping list" enterkeyhint="done"><button class="btn">Add</button></form></section>
+  const tev=evOn(tk),tm=S.meals[tk]||{};
+  const tomorrow=tev.slice(0,3).map(e=>`${esc(evWho(e)||'Someone')}: ${esc(e.title)}${!e.allDay&&e.start?' '+t12(e.start):''}`);
+  const slot=(i,idx)=>{
+    const past=idx<nowAt&&!(i.e&&i.e.end&&i.e.end>now);
+    if(i.dinner)return `<div class="slot${past?' past':''}"><span class="tm">${t12(i.t)}</span><button class="blk dinnerblk" id="tlDinner"><b>Dinner: ${esc(i.dinner.dinner)}</b><span>${i.dinner.cook?esc(person(i.dinner.cook).name)+' cooking':'No cook chosen yet'}</span></button></div>`;
+    const e=i.e,c=(e.who||[])[0];
+    return `<div class="slot${past?' past':''}"><span class="tm">${t12(e.start)}</span><button class="blk" data-ev="${esc(e.id)}" style="background:${colour(c)}"><b>${esc(e.title)}${e.end?` <em>until ${t12(e.end)}</em>`:''}</b><span>${esc(evWho(e))}${e.where?', '+esc(e.where):''}</span></button></div>`};
+  const nowLine=`<div class="slot nowslot"><span class="tm">Now</span><div class="nowline"></div></div>`;
+  let tl='';items.forEach((i,idx)=>{if(idx===nowAt)tl+=nowLine;tl+=slot(i,idx)});if(nowAt===items.length&&items.length)tl+=nowLine;
+  v.innerHTML=`<section class="sky sky-${sky.k}" style="background:${sky.bg}"><span class="orb ${sky.orb}"></span>${sky.k==='night'?'<span class="stars"></span>':''}
+      <p class="sd">${DOWL[d.getDay()]} ${d.getDate()} ${MONL[d.getMonth()]}</p><h1>${part}${p.id?', '+esc(p.name):''}.</h1>
+      <div class="faces">${FAMILY.map(f=>`<span class="av${f.id===S.me?' me':''}" style="background:${colour(f.id)}" title="${f.name}">${f.name[0]}</span>`).join('')}</div></section>
+  <div class="homegrid">
+    <div class="side">
+      <button class="pin" id="toShop"><span class="pc">${open.length}</span><span class="pt"><b>Shopping list</b><span>${open.length?esc(open.slice(0,3).map(i=>i.text).join(', '))+(open.length>3?' and '+(open.length-3)+' more':''):'Nothing to buy right now'}</span></span></button>
+      <button class="pin tmw" id="toCal"><span class="pt"><b>Tomorrow</b><span>${tomorrow.length?tomorrow.join('<br>')+(tev.length>3?'<br>and '+(tev.length-3)+' more':''):'Nothing on yet'}${tm.dinner?`<br>Dinner: ${esc(tm.dinner)}`:''}</span></span></button>
+    </div>
+    <section class="tl"><h2>Today</h2>
+      ${allDay.length?`<div class="allday">${allDay.map(e=>`<button class="adchip" data-ev="${esc(e.id)}"><span class="pip" style="background:${colour((e.who||[])[0])}"></span>${esc(e.title)}<small>${esc(evWho(e))}</small></button>`).join('')}</div>`:''}
+      ${items.length?tl:`<p class="tlempty">${allDay.length?'Nothing else on today.':'Nothing on today.'} Add appointments, work shifts and sport so everyone knows who's where.</p>`}
+      <div class="tlacts"><button class="btn ghost" id="homeAddEv">${svg('plus')}Add to today</button>${m.dinner?'':`<button class="btn ghost" id="planTonight">${svg('plus')}Plan dinner</button>`}</div>
+    </section>
   </div>`;
   bindEv();
-  $('#toCal').onclick=()=>setTab('cal');$('#toMeals').onclick=()=>setTab('meals');$('#toShop').onclick=()=>setTab('shop');
-  $('#homeAddEv').onclick=()=>editEvent(null,k);$('#planTonight').onclick=()=>editMeal(k);
-  $('#quickF').onsubmit=async e=>{e.preventDefault();if(needMe())return;const t=$('#quickShop').value.trim();if(!t)return;$('#quickShop').value='';
-    if(await addShop(t,'Other'))toast('Added to shopping')};
+  $('#toCal').onclick=()=>{S.calWeek=monday(addDays(new Date(),1));setTab('cal')};$('#toShop').onclick=()=>setTab('shop');
+  $('#homeAddEv').onclick=()=>editEvent(null,k);
+  const pt=$('#planTonight');if(pt)pt.onclick=()=>editMeal(k);
+  const td=$('#tlDinner');if(td)td.onclick=()=>editMeal(k);
 }
 
 /* ===== Calendar ===== */
@@ -516,12 +590,13 @@ function editMeal(k){
   if(needMe())return;const m=S.meals[k]||{};const d=fromYmd(k);let cook=m.cook||'';
   openSheet(`<h2>Dinner, ${DOWL[d.getDay()]} ${nice(d)}</h2><form class="form" id="mealF">
     <label class="field"><span>Dinner</span><input id="mDinner" value="${esc(m.dinner||'')}" placeholder="e.g. Lamb roast" autocomplete="off"></label>
+    <label class="field"><span>Dinner time</span><input type="time" id="mTime" value="${esc(m.time||'18:30')}"></label>
     <div class="field"><span>Who's cooking</span><div class="chips wrap">${[{id:'',name:'Not decided'}].concat(FAMILY).map(p=>`<button type="button" class="chip" data-cook="${p.id}" aria-pressed="${cook===p.id}">${p.id?`<span class="pip" style="background:${colour(p.id)}"></span>`:''}${p.name}</button>`).join('')}</div></div>
     <label class="field"><span>Ingredients, one per line</span><textarea id="mIng" placeholder="Leg of lamb&#10;Potatoes&#10;Rosemary">${esc((m.ingredients||[]).join('\n'))}</textarea></label>
     <div class="actions"><button type="button" class="btn ghost" id="mToList">Add ingredients to shopping</button><span class="grow"></span><button class="btn">Save</button></div>
     ${m.dinner?'<button type="button" class="link danger" id="mClear" style="justify-self:start">Clear this night</button>':''}</form>`);
   document.querySelectorAll('[data-cook]').forEach(b=>b.onclick=()=>{cook=b.dataset.cook;document.querySelectorAll('[data-cook]').forEach(c=>c.setAttribute('aria-pressed',c===b))});
-  const read=()=>({dinner:$('#mDinner').value.trim().slice(0,120),cook,ingredients:$('#mIng').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,40),updatedBy:S.me,updatedAt:nowIso()});
+  const read=()=>({dinner:$('#mDinner').value.trim().slice(0,120),time:$('#mTime').value||'18:30',cook,ingredients:$('#mIng').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,40),updatedBy:S.me,updatedAt:nowIso()});
   $('#mealF').onsubmit=async e=>{e.preventDefault();const r=read();if(await write(db=>r.dinner?db.doc('meals/'+k).set(r):db.doc('meals/'+k).delete()))closeSheet()};
   const mc=$('#mClear');if(mc)mc.onclick=async()=>{if(await write(db=>db.doc('meals/'+k).delete()))closeSheet()};
   $('#mToList').onclick=async()=>{const r=read();if(!r.ingredients.length){toast('Add some ingredients first');return}
