@@ -35,16 +35,7 @@ addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&/_b
   --sans:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
   --bar:68px; --r:16px;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#121815; --paper:#19211d; --sunk:#151c18; --line:#2a342f; --rule:#34403a;
-  --ink:#e9ede8; --muted:#a2aca6; --faint:#6f7a74;
-  --euc:#7fbfa9; --euc-ink:#0f1a16; --euc-soft:#203530; --brass:#c9a46a;
-  --tim:#86acd0; --laura:#e08ba5; --sienna:#ad93d6; --erika:#86c48f; --archer:#e0a35e; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#121815; --paper:#19211d; --sunk:#151c18; --line:#2a342f; --rule:#34403a;
-  --ink:#e9ede8; --muted:#a2aca6; --faint:#6f7a74;
-  --euc:#7fbfa9; --euc-ink:#0f1a16; --euc-soft:#203530; --brass:#c9a46a;
-  --tim:#86acd0; --laura:#e08ba5; --sienna:#ad93d6; --erika:#86c48f; --archer:#e0a35e; color-scheme:dark}
+:root,:root[data-theme="dark"]{color-scheme:light}
 *{box-sizing:border-box}
 html,body{min-height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.45;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
