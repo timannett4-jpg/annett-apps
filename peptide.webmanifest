@@ -1,0 +1,23 @@
+{
+  "name": "Peptide Program",
+  "short_name": "Peptides",
+  "id": "./peptide.html",
+  "start_url": "./peptide.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0ea47a",
+  "theme_color": "#0ea47a",
+  "icons": [
+    {
+      "src": "peptide-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "peptide-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

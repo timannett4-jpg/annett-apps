@@ -1,10 +1,10 @@
 """Rebuild an installable app page on this site from its Claude dashboard.
 usage: python3 tools/build_app.py <app> <saved artifact index.html>
-apps: europe, bdm, laura, farm, hockey. Writes <app>.html in the repo root.
+apps: europe, bdm, laura, farm, peptide, family, hockey. Writes <app>.html in the repo root.
 Only the page is rebuilt; manifests, icons, claude-shim.js and the service workers stay as they are.
 Used by the scheduled "Apps auto-update" task."""
 import sys, re, os
-APPS = {"europe": "Europe", "bdm": "BDM", "laura": "Laura's Desk", "farm": "Home Paddock"}
+APPS = {"europe": "Europe", "bdm": "BDM", "laura": "Laura's Desk", "farm": "Home Paddock", "peptide": "Peptides", "family": "Family"}
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def generic(s, app, short):

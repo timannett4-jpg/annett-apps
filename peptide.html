@@ -1,0 +1,1674 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Peptides">
+<link rel="manifest" href="peptide.webmanifest">
+<link rel="icon" type="image/png" href="peptide-icon-192.png">
+<link rel="apple-touch-icon" href="peptide-icon-180.png">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<script>window.ANNETT_APP="peptide";
+/* A photo or document not yet copied to Drive hides itself instead of showing broken. */
+addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&/_blob\//.test(t.src)){var f=t.closest('figure,.shot');(f||t).style.display='none';}},true);</script>
+<script src="claude-shim.js"></script>
+</head>
+<body>
+
+<title>Peptide Program</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: phone-first app. Compact top bar, bright gradient summary card, person switcher, big tappable dose rows, fixed bottom tab bar with icons. Desktop just centres the same app column wider. */
+:root {
+  --bg: #f4f6fa; --surface: #ffffff; --sunk: #f0f2f7; --ink: #0f172a; --muted: #64748b; --line: #e6e9f0;
+  --accent: #0ea47a; --accent-2: #14b8a6; --accent-ink: #ffffff; --accent-soft: #e3f7ef;
+  --am: #f59e0b; --am-soft: #fff6e5; --am-ink: #b45309;
+  --pm: #7c5cf5; --pm-soft: #f1edff; --pm-ink: #5b3fd6;
+  --laura: #e8457f; --laura-soft: #fde8f0; --tim: #2f80ed; --tim-soft: #e6f0fd;
+  --ok: #0f9960; --ok-soft: #e3f7ec; --warn: #c26a00; --warn-soft: #fff1dc; --bad: #e0333c; --bad-soft: #fde6e7;
+  --f-body: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --r: 20px; --r-sm: 14px;
+  --shadow: 0 1px 2px rgb(15 23 42 / .04), 0 4px 16px -6px rgb(15 23 42 / .10);
+  --nav-h: 64px;
+  color-scheme: light;
+}
+
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.45; -webkit-tap-highlight-color: transparent; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.wrap { max-width: 760px; margin-inline: auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 2px; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+h1, h2, h3 { text-wrap: balance; }
+
+/* Top bar */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.top-inner { display: flex; align-items: center; gap: 10px; padding-block: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+.brand .mark { width: 32px; height: 32px; flex: none; }
+.brand h1 { font-size: 19px; font-weight: 800; letter-spacing: -.02em; margin: 0; }
+.brand .date { color: var(--muted); font-size: 13px; font-weight: 600; margin-left: auto; white-space: nowrap; }
+
+/* Bottom tab bar */
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-top: 1px solid var(--line); padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); box-shadow: 0 -6px 20px -14px rgb(15 23 42 / .25); }
+.tabs button { border: 0; background: none; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 2px; font-size: 11.5px; font-weight: 700; color: var(--muted); border-radius: 12px; position: relative; }
+.tabs button svg { width: 24px; height: 24px; }
+.tabs button[aria-selected="true"] { color: var(--accent); }
+.tabs button[aria-selected="true"] .ico { background: var(--accent-soft); }
+.tabs .ico { display: grid; place-items: center; width: 52px; height: 30px; border-radius: 999px; transition: background .2s; }
+.count { position: absolute; top: 2px; left: calc(50% + 8px); font-size: 10.5px; font-weight: 800; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 99px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; line-height: 1; }
+.count:empty { display: none; }
+.count.bad { background: var(--bad); color: #fff; }
+.count.warn { background: var(--warn); color: #fff; }
+
+main { padding-block: 16px calc(var(--nav-h) + 32px + env(safe-area-inset-bottom, 0px)); }
+.panel[hidden] { display: none; }
+.section-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.section-head h2 { font-size: 24px; font-weight: 800; letter-spacing: -.02em; margin: 0; }
+.section-head p { margin: 4px 0 0; color: var(--muted); font-size: 14px; max-width: 60ch; }
+.grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; min-width: 0; box-shadow: var(--shadow); }
+.card h3 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -.01em; }
+
+/* Hero summary */
+.hero { border-radius: 24px; padding: 18px 18px 16px; margin-bottom: 14px; color: #fff; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%); box-shadow: 0 10px 30px -14px color-mix(in srgb, var(--accent) 70%, transparent); position: relative; overflow: hidden; }
+.hero::after { content: ""; position: absolute; right: -40px; top: -50px; width: 180px; height: 180px; border-radius: 50%; background: rgb(255 255 255 / .14); }
+.hero .hello { font-size: 14px; font-weight: 700; opacity: .9; position: relative; }
+.hero .big { font-size: 34px; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; margin-top: 2px; position: relative; }
+.hero .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; position: relative; }
+.hero .pill { background: rgb(255 255 255 / .22); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+.hero .pill b { font-weight: 800; }
+.hero { color: #fff; }
+
+/* Person switch */
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--sunk); padding: 4px; border-radius: 999px; margin-bottom: 14px; }
+.seg button { border: 0; background: none; padding: 9px 6px; border-radius: 999px; font-weight: 800; font-size: 14px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.seg button[data-who="Laura"][aria-pressed="true"] { color: var(--laura); }
+.seg button[data-who="Tim"][aria-pressed="true"] { color: var(--tim); }
+
+/* Buttons */
+.btn { border: 0; background: var(--sunk); border-radius: 999px; padding: 10px 16px; font-weight: 700; font-size: 14px; transition: transform .1s, filter .2s; }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.danger { color: var(--bad); background: var(--bad-soft); }
+.btn.sm { padding: 7px 13px; font-size: 13px; }
+.btn:disabled { opacity: .4; cursor: default; }
+.iconbtn { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--sunk); font-weight: 700; font-size: 20px; line-height: 1; display: inline-grid; place-items: center; }
+
+/* Alerts */
+.alerts { display: grid; gap: 10px; margin-bottom: 14px; }
+.alert { border-radius: var(--r-sm); padding: 14px 16px; display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); }
+.alert::before { content: "!"; grid-row: span 3; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #fff; background: var(--muted); }
+.alert.bad { background: var(--bad-soft); border-color: transparent; } .alert.bad::before { background: var(--bad); }
+.alert.warn { background: var(--warn-soft); border-color: transparent; } .alert.warn::before { background: var(--warn); }
+.alert .lbl { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.alert.bad .lbl { color: var(--bad); } .alert.warn .lbl { color: var(--warn); }
+.alert .what { font-size: 17px; font-weight: 800; }
+.alert .why { font-size: 13px; color: var(--muted); }
+.allgood { padding: 12px 14px; border-radius: var(--r-sm); background: var(--ok-soft); color: var(--ok); font-weight: 700; font-size: 14px; margin-bottom: 14px; display: flex; gap: 10px; align-items: center; }
+.allgood::before { content: "✓"; width: 24px; height: 24px; flex: none; border-radius: 50%; background: var(--ok); color: #fff; display: grid; place-items: center; font-size: 13px; }
+
+/* Today */
+#p-today .section-head h2 { font-size: 20px; }
+.daynav { display: flex; align-items: center; gap: 6px; }
+.daynav .d { font-weight: 800; min-width: 8ch; text-align: center; font-size: 15px; }
+.person { padding: 14px; }
+.person .who { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+.person .who h3 { font-size: 20px; color: var(--who); }
+.person .who .meta { flex: 1; min-width: 0; }
+.ring { width: 48px; height: 48px; flex: none; }
+.ring .track { stroke: var(--sunk); }
+.ring .val { stroke: var(--who); transition: stroke-dashoffset .5s ease; }
+.ring text { fill: var(--ink); font-size: 12px; font-weight: 800; font-family: var(--f-body); }
+.progress { display: none; }
+.slot { margin-top: 12px; }
+.slot h4 { margin: 0 0 8px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 8px; border-radius: 999px; }
+.slot.am h4 { color: var(--am-ink); background: var(--am-soft); } .slot.pm h4 { color: var(--pm-ink); background: var(--pm-soft); }
+.slot h4 svg { width: 16px; height: 16px; }
+.dose { display: grid; grid-template-columns: 1fr auto 40px; gap: 12px; align-items: center; min-height: 64px; padding: 10px 12px 10px 14px; border-radius: var(--r-sm); margin-bottom: 8px; background: var(--sunk); cursor: pointer; transition: background .2s, transform .1s; position: relative; }
+.dose:active { transform: scale(.99); }
+.dose:last-child { margin-bottom: 0; }
+.dose input[type=checkbox] { order: 3; appearance: none; -webkit-appearance: none; width: 36px; height: 36px; border-radius: 50%; border: 2.5px solid color-mix(in srgb, var(--who) 45%, var(--line)); margin: 0; display: grid; place-items: center; background: var(--surface); transition: background .2s, border-color .2s; cursor: pointer; justify-self: end; }
+.dose input[type=checkbox]::after { content: ""; width: 13px; height: 7px; border-left: 3px solid #fff; border-bottom: 3px solid #fff; transform: rotate(-45deg) translate(1px, -1px); opacity: 0; }
+.dose input[type=checkbox]:checked { background: var(--who); border-color: var(--who); }
+.dose input[type=checkbox]:checked::after { opacity: 1; }
+.dose.done { background: color-mix(in srgb, var(--who) 9%, var(--surface)); }
+.dose.done .nm { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.dose > div:first-of-type { order: 1; min-width: 0; }
+.dose .amt { order: 2; text-align: right; }
+.dose .nm { font-weight: 800; font-size: 16px; }
+.dose .sub { font-size: 12.5px; color: var(--muted); }
+.dose .amt .u { font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums; }
+.dose .amt .mg { font-size: 12px; color: var(--muted); font-weight: 600; }
+.syr { display: block; width: 70px; height: 8px; margin: 4px 0 0 auto; }
+.syr .barrel { fill: var(--surface); stroke: var(--line); }
+.syr .fill { fill: var(--who, var(--accent)); }
+.syr .tick { stroke: var(--muted); stroke-width: 1; opacity: .5; }
+.empty { padding: 14px; border-radius: var(--r-sm); color: var(--muted); font-size: 14px; background: var(--sunk); text-align: center; }
+.chip { display: inline-block; font-size: 11.5px; font-weight: 800; padding: 3px 10px; border-radius: 99px; background: var(--sunk); color: var(--muted); white-space: nowrap; }
+.chip.ok { background: var(--ok-soft); color: var(--ok); } .chip.warn { background: var(--warn-soft); color: var(--warn); } .chip.bad { background: var(--bad-soft); color: var(--bad); } .chip.acc { background: var(--accent-soft); color: var(--accent); }
+
+/* Protocols as list rows */
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+thead { display: none; }
+tbody tr { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "a e" "b b" "c d"; gap: 4px 10px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+tbody tr:last-child { border-bottom: 0; }
+tbody td { padding: 0; border: 0; }
+tbody td:nth-child(1) { grid-area: a; } tbody td:nth-child(2) { grid-area: c; display: flex; gap: 6px; align-items: baseline; } tbody td:nth-child(3) { grid-area: b; display: flex; gap: 6px; flex-wrap: wrap; color: var(--muted); font-size: 13px; } tbody td:nth-child(4) { grid-area: d; text-align: right; display: flex; gap: 4px; justify-content: flex-end; color: var(--muted); } tbody td:nth-child(5) { grid-area: e; }
+tbody td:nth-child(2) .mono { font-weight: 800; font-size: 16px; font-family: var(--f-body); }
+tr.finished { opacity: .55; }
+tr.finished td .c { text-decoration: line-through; }
+.c { font-weight: 800; font-size: 16px; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Stock */
+.stock { display: flex; flex-direction: column; gap: 12px; }
+.stock .row1 { display: flex; justify-content: space-between; align-items: start; gap: 8px; }
+.stock .vials { display: flex; flex-direction: column; gap: 8px; }
+.vialrow { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 12px; background: var(--sunk); border-radius: var(--r-sm); }
+.vialrow .lab { font-weight: 800; font-size: 14px; }
+.stepper { display: inline-flex; align-items: center; gap: 8px; }
+.stepper .iconbtn { background: var(--surface); }
+.stepper .n { font-size: 20px; font-weight: 800; min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
+.openmg { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.openmg input { width: 80px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-weight: 700; font-size: 15px; }
+.facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.fact { background: var(--sunk); border-radius: var(--r-sm); padding: 10px; min-width: 0; }
+.fact .k { font-size: 11px; color: var(--muted); font-weight: 700; }
+.fact .v { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+/* Orders */
+.order { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; }
+.order .items { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+.order .tot { font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; }
+.kpis { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); margin-bottom: 14px; }
+.kpi .k { font-size: 12px; color: var(--muted); font-weight: 700; }
+.kpi .v { font-size: 24px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+
+/* Bottom sheet modal */
+.scrim { position: fixed; inset: 0; background: rgb(15 23 42 / .45); display: flex; align-items: flex-end; justify-content: center; z-index: 20; }
+.modal { background: var(--surface); border-radius: 24px 24px 0 0; width: min(640px, 100%); max-height: 92%; overflow: auto; padding: 10px max(18px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 12px; box-shadow: 0 -10px 40px -10px rgb(0 0 0 / .35); }
+.modal::before { content: ""; width: 40px; height: 5px; border-radius: 99px; background: var(--line); align-self: center; margin-bottom: 4px; }
+@media (min-width: 700px) { .scrim { align-items: center; } .modal { border-radius: 24px; } .modal::before { display: none; } }
+.modal h3 { margin: 0; font-size: 20px; font-weight: 800; }
+.fields { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); }
+label.f { display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+label.f input, label.f select, label.f textarea { padding: 11px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--sunk); font-weight: 600; font-size: 16px; color: var(--ink); }
+.days { display: flex; flex-wrap: wrap; gap: 6px; }
+.days label { display: inline-flex; align-items: center; gap: 5px; padding: 8px 12px; background: var(--sunk); border-radius: 999px; font-size: 14px; font-weight: 700; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.actions .btn { flex: 1 1 auto; }
+.itemrow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: end; padding: 10px; background: var(--sunk); border-radius: var(--r-sm); }
+.itemrow label.f input { background: var(--surface); }
+.toast { position: fixed; left: 50%; bottom: calc(var(--nav-h) + 20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 11px 18px; border-radius: 999px; font-size: 14px; font-weight: 700; z-index: 30; box-shadow: var(--shadow); max-width: calc(100% - 32px); text-align: center; }
+.state { padding: 60px 0; text-align: center; color: var(--muted); font-weight: 700; }
+
+/* Themes */
+:root[data-palette="ocean"] { --accent: #2563eb; --accent-2: #06b6d4; --accent-soft: #e6efff; --accent-ink: #ffffff; }
+:root[data-palette="berry"] { --accent: #c0267a; --accent-2: #8b5cf6; --accent-soft: #fbe7f2; --accent-ink: #ffffff; }
+:root[data-palette="sunset"] { --accent: #e0561b; --accent-2: #f5a524; --accent-soft: #fff0e5; --accent-ink: #ffffff; }
+:root[data-palette="gold"] {
+  --bg: #0c0c0e; --surface: #17171b; --sunk: #222228; --ink: #f6f1e4; --muted: #a8a191; --line: #2e2d33;
+  --accent: #d9ab3f; --accent-2: #f2d27a; --accent-ink: #1b1405; --accent-soft: #2f2715; --hero-ink: #1b1405;
+  --am-soft: #2c2312; --am-ink: #f3c768; --pm-soft: #221e35; --pm-ink: #c9bcfd;
+  --laura: #f08ab3; --tim: #74b3f2;
+  --ok: #4fd39a; --ok-soft: #12291f; --warn: #f2b84b; --warn-soft: #2f2410; --bad: #f87171; --bad-soft: #36181a;
+  --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 6px 18px -8px rgb(0 0 0 / .6); color-scheme: dark; }
+.hero { color: var(--hero-ink, #fff) !important; }
+
+/* Top bar buttons */
+.topbtn { border: 0; background: var(--sunk); color: var(--ink); border-radius: 999px; height: 36px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: 13px; }
+.topbtn svg { width: 18px; height: 18px; }
+.topbtn.icon { width: 36px; padding: 0; justify-content: center; }
+#askBtn { background: var(--accent-soft); color: var(--accent); }
+@media (max-width: 430px) { .brand .date { display: none; } }
+
+/* Toast with action */
+.toast { display: flex; align-items: center; gap: 12px; }
+.toastbtn { border: 0; background: var(--accent); color: var(--accent-ink); font-weight: 800; border-radius: 999px; padding: 6px 12px; font-size: 13px; }
+
+/* Skip */
+.linkbtn { border: 0; background: none; padding: 2px 0; margin-top: 2px; font-size: 12px; font-weight: 700; color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+.dose.skipped { background: transparent; border: 1.5px dashed var(--line); }
+.dose.skipped .nm { color: var(--muted); }
+.dose .when { font-weight: 800; color: var(--ink); }
+.useby-warn { color: var(--warn) !important; font-weight: 700; } .useby-bad { color: var(--bad) !important; font-weight: 700; }
+
+/* Prep, reorder */
+.listrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.listrow:last-child { border-bottom: 0; }
+.listrow .t { font-weight: 800; }
+.cardhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+.note { font-size: 13px; color: var(--muted); margin: 2px 0 6px; }
+
+/* Timeline */
+.tl { margin-top: 6px; }
+.tl-row { display: grid; grid-template-columns: minmax(92px, 34%) 1fr; gap: 10px; align-items: center; margin: 7px 0; }
+.tl-name { font-size: 13px; font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tl-name i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+.tl-track { position: relative; height: 14px; background: var(--sunk); border-radius: 99px; }
+.tl-bar { position: absolute; top: 0; bottom: 0; border-radius: 99px; min-width: 4px; }
+.tl-bar.paused { background: repeating-linear-gradient(45deg, var(--line) 0 4px, transparent 4px 8px) !important; }
+.tl-today { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--ink); border-radius: 2px; opacity: .55; }
+.tl-months { position: relative; height: 16px; font-size: 11px; color: var(--muted); font-weight: 700; }
+.tl-months span { position: absolute; top: 0; white-space: nowrap; }
+
+/* Quick count */
+.countrow { display: grid; grid-template-columns: 1fr auto; gap: 8px 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.countrow:last-child { border-bottom: 0; }
+
+/* Themes picker */
+.swatches { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+.swatch { border: 2px solid var(--line); border-radius: 16px; padding: 10px; background: var(--surface); text-align: left; font-weight: 800; display: flex; flex-direction: column; gap: 8px; }
+.swatch[aria-pressed="true"] { border-color: var(--accent); }
+.swatch .sw { height: 36px; border-radius: 10px; }
+
+/* Ask */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { border: 0; background: var(--sunk); border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 700; color: var(--ink); }
+.answer { white-space: pre-wrap; background: var(--sunk); border-radius: 14px; padding: 14px; font-size: 15px; line-height: 1.5; min-height: 2em; }
+.answer:empty { display: none; }
+textarea.ask { width: 100%; box-sizing: border-box; min-height: 74px; border: 1px solid var(--line); border-radius: 14px; padding: 12px; font-size: 16px; background: var(--sunk); color: var(--ink); }
+
+/* Delivery photo check */
+.photo-drop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 22px 14px; border: 2px dashed var(--line); border-radius: 18px; background: var(--sunk); text-align: center; cursor: pointer; font-weight: 800; }
+.photo-drop svg { width: 34px; height: 34px; color: var(--accent); }
+.photo-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
+.thumbs img { width: 76px; height: 76px; object-fit: cover; border-radius: 12px; border: 1px solid var(--line); }
+.match { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.match:last-child { border-bottom: 0; }
+.match .nmx { font-weight: 800; }
+.match .qty { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); font-weight: 700; }
+.match .qty input { width: 64px; padding: 8px; border: 1px solid var(--line); border-radius: 12px; font-size: 16px; font-weight: 800; text-align: center; background: var(--surface); }
+.match .rename { grid-column: 1 / -1; }
+.match .rename input { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; font-size: 15px; background: var(--surface); }
+.spinner { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--accent-soft); border-top-color: var(--accent); animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.order .photos { grid-column: 1 / -1; display: flex; gap: 6px; flex-wrap: wrap; }
+.order .photos img { width: 56px; height: 56px; object-fit: cover; border-radius: 10px; }
+.order .extra { grid-column: 1 / -1; font-size: 13px; font-weight: 700; }
+
+/* Round 2 */
+.slothead { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.slothead h4 { margin: 0 !important; }
+.allbtn { border: 0; background: var(--surface); color: var(--who); font-weight: 800; font-size: 12px; padding: 5px 11px; border-radius: 999px; box-shadow: var(--shadow); }
+.habits { display: flex; gap: 8px; margin: 8px 0 2px; }
+.habit { border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 800; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.habit[aria-pressed="true"] { background: var(--who); border-color: var(--who); color: #fff; }
+.linkrow { display: flex; gap: 14px; }
+.viewseg { display: inline-grid; grid-template-columns: 1fr 1fr; gap: 3px; background: var(--sunk); padding: 3px; border-radius: 999px; }
+.viewseg button, .stockseg button { border: 0; background: none; padding: 6px 12px; border-radius: 999px; font-weight: 800; font-size: 13px; color: var(--muted); }
+.viewseg button[aria-pressed="true"], .stockseg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.stockseg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; background: var(--sunk); padding: 3px; border-radius: 999px; margin-bottom: 14px; }
+.weekday { padding: 12px 14px; }
+.weekday.today { border-color: var(--accent); }
+.weekday h3 { font-size: 15px !important; margin-bottom: 6px !important; }
+.wk-p { display: grid; grid-template-columns: 54px 1fr; gap: 4px 8px; font-size: 13px; padding: 4px 0; border-top: 1px solid var(--line); }
+.wk-p b { color: var(--who); }
+.wk-items { display: flex; flex-wrap: wrap; gap: 4px; }
+.wk-items span { background: var(--sunk); border-radius: 8px; padding: 2px 7px; font-weight: 600; }
+.wk-items span.am { background: var(--am-soft); } .wk-items span.pm { background: var(--pm-soft); }
+.wk-items span.done { text-decoration: line-through; opacity: .55; }
+.bigsyr { width: 100%; height: 26px; }
+.steps { display: flex; flex-direction: column; gap: 8px; }
+.steps div { display: grid; grid-template-columns: 26px 1fr; gap: 8px; font-size: 14px; }
+.steps i { font-style: normal; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 800; font-size: 13px; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 14px; }
+.kv dt { color: var(--muted); font-weight: 700; } .kv dd { margin: 0; font-weight: 700; }
+.namebtn { border: 0; background: none; padding: 0; font: inherit; font-weight: 800; font-size: 16px; color: var(--ink); text-align: left; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+.fr { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.fr:last-child { border-bottom: 0; }
+.fr .t { font-weight: 800; }
+.fr .meta { font-size: 13px; color: var(--muted); grid-column: 1 / -1; }
+.fr .risk { grid-column: 1 / -1; font-size: 13px; font-weight: 800; color: var(--bad); }
+.fr .risk.warn { color: var(--warn); }
+.bigcount { font-size: 22px; font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; }
+.changes .chrow { display: grid; grid-template-columns: 1fr 1fr 1fr 36px; gap: 6px; align-items: end; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="top">
+  <div class="wrap top-inner">
+    <div class="brand"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="10" fill="var(--accent)"/><path d="M16 24c-5-2.6-7.5-6.2-7.5-11 3.8 0 6.2 1.4 7.5 3.8 1.3-2.4 3.7-3.8 7.5-3.8 0 4.8-2.5 8.4-7.5 11z" fill="#fff"/></svg><h1>Peptide Program</h1><span class="date" id="todayLabel"></span></div>
+    <button class="topbtn" id="askBtn" hidden aria-label="Ask Claude about your program"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Ask</button>
+    <button class="topbtn icon" id="setBtn" aria-label="Colour theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r="1.3" fill="currentColor"/><circle cx="12" cy="7.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="10" r="1.3" fill="currentColor"/><path d="M12 21c-1.5 0-2-1-2-2s1-1.5 2-1.5h1.5a3 3 0 0 0 3-3"/></svg></button>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="boot" class="state">Loading Laura and Tim's program…</div>
+
+  <section class="panel" id="p-today" hidden>
+    <div class="hero" id="hero"><div class="hello" id="greet"></div><div class="big" id="heroBig"></div><div class="pills" id="heroPills"></div></div>
+    <div class="seg" id="whoSeg" role="group" aria-label="Show doses for"><button data-who="Both" aria-pressed="true">Both</button><button data-who="Laura" aria-pressed="false">Laura</button><button data-who="Tim" aria-pressed="false">Tim</button></div>
+    <div id="alertStrip"></div>
+    <div class="section-head">
+      <div><h2>Doses</h2><p>Tick each dose as it's taken. Ticking takes it out of the open vial, and opens a new vial when the old one runs out.</p></div>
+      <div class="viewseg" id="viewSeg" role="group" aria-label="View"><button data-v="day" aria-pressed="true">Day</button><button data-v="week" aria-pressed="false">Week</button></div>
+      <div class="daynav">
+        <button class="iconbtn" id="dayPrev" aria-label="Previous day">‹</button>
+        <span class="d" id="dayLabel"></span>
+        <button class="iconbtn" id="dayNext" aria-label="Next day">›</button>
+        <button class="btn sm" id="dayToday">Today</button>
+      </div>
+    </div>
+    <div class="grid" id="todayGrid"></div>
+    <div class="grid" id="weekGrid" hidden></div>
+    <div id="prep" style="margin-top:14px"></div>
+  </section>
+
+  <section class="panel" id="p-protocols" hidden>
+    <div class="section-head">
+      <div><h2>Protocols</h2><p>Each compound's dose, days and cycle dates. Changes here flow through to Today and the stock alerts.</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="holidayBtn">Holiday pause</button><button class="btn primary" id="addProtocol">Add protocol</button></div>
+    </div>
+    <div id="holds" style="margin-bottom:14px"></div>
+    <div id="timeline" style="margin-bottom:14px"></div>
+    <div id="spacing" style="margin-bottom:14px"></div>
+    <div class="grid" id="protoGrid"></div>
+  </section>
+
+  <section class="panel" id="p-stock" hidden>
+    <div class="section-head">
+      <div><h2>Stock &amp; alerts</h2><p>Vials on hand against the protocol to each compound's last dose. Order-by dates allow <span id="leadTxt">2</span> business days for delivery (a weekend order arrives Wednesday) and aim to land the day before you run out. Victorian and NSW public holidays are skipped, as orders ship from NSW.</p></div>
+      <button class="btn" id="quickCount">Quick fridge count</button>
+    </div>
+    <div class="stockseg" id="stockSeg" role="group" aria-label="Stock view"><button data-s="alerts" aria-pressed="true">Orders</button><button data-s="fridge" aria-pressed="false">Fridge</button><button data-s="freezer" aria-pressed="false">Freezer</button></div>
+    <div id="fridgeView" hidden></div>
+    <div id="freezerView" hidden></div>
+    <div id="alertsView">
+    <div id="reorder" style="margin-bottom:14px"></div>
+    <div class="grid" id="stockGrid"></div>
+    <div class="section-head" style="margin-top: 26px;"><div><h2>Not on a protocol</h2><p>Other products from your orders. Adjust the counts as you use them.</p></div><button class="btn" id="addStock">Add item</button></div>
+    <div class="grid" id="otherGrid"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-orders" hidden>
+    <div class="section-head">
+      <div><h2>Orders</h2><p>Add an order when you place it. When a parcel arrives, tap Delivery arrived and take a photo: Claude counts what came, checks it against the order, spots any freebies and adds it all to stock.</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="checkDelivery" hidden>Delivery arrived</button><button class="btn" id="addOrder">Add order</button></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="grid" id="orderGrid"></div>
+  </section>
+</main>
+
+<nav class="tabs" role="tablist" id="tabs" aria-label="Sections">
+  <button role="tab" id="tab-today" data-tab="today" aria-selected="true"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.7 2.7L16.5 9.5"/></svg></span>Today<span class="count" id="c-today"></span></button>
+  <button role="tab" id="tab-protocols" data-tab="protocols" aria-selected="false"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>Protocols</button>
+  <button role="tab" id="tab-stock" data-tab="stock" aria-selected="false"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v4l-3 3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-9l-3-3V3"/><path d="M7 14h10"/></svg></span>Stock<span class="count" id="c-stock"></span></button>
+  <button role="tab" id="tab-orders" data-tab="orders" aria-selected="false"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7M12 11v10"/></svg></span>Orders</button>
+</nav>
+<div id="modalRoot"></div>
+
+<script>
+(() => {
+  // ---------- tiny helpers ----------
+  const $ = (s) => document.querySelector(s);
+  const h = (tag, attrs = {}, ...kids) => {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v;
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else if (k === 'style') el.setAttribute('style', v);
+      else if (k in el && k !== 'list') el[k] = v;
+      else el.setAttribute(k, v === true ? '' : v);
+    }
+    for (const kid of kids.flat()) if (kid != null && kid !== false) el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+    return el;
+  };
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const sv = (tag, attrs) => { const el = document.createElementNS(SVGNS, tag); for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v); return el; };
+  const toast = (msg) => { const t = h('div', { class: 'toast', role: 'status' }, msg); document.body.append(t); setTimeout(() => t.remove(), 2400); };
+  const toastAction = (msg, label, fn) => {
+    document.querySelectorAll('.toast').forEach((t) => t.remove());
+    const t = h('div', { class: 'toast', role: 'status' }, h('span', {}, msg), h('button', { class: 'toastbtn', onclick: () => { t.remove(); fn(); } }, label));
+    document.body.append(t); setTimeout(() => t.remove(), 6000);
+  };
+  const fmtTime = (t) => { if (!t) return ''; const [hh, mm] = t.split(':').map(Number); return ((hh % 12) || 12) + (mm ? ':' + String(mm).padStart(2, '0') : '') + (hh < 12 ? 'am' : 'pm'); };
+  const r1 = (n) => Math.round(n * 100) / 100;
+  const fmtMg = (n) => (n == null ? '—' : (Math.abs(n) >= 100 ? Math.round(n).toLocaleString() : r1(n)) + ' mg');
+  const money = (n) => '$' + Number(n || 0).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  // dates as YYYY-MM-DD strings, maths in UTC
+  const localToday = () => { const n = new Date(); return new Date(n.getTime() - n.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
+  const D = (s) => new Date(s + 'T00:00:00Z');
+  const S = (d) => d.toISOString().slice(0, 10);
+  const addDays = (s, n) => S(new Date(D(s).getTime() + n * 864e5));
+  const wd = (s) => D(s).getUTCDay();
+  const DAYN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const nice = (s, yr) => { if (!s) return 'TBC'; const d = D(s); return DAYN[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MON[d.getUTCMonth()] + (yr ? ' ' + d.getUTCFullYear() : ''); };
+  // Victorian (business.vic.gov.au) and NSW (nsw.gov.au) public holidays, as Peptomi ships from NSW. AFL Grand Final Friday 2027 isn't set yet.
+  const HOLIDAYS = new Set(['2026-01-01', '2026-01-26', '2026-03-09', '2026-04-03', '2026-04-06', '2026-06-08', '2026-09-25', '2026-11-03', '2026-12-25', '2026-12-28',
+    '2027-01-01', '2027-01-26', '2027-03-08', '2027-03-26', '2027-03-29', '2027-06-14', '2027-11-02', '2027-12-27', '2027-12-28',
+    '2026-04-27', '2026-10-05', '2027-04-26', '2027-10-04']);
+  const isBiz = (s) => { const w = wd(s); return w !== 0 && w !== 6 && !HOLIDAYS.has(s); };
+  const arrival = (orderDay, lead) => { let a = orderDay; while (!isBiz(a)) a = addDays(a, 1); let n = 0; while (n < lead) { a = addDays(a, 1); if (isBiz(a)) n++; } return a; };
+  const daysBetween = (a, b) => Math.round((D(b) - D(a)) / 864e5);
+  const daysText = (wds) => { const s = [...wds].sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7)); if (s.length === 7) return 'Daily'; return s.map((x) => DAYN[x]).join(', '); };
+
+  // ---------- state ----------
+  const TODAY = localToday();
+  let viewDay = TODAY;
+  let tab = 'today';
+  let whoSel = 'Both';
+  try { whoSel = localStorage.getItem('pp-who') || 'Both'; } catch (e) {}
+  const st = { protocols: [], stock: [], orders: [], doses: [], holds: [], habits: [], settings: { lead_days: 2, arrive_days_before: 1 } };
+  const loaded = { protocols: false, stock: false, orders: false, doses: false, holds: false, habits: false };
+  let weekMode = false, stockView = 'alerts';
+  let db = null;
+
+  $('#todayLabel').textContent = nice(TODAY, true);
+
+  // ---------- domain ----------
+  const onHold = (p, day) => st.holds.some((x) => x.from <= day && x.to >= day && (x.who === 'Both' || x.who === p.person) && (!x.compounds || !x.compounds.length || x.compounds.includes(p.compound)));
+  const activeOn = (p, day) => !p.paused && p.start && (p.end || p.ongoing) && p.start <= day && (p.ongoing && !p.end ? true : p.end >= day) && (p.weekdays || []).includes(wd(day)) && !onHold(p, day);
+  // planned dose changes: the latest change dated on or before the day wins
+  const eff = (p, day) => { let d = { dose_mg: p.dose_mg, units: p.units }; for (const c of [...(p.changes || [])].sort((a, b) => (a.from < b.from ? -1 : 1))) if (c.from && c.from <= day) d = { dose_mg: c.dose_mg ?? d.dose_mg, units: c.units || d.units }; return d; };
+  const nextChange = (p, from) => [...(p.changes || [])].filter((c) => c.from > from).sort((a, b) => (a.from < b.from ? -1 : 1))[0] || null;
+  const restartOf = (p) => (p.end && Number(p.pause_days) > 0 ? addDays(p.end, Number(p.pause_days) + 1) : null);
+  const restarted = (p) => st.protocols.some((q) => q.id !== p.id && q.person === p.person && q.compound === p.compound && q.start && p.end && q.start > p.end);
+  const doseId = (day, pid) => day + '_' + pid;
+  const loggedSet = () => new Set(st.doses.map((d) => d.id));
+  const stockFor = (c) => st.stock.filter((s) => s.compound === c);
+  const usesMg = (p) => typeof p.dose_mg === 'number' && p.dose_mg > 0;
+
+  function project(compound) {
+    const rows = stockFor(compound);
+    const prots = st.protocols.filter((p) => p.compound === compound && usesMg(p) && !p.paused && p.start && p.end);
+    if (!rows.length || rows.some((r) => !r.vial_mg)) return { manual: true, prots };
+    if (!prots.length && st.protocols.some((p) => p.compound === compound && !p.paused && !usesMg(p) && (p.ongoing || (p.end && p.end >= TODAY)))) return { manual: true, prots };
+    const onHand = rows.reduce((s, r) => s + (r.sealed || 0) * r.vial_mg + (r.open_mg || 0), 0);
+    if (!prots.length) return { idle: true, onHand };
+    const end = prots.reduce((m, p) => (p.end > m ? p.end : m), '');
+    if (end < TODAY) return { idle: true, onHand };
+    const incoming = [];
+    for (const o of st.orders) if (o.status === 'ordered') for (const it of o.items || []) if (it.compound === compound) {
+      const r = rows.find((x) => x.vial === it.vial) || rows[0];
+      incoming.push({ day: o.eta || arrival(o.date, st.settings.lead_days), mg: (it.qty || 0) * (parseFloat(it.vial) || r.vial_mg) });
+    }
+    const logged = loggedSet();
+    let left = onHand, need = 0, runOut = null, incomingMg = 0;
+    for (let d = TODAY; d <= end; d = addDays(d, 1)) {
+      for (const i of incoming) if (i.day === d) { left += i.mg; incomingMg += i.mg; }
+      let mg = 0;
+      for (const p of prots) if (activeOn(p, d) && !(d === TODAY && logged.has(doseId(d, p.id)))) mg += eff(p, d).dose_mg || 0;
+      need += mg;
+      if (mg > 0 && !runOut) { if (left + 1e-9 < mg) runOut = d; else left -= mg; }
+    }
+    let orderBy = null;
+    if (runOut) { const lim = addDays(runOut, -(st.settings.arrive_days_before || 0)); let o = lim; while (arrival(o, st.settings.lead_days) > lim) o = addDays(o, -1); orderBy = o; }
+    const big = Math.max(...rows.map((r) => r.vial_mg));
+    const short = Math.max(0, need - onHand - incomingMg);
+    const daily = prots.reduce((s, p) => s + p.dose_mg * (p.weekdays || []).length / 7, 0);
+    let level = 'ok';
+    if (orderBy) { const dd = daysBetween(TODAY, orderBy); level = dd <= 0 ? 'bad' : dd <= 7 ? 'warn' : 'info'; }
+    return { onHand, need, end, runOut, orderBy, vials: short > 0 ? Math.ceil(short / big) : 0, bigVial: big, daysLeft: daily > 0 ? Math.floor(onHand / daily) : null, level, incomingMg };
+  }
+  // How long a vial lasts at the doses on the protocol (both people combined)
+  function dailyUse(compound) {
+    const ps = st.protocols.filter((p) => p.compound === compound && usesMg(p) && !p.paused && p.start && p.end && p.end >= TODAY);
+    return ps.reduce((s, p) => s + p.dose_mg * (p.weekdays || []).length / 7, 0);
+  }
+  function finishDate(compound, mg) {
+    const ps = st.protocols.filter((p) => p.compound === compound && usesMg(p) && !p.paused && p.start && p.end);
+    const logged = loggedSet();
+    let left = mg;
+    for (let d = TODAY, i = 0; i < 400; d = addDays(d, 1), i++) {
+      let need = 0;
+      for (const p of ps) if (activeOn(p, d) && !(d === TODAY && logged.has(doseId(d, p.id)))) need += eff(p, d).dose_mg || 0;
+      if (need > 0) { if (left + 1e-9 < need) return d; left -= need; }
+    }
+    return null;
+  }
+  // Peptomi's guides give a range once mixed: best within the lower number (use_min_days), bin after the upper (use_days)
+  const isOpen = (r) => !!r.mixed_on && (r.vial_mg ? (r.open_mg || 0) > 0 : true);
+  const useBy = (r) => (isOpen(r) ? addDays(r.mixed_on, r.use_days || 28) : null);
+  const bestBy = (r) => (isOpen(r) ? addDays(r.mixed_on, r.use_min_days || r.use_days || 28) : null);
+  const lastsText = (days) => days >= 14 ? (Math.round(days / 7 * 10) / 10) + ' weeks' : Math.round(days) + ' days';
+  const PURPOSE = {
+    'Retatrutide': 'Makes you feel full sooner, so you eat less and lose weight.',
+    'Cagrilintide': 'Copies the body\u2019s \u201cI\u2019m full\u201d hormone, so you get hungry less. Teams up with Reta.',
+    'Tesamorelin': 'Tells your brain to release more growth hormone, which helps burn belly fat.',
+    '5-Amino-1MQ': 'Turns down an enzyme that stores fat, so your body burns more of it instead.',
+    'MOTS-c': 'Helps the \u201cpower plants\u201d in your cells turn food into energy.',
+    'NAD+': 'Fuel your cells use to make energy and repair themselves.',
+    'GHK-Cu': 'Copper peptide that helps skin make collagen and repair itself.',
+    'GHK-Cu Powder': 'The same copper peptide mixed into face serum for firmer skin. Skin only, never inject.',
+    'SNAP-8': 'Face serum that relaxes the tiny muscles behind frown and smile lines.',
+    'DSIP Nasal Spray': 'Nasal spray to help you sleep more deeply.',
+    'MT1': 'Makes your skin tan faster by boosting its natural colour.',
+    'ARA-290': 'Calms irritated nerves and helps them heal. For nerve pain.',
+    'BPC-157 + TB-500': 'Helps injured tendons, muscles and joints heal faster.',
+  };
+  const purposeOf = (p) => p.purpose || PURPOSE[p.compound] || '';
+  const trackedCompounds = () => [...new Set(st.protocols.map((p) => p.compound))];
+
+  // ---------- db writes ----------
+  const col = (n) => db.collection(n);
+  async function safe(fn, okMsg) { try { await fn(); if (okMsg) toast(okMsg); } catch (e) { toast(e && e.code === 'not_granted' ? "You can view this, but you don't have edit access." : 'Couldn’t save. Try again.'); console.error(e); } }
+
+  async function tickDose(p, day, on) {
+    const id = doseId(day, p.id);
+    if (on) {
+      let change = null, note = null;
+      const dose = eff(p, day).dose_mg;
+      if (usesMg(p)) {
+        const rows = stockFor(p.compound).filter((r) => r.vial_mg);
+        let row = rows.filter((r) => (r.open_mg || 0) > 0).sort((a, b) => a.open_mg - b.open_mg)[0];
+        if (row && row.open_mg + 1e-9 >= dose) {
+          change = { stock_id: row.id, mg: dose, opened: false };
+          await col('stock').doc(row.id).update({ open_mg: r1(row.open_mg - dose) });
+        } else {
+          const src = (row && row.sealed > 0 ? row : null) || rows.filter((r) => (r.sealed || 0) > 0).sort((a, b) => inFridge(b) - inFridge(a) || b.vial_mg - a.vial_mg)[0];
+          if (src) {
+            const carry = src.id === (row && row.id) ? row.open_mg || 0 : 0;
+            change = { stock_id: src.id, mg: dose, opened: true, prev_open: src.open_mg || 0, prev_mixed: src.mixed_on || null, prev_fridge: src.in_fridge || 0, prev_since: src.fridge_since || null };
+            await col('stock').doc(src.id).update({ sealed: src.sealed - 1, open_mg: r1(Math.max(0, carry + src.vial_mg - dose)), mixed_on: TODAY, in_fridge: Math.max(0, Math.min(src.sealed - 1, (src.in_fridge || 0) - ((src.in_fridge || 0) > 0 ? 1 : 0))) });
+            if (row && row.id !== src.id) await col('stock').doc(row.id).update({ open_mg: 0 });
+            note = 'Opened a new ' + src.vial + ' ' + p.compound + ' vial. Mix with ' + (src.bac || 'BAC water') + '.';
+          } else note = 'No ' + p.compound + ' left in stock. Logged anyway.';
+        }
+      }
+      await col('doses').doc(id).set({ day, protocol_id: p.id, person: p.person, compound: p.compound, dose_mg: dose ?? null, at: new Date().toISOString(), change });
+      return note;
+    } else {
+      const d = st.doses.find((x) => x.id === id);
+      const ch = d && d.change;
+      if (ch && ch.stock_id) {
+        const row = st.stock.find((r) => r.id === ch.stock_id);
+        if (row) {
+          if (ch.opened) await col('stock').doc(row.id).update({ sealed: (row.sealed || 0) + 1, open_mg: r1(ch.prev_open || 0), mixed_on: ch.prev_mixed || null, in_fridge: ch.prev_fridge ?? (row.in_fridge || 0), fridge_since: ch.prev_since ?? (row.fridge_since || null) });
+          else await col('stock').doc(row.id).update({ open_mg: r1((row.open_mg || 0) + ch.mg) });
+        }
+      }
+      await col('doses').doc(id).delete();
+    }
+    return null;
+  }
+  async function skipDose(p, day, on) {
+    const id = doseId(day, p.id);
+    if (on) await col('doses').doc(id).set({ day, protocol_id: p.id, person: p.person, compound: p.compound, dose_mg: null, skipped: true, at: new Date().toISOString(), change: null });
+    else await col('doses').doc(id).delete();
+  }
+
+  // ---------- render ----------
+  function render() {
+    if (!Object.values(loaded).every(Boolean)) return;
+    $('#boot').hidden = true;
+    for (const t of ['today', 'protocols', 'stock', 'orders']) { $('#p-' + t).hidden = tab !== t; $('#tab-' + t).setAttribute('aria-selected', String(tab === t)); }
+    $('#todayGrid').hidden = weekMode; $('#weekGrid').hidden = !weekMode; $('#prep').hidden = weekMode;
+    document.querySelectorAll('#viewSeg button').forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.v === 'week') === weekMode)));
+    for (const v of ['alerts', 'fridge', 'freezer']) $('#' + v + 'View').hidden = stockView !== v;
+    document.querySelectorAll('#stockSeg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.s === stockView)));
+    $('#leadTxt').textContent = st.settings.lead_days;
+    const proj = Object.fromEntries(trackedCompounds().map((c) => [c, project(c)]));
+    const due = Object.entries(proj).filter(([, p]) => p.orderBy && (p.level === 'bad' || p.level === 'warn'));
+    const cs = $('#c-stock'); cs.textContent = due.length ? due.length : ''; cs.className = 'count' + (due.some(([, p]) => p.level === 'bad') ? ' bad' : due.length ? ' warn' : ''); cs.hidden = !due.length;
+    renderAlerts(proj);
+    renderToday();
+    renderWeek();
+    renderHolds();
+    renderSpacing();
+    renderFridge();
+    renderFreezer();
+    writeStatus(proj);
+    renderPrep();
+    renderTimeline();
+    renderProtocols();
+    renderReorder(proj);
+    renderStock(proj);
+    renderOrders();
+  }
+
+  function expiringVials() {
+    const inUse = new Set(st.protocols.filter((p) => protoStatus(p)[0] !== 'Finished' && !p.paused).map((p) => p.compound));
+    return st.stock.filter((r) => inUse.has(r.compound) && useBy(r) && useBy(r) <= addDays(TODAY, 3)).map((r) => ({ r, ub: useBy(r) }));
+  }
+  function renderAlerts(proj) {
+    const box = $('#alertStrip');
+    const list = Object.entries(proj).filter(([, p]) => p.orderBy).sort((a, b) => (a[1].orderBy < b[1].orderBy ? -1 : 1));
+    const urgent = list.filter(([, p]) => p.level !== 'info');
+    const exp = expiringVials();
+    const rs = dueRestarts();
+    if (!urgent.length && !exp.length && !rs.length) {
+      const next = list[0];
+      box.replaceChildren(h('div', { class: 'allgood' }, next ? 'Nothing to order this week. Next up: ' + next[0] + ', order by ' + nice(next[1].orderBy) + '.' : 'Stock covers every protocol to its last dose. Nothing to order.'));
+      return;
+    }
+    box.replaceChildren(h('div', { class: 'alerts' }, rs.map(({ p, date }) => h('div', { class: 'alert warn' },
+      h('span', { class: 'lbl' }, date <= TODAY ? 'Restart due' : 'Restart soon'),
+      h('span', { class: 'what' }, p.compound + ' for ' + p.person),
+      h('span', { class: 'why' }, 'Pause ends ' + nice(date) + '. ', h('button', { class: 'linkbtn', onclick: () => nextCycle(p) }, 'Set up next cycle')))), exp.map(({ r, ub }) => h('div', { class: 'alert ' + (ub <= TODAY ? 'bad' : 'warn') },
+      h('span', { class: 'lbl' }, ub <= TODAY ? 'Past its use-by' : 'Use-by soon'),
+      h('span', { class: 'what' }, r.compound + ' ' + r.vial),
+      h('span', { class: 'why' }, 'Mixed ' + nice(r.mixed_on) + ', use by ' + nice(ub) + '. Bin what\u2019s left and mix a new vial.'))), urgent.map(([c, p]) => h('div', { class: 'alert ' + p.level },
+      h('span', { class: 'lbl' }, p.level === 'bad' ? 'Order now' : 'Order this week'),
+      h('span', { class: 'what' }, c),
+      h('span', { class: 'why' }, 'Order by ' + nice(p.orderBy) + ' · runs out ' + nice(p.runOut) + ' · about ' + p.vials + ' vial' + (p.vials === 1 ? '' : 's') + ' to finish')))));
+  }
+
+  function syringe(units) {
+    const svg = sv('svg', { class: 'syr', viewBox: '0 0 92 8', 'aria-hidden': 'true' });
+    svg.append(sv('rect', { class: 'barrel', x: 0.5, y: 0.5, width: 91, height: 7, rx: 2 }));
+    svg.append(sv('rect', { class: 'fill', x: 1, y: 1, width: Math.max(1, Math.min(90, (units / 100) * 90)), height: 6, rx: 1.5 }));
+    for (let i = 10; i < 100; i += 10) svg.append(sv('line', { class: 'tick', x1: 1 + (i / 100) * 90, x2: 1 + (i / 100) * 90, y1: 5, y2: 7.5 }));
+    return svg;
+  }
+
+  function ring(done, total) {
+    const r = 21, c = 2 * Math.PI * r, frac = total ? done / total : 0;
+    const svg = sv('svg', { class: 'ring', viewBox: '0 0 52 52', role: 'img', 'aria-label': done + ' of ' + total + ' taken' });
+    svg.append(sv('circle', { class: 'track', cx: 26, cy: 26, r, fill: 'none', 'stroke-width': 5 }));
+    svg.append(sv('circle', { class: 'val', cx: 26, cy: 26, r, fill: 'none', 'stroke-width': 5, 'stroke-linecap': 'round', 'stroke-dasharray': c, 'stroke-dashoffset': c * (1 - frac), transform: 'rotate(-90 26 26)' }));
+    const t = sv('text', { x: 26, y: 30.5, 'text-anchor': 'middle' }); t.textContent = done + '/' + total; svg.append(t);
+    return svg;
+  }
+  function slotIcon(time) {
+    const svg = sv('svg', { viewBox: '0 0 18 18', 'aria-hidden': 'true' });
+    if (time === 'Morning') {
+      svg.append(sv('circle', { cx: 9, cy: 9, r: 3.6, fill: 'currentColor' }));
+      for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; svg.append(sv('line', { x1: 9 + Math.cos(a) * 5.6, y1: 9 + Math.sin(a) * 5.6, x2: 9 + Math.cos(a) * 7.6, y2: 9 + Math.sin(a) * 7.6, stroke: 'currentColor', 'stroke-width': 1.5, 'stroke-linecap': 'round' })); }
+    } else svg.append(sv('path', { d: 'M12.5 13.8A6 6 0 0 1 7.2 3.2a6.2 6.2 0 1 0 7.6 8.6 6 6 0 0 1-2.3 2z', fill: 'currentColor' }));
+    return svg;
+  }
+  function heroUpdate(pp) {
+    const hr = new Date().getHours();
+    const isToday = viewDay === TODAY;
+    $('#greet').textContent = isToday ? (hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening') + ', Laura & Tim' : nice(viewDay, true);
+    const left = pp.reduce((s, p) => s + p.left, 0), total = pp.reduce((s, p) => s + p.total, 0);
+    $('#heroBig').textContent = !total ? 'Nothing scheduled' : !left ? 'All done ' + (isToday ? 'today' : 'that day') + '' : left + ' dose' + (left === 1 ? '' : 's') + ' to go';
+    $('#heroPills').replaceChildren(...pp.map((p) => h('span', { class: 'pill' }, p.who + ' ', h('b', {}, p.total ? (p.total - p.left) + '/' + p.total : 'rest day'))));
+  }
+  function renderToday() {
+    $('#dayLabel').textContent = viewDay === TODAY ? 'Today' : nice(viewDay);
+    $('#dayNext').disabled = false;
+    const future = viewDay > TODAY;
+    const logged = loggedSet();
+    let open = 0;
+    const perPerson = [];
+    const cards = ['Laura', 'Tim'].map((who) => {
+      const ps = st.protocols.filter((p) => p.person === who && activeOn(p, viewDay));
+      const shown = whoSel === 'Both' || whoSel === who;
+      const done = ps.filter((p) => logged.has(doseId(viewDay, p.id))).length;
+      if (viewDay === TODAY) open += ps.length - done;
+      perPerson.push({ who, left: ps.length - done, total: ps.length, eveLeft: ps.filter((p) => p.time === 'Evening' && !logged.has(doseId(viewDay, p.id))).length, amLeft: ps.filter((p) => p.time === 'Morning' && !logged.has(doseId(viewDay, p.id))).length });
+      const slots = ['Morning', 'Evening'].map((time) => {
+        const items = ps.filter((p) => p.time === time).sort((a, b) => (a.at || '99').localeCompare(b.at || '99') || a.compound.localeCompare(b.compound));
+        const open2 = items.filter((p) => !logged.has(doseId(viewDay, p.id)));
+        return h('div', { class: 'slot ' + (time === 'Morning' ? 'am' : 'pm') }, h('div', { class: 'slothead' }, h('h4', {}, slotIcon(time), time),
+            open2.length > 1 && !future ? h('button', { class: 'allbtn', onclick: () => tickAll(who, time, open2, viewDay) }, 'Tick all ' + open2.length) : null),
+          items.length ? items.map((p) => {
+            const day = viewDay;
+            const doc = st.doses.find((x) => x.id === doseId(day, p.id));
+            const isSkipped = !!(doc && doc.skipped);
+            const isDone = !!doc && !isSkipped;
+            const ed = eff(p, day);
+            const units = parseFloat(ed.units);
+            const stockRow = stockFor(p.compound).find((r) => (r.open_mg || 0) > 0) || [...stockFor(p.compound)].sort((a, b) => ((b.sealed || 0) > 0) - ((a.sealed || 0) > 0) || (b.vial_mg || 0) - (a.vial_mg || 0))[0];
+            const ub = stockRow ? useBy(stockRow) : null;
+            const endsSoon = p.end && daysBetween(day, p.end) <= 7 ? 'Last dose ' + nice(p.end) : null;
+            const subBits = [stockRow && stockRow.vial_mg ? stockRow.vial + ' vial' + (dailyUse(p.compound) ? ', lasts ~' + lastsText(stockRow.vial_mg / dailyUse(p.compound)) : '') : null, p.note && p.note.length < 40 ? p.note : null, endsSoon, nextChange(p, day) && daysBetween(day, nextChange(p, day).from) <= 7 ? 'Changes to ' + (nextChange(p, day).units || '') + ' from ' + nice(nextChange(p, day).from) : null].filter(Boolean).join(' · ');
+            const sub = h('div', { class: 'sub' }, p.at ? h('span', { class: 'when' }, fmtTime(p.at) + (subBits ? ' · ' : '')) : null, isSkipped ? 'Skipped' : subBits,
+              ub && ub <= addDays(day, 3) && !isSkipped ? h('div', { class: ub <= day ? 'useby-bad' : 'useby-warn' }, 'Open vial use by ' + nice(ub)) : null);
+            const name = h('div', {}, h('div', { class: 'nm' }, p.compound), sub,
+              h('div', { class: 'linkrow' },
+                h('button', { class: 'linkbtn', onclick: (e) => { e.preventDefault(); e.stopPropagation(); detailsModal(p, day); } }, 'Details'),
+                !isDone && !isSkipped && !future ? h('button', { class: 'linkbtn', onclick: (e) => { e.preventDefault(); e.stopPropagation(); safe(() => skipDose(p, day, true)).then(() => toastAction(p.compound + ' skipped for ' + p.person, 'Undo', () => safe(() => skipDose(p, day, false)))); } }, 'Skip') : null));
+            const amt = h('div', { class: 'amt' }, h('div', { class: 'u' }, ed.units || ''), h('div', { class: 'mg' }, ed.dose_mg ? fmtMg(ed.dose_mg) : (p.route || 'Nasal')), Number.isFinite(units) && units <= 100 ? syringe(units) : null);
+            if (isSkipped) return h('div', { class: 'dose skipped' }, name, amt, h('button', { class: 'btn sm', style: 'order:3', onclick: () => safe(() => skipDose(p, day, false), 'Skip undone') }, 'Undo'));
+            const cb = h('input', { type: 'checkbox', id: 'cb-' + doseId(day, p.id), checked: isDone, disabled: future, 'aria-label': 'Taken: ' + p.compound,
+              onchange: (e) => {
+                const on = e.target.checked; e.target.disabled = true;
+                safe(async () => {
+                  const note = await tickDose(p, day, on);
+                  if (on) toastAction(note || p.compound + ' ticked for ' + p.person, 'Undo', () => safe(() => tickDose(p, day, false)));
+                });
+              } });
+            return h('label', { class: 'dose' + (isDone ? ' done' : ''), for: 'cb-' + doseId(day, p.id) }, cb, name, amt);
+          }) : h('div', { class: 'empty' }, 'Nothing scheduled'));
+      });
+      return h('div', { class: 'card person', style: '--who: var(--' + who.toLowerCase() + ')' },
+        h('div', { class: 'who' }, ring(done, ps.length), h('div', { class: 'meta' }, h('h3', {}, who), h('div', { class: 'small muted' }, ps.length ? (done === ps.length ? 'All done for ' + (viewDay === TODAY ? 'today' : 'the day') : (ps.length - done) + ' to go, ' + done + ' taken') : 'Rest day'))),
+        future ? h('div', { class: 'small muted' }, 'Preview only. You can tick doses from the day they’re due.') : null,
+        !future ? habitRow(who, viewDay) : null,
+        slots);
+    });
+    $('#todayGrid').replaceChildren(...cards.filter((c, i) => whoSel === 'Both' || ['Laura', 'Tim'][i] === whoSel));
+    document.querySelectorAll('#whoSeg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.who === whoSel)));
+    heroUpdate(perPerson);
+    const ct = $('#c-today'); ct.textContent = open ? String(open) : ''; ct.className = 'count' + (open ? '' : '');
+  }
+
+  function protoStatus(p) {
+    if (p.paused) return ['Paused', 'chip'];
+    if (p.ongoing && p.start && p.start <= TODAY) return ['Ongoing', 'chip ok'];
+    if (!p.start || (!p.end && !p.ongoing)) return ['Dates TBC', 'chip warn'];
+    if (p.end && p.end < TODAY) return ['Finished', 'chip'];
+    if (p.start > TODAY) return ['Starts ' + nice(p.start), 'chip acc'];
+    if (p.end && daysBetween(TODAY, p.end) <= 7) return ['Ends ' + nice(p.end), 'chip warn'];
+    return ['Active', 'chip ok'];
+  }
+
+  function renderProtocols() {
+    const cards = ['Laura', 'Tim'].map((who) => {
+      const ps = st.protocols.filter((p) => p.person === who).sort((a, b) => {
+        const fa = a.end && a.end < TODAY ? 1 : 0, fb = b.end && b.end < TODAY ? 1 : 0;
+        return fa - fb || (a.time === b.time ? a.compound.localeCompare(b.compound) : a.time === 'Morning' ? -1 : 1);
+      });
+      return h('div', { class: 'card person', style: '--who: var(--' + who.toLowerCase() + ')' },
+        h('div', { class: 'who' }, h('h3', {}, who), h('span', { class: 'small muted' }, ps.filter((p) => protoStatus(p)[0] !== 'Finished').length + ' current')),
+        h('div', { class: 'tablewrap', style: 'margin-top:10px' }, h('table', {},
+          h('thead', {}, h('tr', {}, h('th', {}, 'Compound'), h('th', {}, 'Dose'), h('th', {}, 'When'), h('th', {}, 'Cycle'), h('th', {}, ''))),
+          h('tbody', {}, ps.map((p) => {
+            const [lbl, cls] = protoStatus(p);
+            return h('tr', { class: lbl === 'Finished' ? 'finished' : '' },
+              h('td', {}, h('button', { class: 'namebtn', onclick: () => guideModal(p.compound) }, p.compound), purposeOf(p) ? h('div', { class: 'small muted', style: 'max-width:34ch;margin:2px 0 4px' }, purposeOf(p)) : null, h('span', { class: cls }, lbl)),
+              h('td', {}, h('div', { class: 'mono' }, eff(p, TODAY).units || '—'), h('div', { class: 'small muted' }, eff(p, TODAY).dose_mg ? fmtMg(eff(p, TODAY).dose_mg) : ''), nextChange(p, TODAY) ? h('div', { class: 'small', style: 'color:var(--accent);font-weight:700' }, 'From ' + nice(nextChange(p, TODAY).from) + ': ' + (nextChange(p, TODAY).units || fmtMg(nextChange(p, TODAY).dose_mg))) : null),
+              h('td', {}, h('div', {}, daysText(p.weekdays || [])), h('div', { class: 'small muted' }, p.at ? fmtTime(p.at) : p.time)),
+              h('td', { class: 'small' }, h('div', {}, nice(p.start)), h('div', { class: 'muted' }, p.ongoing && !p.end ? 'ongoing' : 'to ' + nice(p.end, true)), restartOf(p) && !restarted(p) ? h('div', { style: 'color:var(--accent);font-weight:700' }, 'Restart ' + nice(restartOf(p))) : null),
+              h('td', {}, h('button', { class: 'btn sm', onclick: () => protoModal(p) }, 'Edit')));
+          })))));
+    });
+    $('#protoGrid').replaceChildren(...cards);
+  }
+
+  function stockCard(c, pr) {
+    const rows = stockFor(c);
+    const chip = pr.manual ? ['Track by hand', 'chip'] : pr.idle ? ['Not in use', 'chip'] : !pr.runOut ? ['Covered to ' + nice(pr.end), 'chip ok'] : pr.level === 'bad' ? ['Order now', 'chip bad'] : pr.level === 'warn' ? ['Order this week', 'chip warn'] : ['Order by ' + nice(pr.orderBy), 'chip acc'];
+    return h('div', { class: 'card stock' },
+      h('div', { class: 'row1' }, h('div', {}, h('h3', {}, c), h('div', { class: 'small muted' }, [...new Set(st.protocols.filter((p) => p.compound === c && protoStatus(p)[0] !== 'Finished').map((p) => p.person))].join(' & ') || '')), h('span', { class: chip[1] }, chip[0])),
+      !pr.manual && !pr.idle ? h('div', { class: 'facts' },
+        h('div', { class: 'fact' }, h('div', { class: 'k' }, 'On hand'), h('div', { class: 'v' }, fmtMg(pr.onHand))),
+        h('div', { class: 'fact' }, h('div', { class: 'k' }, 'Needed'), h('div', { class: 'v' }, fmtMg(pr.need))),
+        h('div', { class: 'fact' }, h('div', { class: 'k' }, pr.runOut ? 'Runs out' : 'Spare'), h('div', { class: 'v' }, pr.runOut ? nice(pr.runOut) : fmtMg(Math.max(0, pr.onHand + pr.incomingMg - pr.need))))) : null,
+      pr.orderBy ? h('div', { class: 'small' }, 'Order ', h('b', {}, pr.vials + ' × ' + rows.find((r) => r.vial_mg === pr.bigVial).vial), ' by ', h('b', {}, nice(pr.orderBy)), ' so it arrives before ' + nice(pr.runOut) + '.') : null,
+      h('div', { class: 'vials' }, rows.map((r) => vialRow(r))));
+  }
+
+  function vialLife(r) {
+    const out = h('div', {});
+    const daily = r.vial_mg ? dailyUse(r.compound) : 0;
+    if (r.vial_mg && daily) {
+      const bits = ['One vial lasts about ' + lastsText(r.vial_mg / daily)];
+      if ((r.open_mg || 0) > 0) { const fin = finishDate(r.compound, r.open_mg); if (fin) bits.push('open vial runs out ' + nice(fin)); }
+      out.append(h('div', { class: 'small', style: 'color: var(--accent)' }, bits.join(' · ')));
+    }
+    const ub = useBy(r), bb = bestBy(r);
+    if (ub) out.append(h('div', { class: 'small ' + (ub <= TODAY ? 'useby-bad' : bb <= TODAY ? 'useby-warn' : 'muted') }, 'Mixed ' + nice(r.mixed_on) + ' · best by ' + nice(bb) + ' · bin by ' + nice(ub)));
+    else if (r.vial_mg && (r.open_mg || 0) > 0) out.append(h('div', { class: 'small muted' }, 'Mixed date not set. Tap Edit to add it.'));
+    return out;
+  }
+  function vialRow(r) {
+    const step = (d) => safe(() => col('stock').doc(r.id).update({ sealed: Math.max(0, (r.sealed || 0) + d) }));
+    const om = h('input', { type: 'number', step: 'any', min: 0, id: 'om-' + r.id, value: r.open_mg ?? '', 'aria-label': 'Milligrams left in the open ' + r.vial + ' vial' });
+    om.addEventListener('change', () => { const v = parseFloat(om.value); if (Number.isFinite(v) && v >= 0) safe(() => col('stock').doc(r.id).update({ open_mg: r1(v) }), 'Saved'); });
+    return h('div', { class: 'vialrow' },
+      h('div', {}, h('div', { class: 'lab' }, r.vial + (r.bac ? ' · mix with ' + r.bac : '')), vialLife(r), r.note ? h('div', { class: 'small muted' }, r.note) : null),
+      h('div', { class: 'stepper' }, h('button', { class: 'iconbtn', 'aria-label': 'One fewer sealed vial', onclick: () => step(-1) }, '−'), h('span', { class: 'n', title: 'Sealed vials' }, r.sealed || 0), h('button', { class: 'iconbtn', 'aria-label': 'One more sealed vial', onclick: () => step(1) }, '+')),
+      r.vial_mg ? h('label', { class: 'openmg', for: 'om-' + r.id }, 'Open vial', om, 'mg left') : h('span', { class: 'small muted' }, 'sealed bottles'),
+      h('div', { style: 'display:flex;gap:6px;justify-content:flex-end' },
+        parseFloat(r.bac) ? h('button', { class: 'btn sm primary', onclick: () => mixModal(r) }, 'How to mix') : null,
+        !r.vial_mg && parseFloat(r.bac) ? h('button', { class: 'btn sm', disabled: !(r.sealed > 0), onclick: () => mixNow(r, true) }, 'Mixed a new one') : null,
+        r.vial_mg ? h('button', { class: 'btn sm', disabled: !(r.sealed > 0), onclick: () => mixNow(r, true) }, 'Open new vial') : null,
+        h('button', { class: 'btn sm', onclick: () => stockModal(r) }, 'Edit')));
+  }
+
+  function renderStock(proj) {
+    const tracked = trackedCompounds().filter((c) => stockFor(c).length);
+    const order = (c) => { const p = proj[c]; return p.level === 'bad' ? 0 : p.level === 'warn' ? 1 : p.orderBy ? 2 : p.manual ? 4 : p.idle ? 5 : 3; };
+    tracked.sort((a, b) => order(a) - order(b) || a.localeCompare(b));
+    $('#stockGrid').replaceChildren(...(tracked.length ? tracked.map((c) => stockCard(c, proj[c])) : [h('div', { class: 'empty' }, 'No stock recorded yet. Add an item or mark an order received.')]));
+    const others = [...new Set(st.stock.map((s) => s.compound))].filter((c) => !trackedCompounds().includes(c)).sort();
+    $('#otherGrid').replaceChildren(...(others.length ? others.map((c) => h('div', { class: 'card stock' }, h('h3', {}, c), h('div', { class: 'vials' }, stockFor(c).map(vialRow)))) : [h('div', { class: 'empty' }, 'Nothing else on hand.')]));
+  }
+
+  function renderOrders() {
+    const os = [...st.orders].sort((a, b) => (a.date < b.date ? 1 : -1));
+    const total = os.reduce((s, o) => s + (Number(o.total) || 0), 0);
+    const thisMonth = os.filter((o) => o.date.slice(0, 7) === TODAY.slice(0, 7)).reduce((s, o) => s + (Number(o.total) || 0), 0);
+    const pending = os.filter((o) => o.status === 'ordered');
+    $('#kpis').replaceChildren(
+      h('div', { class: 'card kpi' }, h('div', { class: 'k' }, 'Total spent'), h('div', { class: 'v' }, money(total))),
+      h('div', { class: 'card kpi' }, h('div', { class: 'k' }, 'This month'), h('div', { class: 'v' }, money(thisMonth))),
+      h('div', { class: 'card kpi' }, h('div', { class: 'k' }, 'Orders'), h('div', { class: 'v' }, os.length)),
+      h('div', { class: 'card kpi' }, h('div', { class: 'k' }, 'On the way'), h('div', { class: 'v' }, pending.length)));
+    $('#orderGrid').replaceChildren(...(os.length ? os.map((o) => {
+      const eta = o.eta || arrival(o.date, st.settings.lead_days);
+      return h('div', { class: 'card order' },
+        h('div', {}, h('h3', {}, nice(o.date, true)), h('div', { class: 'small muted mono' }, o.order_id || '')),
+        h('div', { class: 'tot' }, money(o.total), h('div', {}, o.status === 'ordered' ? h('span', { class: 'chip acc' }, 'Arrives ~' + nice(eta)) : h('span', { class: 'chip ok' }, 'Received'))),
+        h('div', { class: 'items' }, (o.items || []).map((i) => i.qty + '× ' + i.compound + (i.vial ? ' ' + i.vial : '')).join(' · ')),
+        o.freebies && o.freebies.length ? h('div', { class: 'extra', style: 'color:var(--ok)' }, 'Freebies: ' + o.freebies.map((i) => i.qty + '× ' + i.compound + (i.vial ? ' ' + i.vial : '')).join(', ')) : null,
+        o.missing && o.missing.length ? h('div', { class: 'extra', style: 'color:var(--bad)' }, 'Missing: ' + o.missing.map((i) => i.qty + '× ' + i.compound + (i.vial ? ' ' + i.vial : '')).join(', ')) : null,
+        o.photos && o.photos.length ? h('div', { class: 'photos' }, o.photos.map((id) => h('img', { src: '_blob/' + id, alt: 'Delivery photo', loading: 'lazy' }))) : null,
+        h('div', { class: 'actions', style: 'grid-column:1/-1' },
+          o.status === 'ordered' ? h('button', { class: 'btn sm primary', onclick: () => deliveryModal(o) }, 'Check delivery photo') : null,
+          o.status === 'ordered' ? h('button', { class: 'btn sm', onclick: () => receive(o) }, 'Mark received') : null,
+          h('button', { class: 'btn sm', onclick: () => orderModal(o) }, 'Edit')));
+    }) : [h('div', { class: 'empty' }, 'No orders yet. Add your first order.')]));
+  }
+
+  async function receive(o) {
+    await safe(async () => {
+      for (const it of o.items || []) {
+        const row = st.stock.find((r) => r.compound === it.compound && r.vial === it.vial);
+        if (row) await col('stock').doc(row.id).update({ sealed: (row.sealed || 0) + (Number(it.qty) || 0) });
+        else await col('stock').add({ compound: it.compound, vial: it.vial || '', vial_mg: parseFloat(it.vial) || null, sealed: Number(it.qty) || 0, open_mg: 0, bac: '', note: '' });
+      }
+      await col('orders').doc(o.id).update({ status: 'received', received: TODAY });
+    }, 'Added to stock');
+  }
+
+  // ---------- modals ----------
+  function modal(title, body, onSave, onDelete, saveLabel) {
+    const root = $('#modalRoot');
+    const close = () => root.replaceChildren();
+    const m = h('div', { class: 'scrim', onclick: (e) => { if (e.target === e.currentTarget) close(); } },
+      h('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': title },
+        h('h3', {}, title), body,
+        h('div', { class: 'actions' },
+          onDelete ? h('button', { class: 'btn danger', style: 'margin-right:auto', onclick: async (e) => {
+            if (e.target.dataset.sure) { await onDelete(); close(); } else { e.target.dataset.sure = '1'; e.target.textContent = 'Tap again to delete'; }
+          } }, 'Delete') : null,
+          ['Done', 'Close'].includes(saveLabel) ? null : h('button', { class: 'btn', onclick: close }, 'Cancel'),
+          h('button', { class: 'btn primary', onclick: async () => { if ((await onSave()) !== false) close(); } }, saveLabel || 'Save'))));
+    root.replaceChildren(m);
+    document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); } });
+    const first = m.querySelector('input, select'); if (first) first.focus();
+  }
+  const field = (label, input) => h('label', { class: 'f' }, label, input);
+  const compounds = () => [...new Set([...st.stock.map((s) => s.compound), ...st.protocols.map((p) => p.compound)])].sort();
+
+  function mixModal(r) {
+    if (/saline/i.test(r.bac || '')) return nasalMixModal(r);
+    const ml = parseFloat(r.bac), conc = r.vial_mg / ml, perUnit = conc / 100;
+    const fmtU = (u) => (Math.round(u * 10) / 10).toString().replace(/\.0$/, '');
+    const users = st.protocols.filter((p) => p.compound === r.compound && usesMg(p) && protoStatus(p)[0] !== 'Finished');
+    const step = (n, title, text) => h('div', { style: 'display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:start' },
+      h('div', { style: 'width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:800' }, n),
+      h('div', {}, h('div', { style: 'font-weight:800' }, title), h('div', { class: 'small muted' }, text)));
+    const big = (k, v) => h('div', { class: 'fact' }, h('div', { class: 'k' }, k), h('div', { class: 'v' }, v));
+    const body = h('div', { style: 'display:flex;flex-direction:column;gap:14px' },
+      h('div', { class: 'facts' }, big('Add water', r.bac + ' BAC'), big('Strength', (Math.round(conc * 100) / 100) + ' mg/mL'), big('1 unit', perUnit >= 0.1 ? (Math.round(perUnit * 1000) / 1000) + ' mg' : Math.round(perUnit * 1000) + ' mcg')),
+      users.length ? h('div', { class: 'card', style: 'box-shadow:none;background:var(--accent-soft);border:0;padding:12px' },
+        h('div', { style: 'font-weight:800;margin-bottom:6px' }, 'Draw for your doses (from this ' + r.vial + ' vial)'),
+        users.map((p) => {
+          const u = (p.dose_mg / conc) * 100;
+          const listed = parseFloat(p.units);
+          const differs = Number.isFinite(listed) && Math.abs(listed - u) > 0.25;
+          return h('div', { style: 'display:flex;justify-content:space-between;gap:10px;padding:4px 0' },
+            h('span', {}, p.person + ' · ' + daysText(p.weekdays || []) + ' ' + p.time.toLowerCase()),
+            h('b', { style: differs ? 'color:var(--bad)' : '' }, fmtU(u) + ' units (' + fmtMg(p.dose_mg) + ')'));
+        }),
+        users.some((p) => { const l = parseFloat(p.units); return Number.isFinite(l) && Math.abs(l - (p.dose_mg / conc) * 100) > 0.25; })
+          ? h('div', { class: 'small', style: 'color:var(--bad);margin-top:6px;font-weight:700' }, 'Red means this differs from the units on the protocol, because that was set for a different vial size or mix. Use the number here for this vial.') : null) : null,
+      step(1, 'Wipe the tops', 'Wipe both rubber tops (peptide vial and water) with an alcohol swab and let them dry.'),
+      step(2, 'Draw the water', 'Pull exactly ' + r.bac + ' of bacteriostatic water into a clean syringe.'),
+      step(3, 'Add it slowly', 'Push the needle into the peptide vial and let the water run down the inside wall. Don’t squirt it straight onto the powder.'),
+      step(4, 'Swirl, don’t shake', 'Gently roll the vial between your fingers until the liquid is clear. Shaking can damage the peptide.'),
+      step(5, 'Label and fridge', 'Write today’s date on the vial and keep it in the fridge (2–8°C), upright and out of the light. Don’t freeze it. Best used within ' + (r.use_min_days || 14) + ' days, bin after ' + (r.use_days || 28) + ' days.'),
+      h('div', { class: 'small muted' }, 'Units are the marks on a U-100 insulin syringe (100 units = 1 mL). Use a new sterile syringe every time. Mixing amounts are from Peptomi’s guides.'));
+    if (r.sealed > 0) modal('Mix ' + r.compound + ' ' + r.vial, body, async () => { setTimeout(() => mixNow(r, true), 0); }, null, 'I\u2019ve mixed it');
+    else modal('Mix ' + r.compound + ' ' + r.vial, body, async () => true, null, 'Done');
+  }
+  function nasalMixModal(r) {
+    const step = (n, title, text) => h('div', { style: 'display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:start' },
+      h('div', { style: 'width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:800' }, n),
+      h('div', {}, h('div', { style: 'font-weight:800' }, title), h('div', { class: 'small muted' }, text)));
+    const body = h('div', { style: 'display:flex;flex-direction:column;gap:14px' },
+      h('div', { class: 'card', style: 'box-shadow:none;background:var(--warn-soft);border:0;padding:12px;font-weight:700;color:var(--warn)' }, 'Use saline (salt water), not BAC water. BAC water isn’t meant to go up your nose.'),
+      h('div', { class: 'facts' }, h('div', { class: 'fact' }, h('div', { class: 'k' }, 'Mix with'), h('div', { class: 'v' }, '10mL saline')), h('div', { class: 'fact' }, h('div', { class: 'k' }, 'Strength'), h('div', { class: 'v' }, '1 mg/mL')), h('div', { class: 'fact' }, h('div', { class: 'k' }, 'Finish in'), h('div', { class: 'v' }, (r.use_min_days || 7) + '–' + (r.use_days || 14) + ' days'))),
+      step(1, 'Open the saline', 'Snap open the sodium chloride (saline) ampoule.'),
+      step(2, 'Wet the powder', 'Draw 1 mL of saline and add it to the DSIP vial.'),
+      step(3, 'Swirl, don’t shake', 'Gently roll the vial until the powder disappears.'),
+      step(4, 'Fill the spray bottle', 'Squeeze the remaining 9 mL of saline into the empty nasal spray bottle.'),
+      step(5, 'Add the peptide', 'Draw out all the mixed liquid from the vial and add it to the spray bottle. Put the top on and swirl gently.'),
+      step(6, 'Date it and fridge it', 'Write today’s date on it, keep it in the fridge, and finish it within ' + (r.use_min_days || 7) + '–' + (r.use_days || 14) + ' days.'),
+      h('div', { class: 'small muted' }, 'Steps from Peptomi’s DSIP nasal spray guide. Tap “Mixed a new one” on the stock card after mixing so the app tracks the date.'));
+    if (r.sealed > 0) modal('Mix ' + r.compound, body, async () => { setTimeout(() => mixNow(r, true), 0); }, null, 'I\u2019ve mixed it');
+    else modal('Mix ' + r.compound, body, async () => true, null, 'Done');
+  }
+  function protoModal(p, prefill) {
+    const isNew = !p;
+    p = p || prefill || { person: 'Laura', compound: '', dose_mg: null, units: '', weekdays: [0, 1, 2, 3, 4, 5, 6], time: 'Evening', start: TODAY, end: '', note: '', paused: false };
+    const dl = h('datalist', { id: 'dl-comp' }, compounds().map((c) => h('option', { value: c })));
+    const f = {
+      person: h('select', { id: 'pm-person' }, ['Laura', 'Tim'].map((x) => h('option', { value: x, selected: p.person === x }, x))),
+      compound: h('input', { id: 'pm-compound', value: p.compound, list: 'dl-comp' }),
+      dose: h('input', { id: 'pm-dose', type: 'number', step: 'any', value: p.dose_mg ?? '', placeholder: 'Blank for nasal' }),
+      units: h('input', { id: 'pm-units', value: p.units || '', placeholder: 'e.g. 20u' }),
+      time: h('select', { id: 'pm-time' }, ['Morning', 'Evening'].map((x) => h('option', { value: x, selected: p.time === x }, x))),
+      start: h('input', { id: 'pm-start', type: 'date', value: p.start || '' }),
+      end: h('input', { id: 'pm-end', type: 'date', value: p.end || '' }),
+      note: h('input', { id: 'pm-note', value: p.note || '' }),
+      purpose: h('input', { id: 'pm-purpose', value: p.purpose || PURPOSE[p.compound] || '', placeholder: 'What it\u2019s for' }),
+      paused: h('input', { id: 'pm-paused', type: 'checkbox', checked: !!p.paused }),
+      at: h('input', { id: 'pm-at', type: 'time', value: p.at || '' }),
+      pause: h('input', { id: 'pm-pause', type: 'number', min: 0, value: p.pause_days || '', placeholder: 'e.g. 28' }),
+      ongoing: h('input', { id: 'pm-ongoing', type: 'checkbox', checked: !!p.ongoing }),
+      route: h('select', { id: 'pm-route' }, ['Injection', 'Nasal', 'Topical'].map((x) => h('option', { value: x, selected: (p.route || (p.dose_mg ? 'Injection' : 'Nasal')) === x }, x))),
+    };
+    const dayBoxes = [1, 2, 3, 4, 5, 6, 0].map((d) => h('input', { type: 'checkbox', id: 'pm-d' + d, value: d, checked: (p.weekdays || []).includes(d) }));
+    const changes = (p.changes || []).map((c) => ({ ...c }));
+    const chList = h('div', { style: 'display:flex;flex-direction:column;gap:6px' });
+    const drawCh = () => chList.replaceChildren(...changes.map((c, i) => h('div', { class: 'chrow' },
+      field('From', h('input', { type: 'date', id: 'pc-f' + i, value: c.from || '', oninput: (e) => (c.from = e.target.value) })),
+      field('Dose (mg)', h('input', { type: 'number', step: 'any', id: 'pc-d' + i, value: c.dose_mg ?? '', oninput: (e) => (c.dose_mg = e.target.value === '' ? null : parseFloat(e.target.value)) })),
+      field('Units', h('input', { id: 'pc-u' + i, value: c.units || '', placeholder: '30u', oninput: (e) => (c.units = e.target.value) })),
+      h('button', { class: 'iconbtn', 'aria-label': 'Remove change', onclick: () => { changes.splice(i, 1); drawCh(); } }, '\u00d7'))));
+    drawCh();
+    const changesBox = h('div', { class: 'changes', style: 'display:flex;flex-direction:column;gap:6px' },
+      h('div', { class: 'small muted', style: 'font-weight:700' }, 'Planned dose changes'), chList,
+      h('button', { class: 'btn sm', style: 'align-self:start', onclick: () => { changes.push({ from: addDays(TODAY, 7), dose_mg: null, units: '' }); drawCh(); } }, 'Add a planned change'));
+    const body = h('div', { style: 'display:flex;flex-direction:column;gap:10px' }, dl,
+      h('div', { class: 'fields' }, field('Person', f.person), field('Compound', f.compound), field('Dose (mg)', f.dose), field('Units', f.units), field('Time', f.time), field('Exact time (optional)', f.at), field('Form', f.route)),
+      h('div', {}, h('div', { class: 'small muted', style: 'font-weight:600;margin-bottom:4px' }, 'Days'), h('div', { class: 'days' }, dayBoxes.map((b) => h('label', { for: b.id }, b, DAYN[b.value])))),
+      h('div', { class: 'fields' }, field('First dose', f.start), field('Last dose', f.end)),
+      field('Pause after this cycle (days, optional)', f.pause),
+      changesBox,
+      field('What it\u2019s for', f.purpose),
+      field('Note', f.note),
+      h('label', { class: 'small', for: 'pm-ongoing', style: 'display:flex;gap:6px;align-items:center' }, f.ongoing, 'Ongoing (no end date)'),
+      h('label', { class: 'small', for: 'pm-paused', style: 'display:flex;gap:6px;align-items:center' }, f.paused, 'Paused (keeps it on file, off the daily list)'),
+      prefill ? h('div', { class: 'note' }, 'Dates follow on from the last cycle (after its pause, if one was set), for the same length. Change them if needed.') : null,
+      !isNew && p.start && p.end ? h('button', { class: 'btn', onclick: () => nextCycle(p) }, 'Start next cycle') : null);
+    modal(isNew ? (prefill ? 'Next cycle: ' + prefill.compound : 'Add protocol') : 'Edit ' + p.compound, body, async () => {
+      const data = { person: f.person.value, compound: f.compound.value.trim(), dose_mg: f.dose.value === '' ? null : parseFloat(f.dose.value), units: f.units.value.trim(), time: f.time.value,
+        weekdays: dayBoxes.filter((b) => b.checked).map((b) => Number(b.value)), start: f.start.value, end: f.end.value, note: f.note.value.trim(), paused: f.paused.checked, ongoing: f.ongoing.checked, route: f.route.value, purpose: f.purpose.value.trim(), at: f.at.value || null, pause_days: parseInt(f.pause.value, 10) || null, changes: changes.filter((c) => c.from && (c.dose_mg != null || c.units)) };
+      if (data.at) data.time = data.at < '12:00' ? 'Morning' : 'Evening';
+      if (!data.compound) { toast('Add the compound name.'); return false; }
+      if (!data.weekdays.length) { toast('Pick at least one day.'); return false; }
+      await safe(() => (isNew ? col('protocols').add(data) : col('protocols').doc(p.id).set(data)), isNew ? 'Protocol added' : 'Protocol saved');
+      setTimeout(() => { const v = spacingClashes().filter((x) => x.rule.a === data.compound || x.rule.b === data.compound); if (v.length) toast('Heads up: ' + v[0].rule.a + ' and ' + v[0].rule.b + ' now fall on the same day (' + nice(v[0].days[0]) + ').'); }, 800);
+    }, isNew ? null : () => safe(() => col('protocols').doc(p.id).delete(), 'Protocol deleted'));
+  }
+
+  function stockModal(r) {
+    const isNew = !r;
+    r = r || { compound: '', vial: '', vial_mg: null, sealed: 0, open_mg: 0, bac: '', note: '' };
+    const dl = h('datalist', { id: 'dl-comp2' }, compounds().map((c) => h('option', { value: c })));
+    const f = { compound: h('input', { id: 'sm-c', value: r.compound, list: 'dl-comp2' }), vial: h('input', { id: 'sm-v', value: r.vial, placeholder: 'e.g. 20mg' }), sealed: h('input', { id: 'sm-s', type: 'number', min: 0, value: r.sealed || 0 }), fr: h('input', { id: 'sm-fr', type: 'number', min: 0, value: r.in_fridge || 0 }), open: h('input', { id: 'sm-o', type: 'number', step: 'any', min: 0, value: r.open_mg ?? 0 }), bac: h('input', { id: 'sm-b', value: r.bac || '', placeholder: 'e.g. 2mL' }), note: h('input', { id: 'sm-n', value: r.note || '' }), mixed: h('input', { id: 'sm-m', type: 'date', value: r.mixed_on || '' }), days: h('input', { id: 'sm-d', type: 'number', min: 1, value: r.use_days || 28 }), mindays: h('input', { id: 'sm-dm', type: 'number', min: 1, value: r.use_min_days || '' }) };
+    modal(isNew ? 'Add stock item' : 'Edit ' + r.compound + ' ' + r.vial, h('div', {}, dl, h('div', { class: 'fields' }, field('Compound', f.compound), field('Vial size', f.vial), field('Sealed vials (total)', f.sealed), field('Of those, in the fridge', f.fr), field('Open vial (mg left)', f.open), field('Mix with', f.bac), field('Mixed on', f.mixed), field('Best within (days)', f.mindays), field('Bin after (days)', f.days)), h('div', { style: 'margin-top:10px' }, field('Note', f.note))), async () => {
+      const data = { compound: f.compound.value.trim(), vial: f.vial.value.trim(), vial_mg: parseFloat(f.vial.value) || null, sealed: Math.max(0, parseInt(f.sealed.value, 10) || 0), open_mg: r1(parseFloat(f.open.value) || 0), bac: f.bac.value.trim(), note: f.note.value.trim(), mixed_on: f.mixed.value || null, use_days: Math.max(1, parseInt(f.days.value, 10) || 28), use_min_days: parseInt(f.mindays.value, 10) || null, in_fridge: Math.max(0, parseInt(f.fr.value, 10) || 0), fridge_since: (parseInt(f.fr.value, 10) || 0) > 0 ? (r.fridge_since || TODAY) : null };
+      if (!data.compound) { toast('Add the compound name.'); return false; }
+      await safe(() => (isNew ? col('stock').add(data) : col('stock').doc(r.id).set(data)), 'Stock saved');
+    }, isNew ? null : () => safe(() => col('stock').doc(r.id).delete(), 'Removed'));
+  }
+
+  function orderModal(o, prefill) {
+    const isNew = !o;
+    o = o || prefill || { order_id: '', date: TODAY, total: '', status: 'ordered', items: [{ compound: '', vial: '', qty: 1, price: '' }] };
+    const items = (o.items || []).map((i) => ({ ...i }));
+    const dl = h('datalist', { id: 'dl-comp3' }, compounds().map((c) => h('option', { value: c })));
+    const f = { id: h('input', { id: 'om-id', value: o.order_id || '', placeholder: 'PL-…' }), date: h('input', { id: 'om-date', type: 'date', value: o.date }), total: h('input', { id: 'om-tot', type: 'number', step: '0.01', value: o.total ?? '' }), status: h('select', { id: 'om-st' }, [['ordered', 'On the way'], ['received', 'Received']].map(([v, l]) => h('option', { value: v, selected: o.status === v }, l))) };
+    const eta = h('div', { class: 'small muted' });
+    const showEta = () => { eta.textContent = f.date.value ? 'Expected about ' + nice(arrival(f.date.value, st.settings.lead_days)) + ' (' + st.settings.lead_days + ' business days).' : ''; };
+    f.date.addEventListener('change', showEta); showEta();
+    const list = h('div', { style: 'display:flex;flex-direction:column;gap:8px' });
+    const drawItems = () => list.replaceChildren(...items.map((it, i) => h('div', { class: 'itemrow' },
+      field('Item', h('input', { id: 'oi-c' + i, value: it.compound, list: 'dl-comp3', oninput: (e) => (it.compound = e.target.value) })),
+      field('Vial', h('input', { id: 'oi-v' + i, value: it.vial, placeholder: '20mg', oninput: (e) => (it.vial = e.target.value) })),
+      field('Qty', h('input', { id: 'oi-q' + i, type: 'number', min: 1, value: it.qty, oninput: (e) => (it.qty = parseInt(e.target.value, 10) || 0) })),
+      field('Price', h('input', { id: 'oi-p' + i, type: 'number', step: '0.01', value: it.price ?? '', oninput: (e) => (it.price = parseFloat(e.target.value) || 0) })),
+      h('button', { class: 'iconbtn', 'aria-label': 'Remove item', onclick: () => { items.splice(i, 1); drawItems(); } }, '×'))));
+    drawItems();
+    const body = h('div', { style: 'display:flex;flex-direction:column;gap:12px' }, dl,
+      h('div', { class: 'fields' }, field('Order number', f.id), field('Order date', f.date), field('Total paid', f.total), field('Status', f.status)), eta,
+      h('div', { class: 'small muted', style: 'font-weight:600' }, 'Items'), list,
+      h('button', { class: 'btn sm', style: 'align-self:start', onclick: () => { items.push({ compound: '', vial: '', qty: 1, price: '' }); drawItems(); } }, 'Add item'),
+      isNew ? h('div', { class: 'small muted' }, 'Saved as "on the way". Tap Mark received when it arrives to add the vials to stock.') : null);
+    modal(isNew ? 'Add order' : 'Edit order', body, async () => {
+      const clean = items.filter((i) => i.compound.trim()).map((i) => ({ compound: i.compound.trim(), vial: (i.vial || '').trim(), qty: Number(i.qty) || 0, price: Number(i.price) || 0 }));
+      if (!f.date.value || !clean.length) { toast('Add the date and at least one item.'); return false; }
+      const total = f.total.value === '' ? clean.reduce((s, i) => s + i.price, 0) : parseFloat(f.total.value);
+      const data = { order_id: f.id.value.trim(), date: f.date.value, total, status: f.status.value, items: clean, eta: arrival(f.date.value, st.settings.lead_days) };
+      await safe(() => (isNew ? col('orders').add(data) : col('orders').doc(o.id).set({ ...data, received: o.received || null })), isNew ? 'Order added' : 'Order saved');
+    }, isNew ? null : () => safe(() => col('orders').doc(o.id).delete(), 'Order deleted'));
+  }
+
+
+  // ---------- tomorrow's prep ----------
+  function renderPrep() {
+    const box = $('#prep');
+    if (viewDay !== TODAY) { box.replaceChildren(); return; }
+    const T1 = addDays(TODAY, 1);
+    const logged = loggedSet();
+    const items = [];
+    const comps = [...new Set(st.protocols.filter((p) => usesMg(p)).map((p) => p.compound))];
+    for (const c of comps) {
+      const ps = st.protocols.filter((p) => p.compound === c && usesMg(p));
+      const leftToday = ps.filter((p) => activeOn(p, TODAY) && !logged.has(doseId(TODAY, p.id))).reduce((a, p) => a + (eff(p, TODAY).dose_mg || 0), 0);
+      const tomorrow = ps.filter((p) => activeOn(p, T1)).reduce((a, p) => a + (eff(p, T1).dose_mg || 0), 0);
+      if (!tomorrow) continue;
+      const rows = stockFor(c).filter((r) => r.vial_mg);
+      if (!rows.length) continue;
+      const open = rows.reduce((a, r) => a + (r.open_mg || 0), 0);
+      const expiring = rows.some((r) => useBy(r) && useBy(r) <= T1);
+      if (open + 1e-9 >= leftToday + tomorrow && !expiring) continue;
+      const openRow = rows.filter((r) => (r.open_mg || 0) > 0)[0];
+      const src = (openRow && openRow.sealed > 0 ? openRow : null) || rows.filter((r) => (r.sealed || 0) > 0).sort((a, b) => inFridge(b) - inFridge(a) || b.vial_mg - a.vial_mg)[0];
+      items.push({ c, src, expiring });
+    }
+    const starts = st.protocols.filter((p) => p.start === T1 && !p.paused);
+    const card = h('div', { class: 'card' },
+      h('div', { class: 'cardhead' }, h('h3', {}, 'Tomorrow’s prep'), h('span', { class: 'chip' }, nice(T1))),
+      !items.length && !starts.length ? h('div', { class: 'note' }, 'Nothing to mix for tomorrow. Every open vial has enough left.') : null,
+      items.map(({ c, src, expiring }) => h('div', { class: 'listrow' },
+        h('div', {}, h('div', { class: 't' }, src ? 'Mix a new ' + c + ' ' + src.vial + ' vial' : 'Out of ' + c), h('div', { class: 'note', style: 'margin:0' }, src ? (expiring ? 'The open vial reaches its use-by. ' : 'The open vial runs out. ') + 'Mix with ' + (src.bac || 'BAC water') + '.' : 'No sealed vials left. Order more.')),
+        src ? h('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end' }, parseFloat(src.bac) ? h('button', { class: 'btn sm', onclick: () => mixModal(src) }, 'How to mix') : null, h('button', { class: 'btn sm primary', onclick: () => mixNow(src, true) }, 'I\u2019ve mixed it')) : null)),
+      starts.map((p) => h('div', { class: 'listrow' }, h('div', {}, h('div', { class: 't' }, 'First ' + p.compound + ' dose for ' + p.person), h('div', { class: 'note', style: 'margin:0' }, p.units + (p.dose_mg ? ' (' + fmtMg(p.dose_mg) + ')' : '') + ', ' + (p.at ? fmtTime(p.at) : p.time.toLowerCase()))))));
+    box.replaceChildren(card);
+  }
+
+  // ---------- cycle timeline ----------
+  function renderTimeline() {
+    const from = addDays(TODAY, -14);
+    const ends = st.protocols.map((p) => p.end).filter(Boolean).sort();
+    let to = addDays(TODAY, 90);
+    if (ends.length && ends[ends.length - 1] > to) to = ends[ends.length - 1] > addDays(TODAY, 150) ? addDays(TODAY, 150) : ends[ends.length - 1];
+    const span = Math.max(1, daysBetween(from, to));
+    const pos = (d) => Math.max(0, Math.min(100, (daysBetween(from, d) / span) * 100));
+    const groups = new Map();
+    for (const p of st.protocols) {
+      const k = p.person + '|' + p.compound;
+      const g = groups.get(k) || { person: p.person, compound: p.compound, start: null, end: null, ongoing: false, paused: true };
+      if (p.start && (!g.start || p.start < g.start)) g.start = p.start;
+      if (p.end && (!g.end || p.end > g.end)) g.end = p.end;
+      if (p.ongoing && !p.end) g.ongoing = true;
+      if (!p.paused) g.paused = false;
+      groups.set(k, g);
+    }
+    const rows = [...groups.values()].filter((g) => g.paused || g.ongoing || (g.end && g.end >= from)).sort((a, b) => a.person.localeCompare(b.person) || (a.start || '9').localeCompare(b.start || '9'));
+    const months = [];
+    for (let d = from.slice(0, 8) + '01'; d <= to; d = (() => { const x = D(d); x.setUTCMonth(x.getUTCMonth() + 1); return S(x); })()) if (d >= from) months.push(d);
+    const today = pos(TODAY);
+    const card = h('div', { class: 'card' },
+      h('div', { class: 'cardhead' }, h('h3', {}, 'Cycle timeline'), h('span', { class: 'note', style: 'margin:0' }, 'Line marks today')),
+      h('div', { class: 'tl' },
+        h('div', { class: 'tl-row', style: 'margin:0' }, h('span', {}), h('div', { class: 'tl-months' }, months.map((m) => h('span', { style: 'left:' + pos(m) + '%' }, MON[D(m).getUTCMonth()])))),
+        rows.map((g) => {
+          const col = 'var(--' + g.person.toLowerCase() + ')';
+          const st0 = g.start ? pos(g.start) : 0, en = g.ongoing ? 100 : g.end ? pos(g.end) : st0;
+          const title = g.person + ' · ' + g.compound + ': ' + (g.paused ? 'paused' : nice(g.start) + ' to ' + (g.ongoing ? 'ongoing' : nice(g.end, true)));
+          return h('div', { class: 'tl-row', title },
+            h('div', { class: 'tl-name' }, h('i', { style: 'background:' + col }), g.compound),
+            h('div', { class: 'tl-track' }, g.paused || !g.start ? h('div', { class: 'tl-bar paused', style: 'left:0;width:100%' }) : h('div', { class: 'tl-bar', style: 'left:' + st0 + '%;width:' + Math.max(1, en - st0) + '%;background:' + col }), h('div', { class: 'tl-today', style: 'left:' + today + '%' })));
+        })),
+      h('div', { class: 'note', style: 'margin-top:8px' }, 'Pink is Laura, blue is Tim. Striped bars are paused.'));
+    $('#timeline').replaceChildren(card);
+  }
+
+  // ---------- reorder list ----------
+  function lastPrice(c, vial) {
+    const os = [...st.orders].sort((a, b) => (a.date < b.date ? 1 : -1));
+    for (const o of os) for (const i of o.items || []) if (i.compound === c && (i.vial || '') === (vial || '') && Number(i.price) > 0 && Number(i.qty) > 0) return Number(i.price) / Number(i.qty);
+    return null;
+  }
+  function renderReorder(proj) {
+    const list = Object.entries(proj).filter(([, p]) => p.orderBy && p.vials > 0).sort((a, b) => (a[1].orderBy < b[1].orderBy ? -1 : 1))
+      .map(([c, p]) => { const vial = (stockFor(c).find((r) => r.vial_mg === p.bigVial) || {}).vial || ''; const each = lastPrice(c, vial); return { c, p, vial, each, cost: each ? each * p.vials : null }; });
+    if (!list.length) { $('#reorder').replaceChildren(); return; }
+    const first = list[0].p.orderBy, cutoff = addDays(first, 21);
+    const together = list.filter((x) => x.p.orderBy <= cutoff), later = list.filter((x) => x.p.orderBy > cutoff);
+    const total = together.reduce((a, x) => a + (x.cost || 0), 0), unknown = together.some((x) => x.cost == null);
+    const text = together.map((x) => x.p.vials + ' x ' + x.c + ' ' + x.vial).join('\n');
+    const pre = h('textarea', { class: 'ask', readOnly: true, style: 'min-height:0;display:none' }); pre.value = text;
+    const row = (x) => h('div', { class: 'listrow' }, h('div', {}, h('div', { class: 't' }, x.p.vials + ' × ' + x.c + ' ' + x.vial), h('div', { class: 'note', style: 'margin:0' }, 'Order by ' + nice(x.p.orderBy) + ' · runs out ' + nice(x.p.runOut))), h('div', { style: 'font-weight:800;white-space:nowrap' }, x.cost != null ? '~' + money(x.cost) : ''));
+    const copy = async (t, msg) => { try { await navigator.clipboard.writeText(t); toast(msg); } catch (e) { pre.value = t; pre.style.display = 'block'; pre.select(); toast('Select the text and copy it.'); } };
+    const card = h('div', { class: 'card' },
+      h('div', { class: 'cardhead' }, h('h3', {}, 'Reorder list'), h('span', { class: 'chip warn' }, 'Order by ' + nice(first))),
+      h('div', { class: 'note' }, together.length > 1 ? 'One order by ' + nice(first) + ' covers everything below, so it all comes in one parcel.' : 'Enough to finish the protocol.'),
+      together.map(row),
+      h('div', { class: 'listrow' }, h('div', { class: 't' }, 'Estimated total'), h('div', { style: 'font-weight:800' }, money(total) + (unknown ? ' +' : ''))),
+      h('div', { class: 'note' }, 'Based on what you paid last time for each item, before any new discounts or shipping.'),
+      later.length ? h('div', {}, h('div', { class: 'small muted', style: 'font-weight:800;margin-top:10px' }, 'Can wait for a later order'), later.map(row)) : null,
+      pre,
+      h('div', { class: 'actions', style: 'margin-top:10px' },
+        h('button', { class: 'btn', onclick: () => copy('Peptomi order\n' + text, 'List copied.') }, 'Copy list'),
+        h('button', { class: 'btn', onclick: () => copy('Please fill my Peptomi cart with this Peptide Program reorder list so I can check it and pay:\n' + text, 'Copied. Paste it into a Claude chat and Claude will add it to your Peptomi cart for you to check and pay.') }, 'Fill my Peptomi cart'),
+        h('button', { class: 'btn primary', onclick: () => orderModal(null, { order_id: '', date: TODAY, total: '', status: 'ordered', items: together.map((x) => ({ compound: x.c, vial: x.vial, qty: x.p.vials, price: x.cost ? Math.round(x.cost * 100) / 100 : '' })) }) }, 'Add as order')));
+    $('#reorder').replaceChildren(card);
+  }
+
+  // ---------- quick fridge count ----------
+  function countModal() {
+    const rows = [...st.stock].sort((a, b) => a.compound.localeCompare(b.compound) || (a.vial_mg || 0) - (b.vial_mg || 0));
+    const edits = new Map(rows.map((r) => [r.id, { sealed: r.sealed || 0, open_mg: r.open_mg || 0 }]));
+    const body = h('div', {}, h('div', { class: 'note' }, 'Update the sealed vials and what’s left in each open vial, then save once.'),
+      rows.map((r) => {
+        const e = edits.get(r.id);
+        const n = h('span', { class: 'n' }, e.sealed);
+        const om = r.vial_mg ? h('input', { type: 'number', step: 'any', min: 0, id: 'qc-' + r.id, value: e.open_mg, 'aria-label': 'Open vial mg for ' + r.compound + ' ' + r.vial, oninput: (ev) => { e.open_mg = parseFloat(ev.target.value) || 0; } }) : null;
+        return h('div', { class: 'countrow' },
+          h('div', {}, h('div', { style: 'font-weight:800' }, r.compound), h('div', { class: 'small muted' }, r.vial)),
+          h('div', { class: 'stepper' }, h('button', { class: 'iconbtn', 'aria-label': 'One fewer', onclick: () => { e.sealed = Math.max(0, e.sealed - 1); n.textContent = e.sealed; } }, '−'), n, h('button', { class: 'iconbtn', 'aria-label': 'One more', onclick: () => { e.sealed += 1; n.textContent = e.sealed; } }, '+')),
+          om ? h('label', { class: 'openmg', for: 'qc-' + r.id, style: 'grid-column:1/-1' }, 'Open vial', om, 'mg left') : null);
+      }));
+    modal('Quick fridge count', body, async () => {
+      await safe(async () => {
+        for (const r of rows) { const e = edits.get(r.id); if (e.sealed !== (r.sealed || 0) || r1(e.open_mg) !== r1(r.open_mg || 0)) await col('stock').doc(r.id).update({ sealed: e.sealed, open_mg: r1(e.open_mg) }); }
+      }, 'Stock count saved');
+    }, null, 'Save count');
+  }
+
+  // ---------- themes ----------
+  const THEMES = [['fresh', 'Fresh green', 'linear-gradient(135deg,#0ea47a,#14b8a6)'], ['ocean', 'Ocean blue', 'linear-gradient(135deg,#2563eb,#06b6d4)'], ['berry', 'Berry', 'linear-gradient(135deg,#c0267a,#8b5cf6)'], ['sunset', 'Sunset', 'linear-gradient(135deg,#e0561b,#f5a524)'], ['gold', 'Black & gold', 'linear-gradient(135deg,#17171b 40%,#d9ab3f)']];
+  const applyTheme = (t) => { document.documentElement.dataset.palette = t || 'fresh'; try { localStorage.setItem('pp-theme', t || 'fresh'); } catch (e) {} };
+  try { applyTheme(localStorage.getItem('pp-theme') || 'fresh'); } catch (e) {}
+  function themeModal() {
+    const cur = st.settings.theme || 'fresh';
+    const body = h('div', {}, h('div', { class: 'note' }, 'Changes the colours for both of you.'),
+      h('div', { class: 'swatches' }, THEMES.map(([id, label, bg]) => h('button', { class: 'swatch', 'aria-pressed': String(cur === id), onclick: () => {
+        applyTheme(id); st.settings.theme = id;
+        document.querySelectorAll('.swatch').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === id)));
+        safe(() => col('settings').doc('main').set({ ...st.settings, theme: id }));
+      }, 'data-id': id }, h('span', { class: 'sw', style: 'background:' + bg }), label))));
+    modal('Colour theme', body, async () => true, null, 'Done');
+  }
+
+  // ---------- ask Claude ----------
+  let sample = null;
+  function programContext() {
+    const L = ['Today is ' + nice(TODAY, true) + '. Delivery takes ' + st.settings.lead_days + ' business days.', '', 'PROTOCOLS:'];
+    for (const p of st.protocols) L.push('- ' + p.person + ': ' + p.compound + ' ' + (p.dose_mg ? p.dose_mg + 'mg ' : '') + '(' + (p.units || '') + '), ' + daysText(p.weekdays || []) + ' ' + (p.at ? fmtTime(p.at) : p.time) + ', ' + (p.start || 'start TBC') + ' to ' + (p.ongoing && !p.end ? 'ongoing' : p.end || 'end TBC') + ' [' + protoStatus(p)[0] + ']' + (p.note ? ' note: ' + p.note : ''));
+    L.push('', 'STOCK:');
+    for (const r of st.stock) L.push('- ' + r.compound + ' ' + r.vial + ': ' + (r.sealed || 0) + ' sealed' + (r.vial_mg ? ', open vial ' + (r.open_mg || 0) + 'mg left' : '') + (r.bac ? ', mix with ' + r.bac : '') + (r.mixed_on ? ', mixed ' + r.mixed_on + ', use by ' + useBy(r) : ''));
+    L.push('', 'SUPPLY FORECAST:');
+    for (const c of trackedCompounds()) { const p = project(c); if (p.manual || p.idle) continue; L.push('- ' + c + ': ' + (p.runOut ? 'runs out ' + p.runOut + ', order by ' + p.orderBy + ', about ' + p.vials + ' vials needed' : 'covered to ' + p.end)); }
+    L.push('', 'ORDERS ON THE WAY:');
+    for (const o of st.orders.filter((x) => x.status === 'ordered')) L.push('- ' + o.date + ': ' + (o.items || []).map((i) => i.qty + 'x ' + i.compound + ' ' + i.vial).join(', ') + ', arriving about ' + (o.eta || ''));
+    L.push('', 'DOSES LOGGED (last 14 days):');
+    for (const d of [...st.doses].sort((a, b) => (a.day < b.day ? -1 : 1))) L.push('- ' + d.day + ' ' + d.person + ' ' + d.compound + (d.skipped ? ' SKIPPED' : ' taken'));
+    return L.join('\n');
+  }
+  function askModal() {
+    const q = h('textarea', { class: 'ask', id: 'ask-q', placeholder: 'e.g. When do we next need to order?' });
+    const ans = h('div', { class: 'answer', 'aria-live': 'polite' });
+    let ctl = null;
+    const go = async () => {
+      const question = q.value.trim(); if (!question) { q.focus(); return; }
+      if (ctl) ctl.abort(); ctl = new AbortController();
+      ans.textContent = 'Thinking…';
+      const prompt = 'You answer questions inside Laura and Tim’s peptide program tracker app. Reply in plain, friendly Australian English, short and simple (a few sentences or a short list), like explaining to someone with no medical background. Use the program data below for any facts about their doses, stock, dates and orders, and say so if the data doesn’t cover it. For medical questions (changing doses, side effects, mixing compounds, missed doses) give brief general information and say to check with their prescriber. Never suggest increasing a dose.\n\n=== PROGRAM DATA ===\n' + programContext() + '\n\n=== QUESTION ===\n' + question;
+      try {
+        const res = await sample(prompt, { signal: ctl.signal, onText: ({ text }) => { ans.textContent = text; } });
+        ans.textContent = res.text;
+      } catch (e) {
+        ans.textContent = e && e.code === 'rate_limited' ? 'Too many questions in a row. Try again in a minute.' : e && e.code === 'cancelled' ? '' : e && e.code === 'not_granted' ? 'Asking Claude isn’t switched on for this page. Allow it when asked, then try again.' : 'Couldn’t get an answer. Try again.';
+        if (e && e.text) ans.textContent = e.text;
+      }
+    };
+    const suggestions = ['What do we need to order and when?', 'What’s changing this week?', 'How many doses did we miss lately?', 'How much water for the Tesamorelin?'];
+    const body = h('div', { style: 'display:flex;flex-direction:column;gap:10px' },
+      h('div', { class: 'note' }, 'Ask anything about your program. Claude answers from your protocols, stock and orders. Not medical advice.'),
+      h('div', { class: 'chips' }, suggestions.map((t) => h('button', { onclick: () => { q.value = t; go(); } }, t))),
+      q, ans);
+    modal('Ask Claude', body, async () => { await go(); return false; }, null, 'Ask');
+  }
+
+
+  // ---------- delivery photo check ----------
+  let assets = null, imgCaps = null;
+  const norm = (x) => String(x || '').toLowerCase().replace(/peptide|vial|research|nasal spray|spray/g, (m) => (m.includes('spray') ? 'spray' : '')).replace(/[^a-z0-9+]/g, '');
+  const strengthKey = (v) => String(v || '').toLowerCase().replace(/\s+/g, '').replace(/\/+/g, '+');
+  function shrink(file) {
+    return new Promise((resolve) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const max = 1600, sc = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        c.toBlob((b) => { URL.revokeObjectURL(url); resolve(b || file); }, 'image/jpeg', 0.85);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+      img.src = url;
+    });
+  }
+  function deliveryModal(preOrder) {
+    if (!sample || !imgCaps) { toast('Photo reading isn’t available on this device. Use Mark received instead.'); return; }
+    const pending = st.orders.filter((o) => o.status === 'ordered').sort((a, b) => (a.date < b.date ? -1 : 1));
+    let order = preOrder || pending[0] || null;
+    let files = [];
+    const sel = h('select', { id: 'dv-order' }, h('option', { value: '' }, 'No order (just add to stock)'), pending.map((o) => h('option', { value: o.id, selected: order && order.id === o.id }, nice(o.date) + ' · ' + (o.items || []).map((i) => i.qty + '× ' + i.compound).join(', '))));
+    sel.addEventListener('change', () => { order = st.orders.find((o) => o.id === sel.value) || null; });
+    const input = h('input', { type: 'file', id: 'dv-file', accept: (imgCaps.mediaTypes || ['image/jpeg', 'image/png']).join(','), multiple: (imgCaps.maxCount || 1) > 1 });
+    const thumbs = h('div', { class: 'thumbs' });
+    input.addEventListener('change', () => {
+      files = [...input.files].slice(0, imgCaps.maxCount || 4);
+      thumbs.replaceChildren(...files.map((f) => h('img', { src: URL.createObjectURL(f), alt: 'Selected photo' })));
+      go.disabled = !files.length;
+    });
+    const drop = h('label', { class: 'photo-drop', for: 'dv-file' },
+      h('span', { innerHTML: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>' }),
+      'Take or choose a photo', h('span', { class: 'small muted', style: 'font-weight:600' }, 'Lay the vials out with labels facing up. Up to ' + (imgCaps.maxCount || 1) + ' photo' + ((imgCaps.maxCount || 1) > 1 ? 's' : '') + '.'), input);
+    const status = h('div', { class: 'small muted' });
+    const go = h('button', { class: 'btn primary', disabled: true, onclick: () => readPhotos() }, 'Read the photo');
+    const body = h('div', { style: 'display:flex;flex-direction:column;gap:12px' }, field('Which order is this?', sel), drop, thumbs, go, status);
+    modal('Delivery arrived', body, async () => true, null, 'Close');
+
+    async function readPhotos() {
+      go.disabled = true;
+      status.replaceChildren(h('div', { style: 'display:flex;gap:10px;align-items:center' }, h('div', { class: 'spinner' }), 'Claude is counting the vials…'));
+      const blobs = await Promise.all(files.map(shrink));
+      const known = [...new Set([...st.stock.map((r) => r.compound + ' ' + r.vial), ...st.orders.flatMap((o) => (o.items || []).map((i) => i.compound + ' ' + (i.vial || '')))])];
+      const prompt = 'These photos show a parcel of peptide vials and supplies that just arrived. Count every item you can see by reading the labels. Group identical items. Use the product name and strength exactly as printed (e.g. "Tesamorelin" "20mg", "Bacteriostatic Water" "10mL"). If a name matches one of these known products, use the known spelling: ' + known.join('; ') + '. Count vials carefully, including partly hidden ones you can still identify, and do not count the same vial twice across photos. Reply ONLY with JSON: {"items":[{"compound":"name","vial":"strength or size","qty":number,"sure":true|false}],"note":"one short sentence about anything you could not read, or empty"}.';
+      try {
+        const res = await sample.json(prompt, { images: blobs, modelTier: 'default' });
+        const items = (res && Array.isArray(res.items) ? res.items : []).filter((i) => i && i.compound && Number(i.qty) > 0);
+        let photoIds = [];
+        if (assets) { try { for (const b of blobs) { const up = await assets.upload(b); photoIds.push(up.id); } } catch (e) { photoIds = []; } }
+        reviewModal(order, items, (res && res.note) || '', photoIds);
+      } catch (e) {
+        go.disabled = false;
+        status.textContent = e && e.code === 'not_granted' ? 'Allow Claude to read photos when asked, then try again.' : e && e.code === 'rate_limited' ? 'Too many requests. Try again in a minute.' : 'Couldn’t read the photo. Try a clearer photo with the labels facing up.';
+      }
+    }
+  }
+  function reviewModal(order, seen, note, photoIds) {
+    const ordered = order ? (order.items || []).map((i) => ({ ...i })) : [];
+    const rows = ordered.map((i) => ({ compound: i.compound, vial: i.vial || '', ordered: Number(i.qty) || 0, got: 0, sure: true }));
+    for (const it of seen) {
+      const k = norm(it.compound), sk = strengthKey(it.vial);
+      let row = rows.find((r) => norm(r.compound) === k && (!sk || !r.vial || strengthKey(r.vial) === sk)) || rows.find((r) => norm(r.compound) && (norm(r.compound).includes(k) || k.includes(norm(r.compound))) && (!sk || strengthKey(r.vial) === sk));
+      if (row) { row.got += Number(it.qty) || 0; if (it.sure === false) row.sure = false; }
+      else {
+        const stockMatch = st.stock.find((r) => norm(r.compound) === k && (!sk || strengthKey(r.vial) === sk));
+        rows.push({ compound: stockMatch ? stockMatch.compound : it.compound, vial: stockMatch ? stockMatch.vial : (it.vial || ''), ordered: 0, got: Number(it.qty) || 0, sure: it.sure !== false });
+      }
+    }
+    const dl = h('datalist', { id: 'dl-comp4' }, compounds().map((c) => h('option', { value: c })));
+    const list = h('div', {});
+    const summary = h('div', { class: 'note' });
+    const draw = () => {
+      const short = rows.filter((r) => r.ordered && r.got < r.ordered), extra = rows.filter((r) => r.got > r.ordered);
+      summary.textContent = (order ? (short.length ? short.length + ' item' + (short.length === 1 ? '' : 's') + ' short. ' : 'Everything ordered is here. ') : '') + (extra.length ? extra.length + ' extra item' + (extra.length === 1 ? '' : 's') + (order ? ' (freebies)' : '') + '.' : '') + ' Check the counts, fix anything wrong, then add to stock.';
+      list.replaceChildren(...rows.map((r, i) => {
+        const diff = r.got - r.ordered;
+        const chip = !r.ordered ? ['Freebie', 'chip ok'] : diff === 0 ? ['Matches order', 'chip ok'] : diff < 0 ? [(-diff) + ' short', 'chip bad'] : ['+' + diff + ' extra', 'chip ok'];
+        const qty = h('input', { type: 'number', min: 0, id: 'rv-q' + i, value: r.got, 'aria-label': 'Received count for ' + r.compound, oninput: (e) => { r.got = Math.max(0, parseInt(e.target.value, 10) || 0); } });
+        qty.addEventListener('change', draw);
+        return h('div', { class: 'match' },
+          h('div', {}, h('div', { class: 'nmx' }, r.compound + (r.vial ? ' ' + r.vial : '')), h('div', { class: 'small muted' }, (r.ordered ? 'Ordered ' + r.ordered : 'Not on the order') + (r.sure ? '' : ' · Claude wasn’t sure, please check')), h('span', { class: chip[1] }, chip[0])),
+          h('label', { class: 'qty', for: 'rv-q' + i }, 'Arrived', qty),
+          !r.ordered ? h('div', { class: 'rename' }, h('input', { id: 'rv-n' + i, list: 'dl-comp4', value: r.compound, 'aria-label': 'Product name', onchange: (e) => { r.compound = e.target.value.trim() || r.compound; } })) : null);
+      }));
+    };
+    draw();
+    const addRow = h('button', { class: 'btn sm', style: 'align-self:start', onclick: () => { rows.push({ compound: '', vial: '', ordered: 0, got: 1, sure: true }); draw(); } }, 'Add something Claude missed');
+    const body = h('div', { style: 'display:flex;flex-direction:column;gap:10px' }, dl, summary, note ? h('div', { class: 'small', style: 'color:var(--warn);font-weight:700' }, note) : null, list, addRow);
+    modal(order ? 'Check against your order' : 'What arrived', body, async () => {
+      const got = rows.filter((r) => r.compound && r.got > 0);
+      if (!got.length) { toast('Nothing to add yet.'); return false; }
+      await safe(async () => {
+        for (const r of got) {
+          const row = st.stock.find((x) => x.compound === r.compound && strengthKey(x.vial) === strengthKey(r.vial));
+          if (row) await col('stock').doc(row.id).update({ sealed: (row.sealed || 0) + r.got });
+          else await col('stock').add({ compound: r.compound, vial: r.vial, vial_mg: parseFloat(r.vial) && /mg/i.test(r.vial) ? parseFloat(r.vial) : null, sealed: r.got, open_mg: 0, bac: '', note: r.ordered ? '' : 'Freebie ' + nice(TODAY) });
+        }
+        const freebies = rows.filter((r) => r.got > r.ordered).map((r) => ({ compound: r.compound, vial: r.vial, qty: r.got - r.ordered }));
+        const missing = rows.filter((r) => r.ordered > r.got).map((r) => ({ compound: r.compound, vial: r.vial, qty: r.ordered - r.got }));
+        if (order) await col('orders').doc(order.id).update({ status: 'received', received: TODAY, received_items: got.map((r) => ({ compound: r.compound, vial: r.vial, qty: r.got })), freebies, missing, photos: photoIds });
+        else await col('deliveries').add({ day: TODAY, items: got.map((r) => ({ compound: r.compound, vial: r.vial, qty: r.got })), photos: photoIds });
+      }, 'Added to stock');
+    }, null, 'Add to stock');
+  }
+
+
+  // ---------- round 2 ----------
+  function nextCycle(p) {
+    const len = p.start && p.end ? Math.max(0, daysBetween(p.start, p.end)) : 27;
+    let ns = restartOf(p) || (p.end ? addDays(p.end, 1) : TODAY);
+    if (ns < TODAY) ns = TODAY;
+    const copy = { ...p, start: ns, end: addDays(ns, len), paused: false };
+    delete copy.id; delete copy.changes;
+    $('#modalRoot').replaceChildren();
+    protoModal(null, copy);
+  }
+  function dueRestarts() {
+    return st.protocols.filter((p) => restartOf(p) && !restarted(p) && restartOf(p) <= addDays(TODAY, 3)).map((p) => ({ p, date: restartOf(p) }));
+  }
+  async function tickAll(who, time, items, day) {
+    const done = [];
+    await safe(async () => { for (const p of items) { await tickDose(p, day, true); done.push(p); } });
+    if (done.length) toastAction(time + ' doses ticked for ' + who, 'Undo', () => safe(async () => { for (const p of done) await tickDose(p, day, false); }));
+  }
+  function habitRow(who, day) {
+    const id = day + '_' + who;
+    const d = st.habits.find((x) => x.id === id) || {};
+    const btn = (key, label) => h('button', { class: 'habit', 'aria-pressed': String(!!d[key]), onclick: () => safe(() => col('habits').doc(id).set({ day, person: who, water: !!d.water, protein: !!d.protein, [key]: !d[key] })) }, (d[key] ? '✓ ' : '') + label);
+    return h('div', { class: 'habits' }, btn('water', 'Water'), btn('protein', 'Protein'));
+  }
+  function renderWeek() {
+    if (!weekMode) return;
+    const start = addDays(viewDay, -((wd(viewDay) + 6) % 7));
+    const logged = loggedSet();
+    const people = whoSel === 'Both' ? ['Laura', 'Tim'] : [whoSel];
+    const days = [...Array(7)].map((_, i) => addDays(start, i));
+    $('#weekGrid').replaceChildren(...days.map((d) => h('div', { class: 'card weekday' + (d === TODAY ? ' today' : '') },
+      h('h3', {}, (d === TODAY ? 'Today · ' : '') + nice(d)),
+      people.map((who) => {
+        const ps = st.protocols.filter((p) => p.person === who && activeOn(p, d)).sort((a, b) => (a.time === b.time ? (a.at || '99').localeCompare(b.at || '99') : a.time === 'Morning' ? -1 : 1));
+        return h('div', { class: 'wk-p', style: '--who: var(--' + who.toLowerCase() + ')' }, h('b', {}, who),
+          h('div', { class: 'wk-items' }, ps.length ? ps.map((p) => h('span', { class: (p.time === 'Morning' ? 'am' : 'pm') + (logged.has(doseId(d, p.id)) ? ' done' : '') }, p.compound + ' ' + (eff(p, d).units || ''))) : h('span', {}, 'Rest day')));
+      }))));
+  }
+  const STEPS = {
+    Injection: (u) => ['Wash your hands. Wipe the vial top with an alcohol swab.', 'Draw ' + (u || 'your dose') + ' on a U-100 insulin syringe. Tap out any big air bubbles.', 'Wipe a spot on your belly (5 cm from the belly button) or thigh, pinch the skin and inject.', 'Use a new needle every time and change spots each day.'],
+    Nasal: () => ['Gently blow your nose first.', 'Shake the bottle, then spray into the nostril as the bottle directs.', 'Breathe in gently. Don’t blow your nose straight after.'],
+    Topical: () => ['Start with clean, dry skin.', 'Apply a thin layer of serum and let it soak in.', 'Patch-test any new mix on a small spot first.'],
+  };
+  function detailsModal(p, day) {
+    const ed = eff(p, day);
+    const route = p.route || (p.dose_mg ? 'Injection' : 'Nasal');
+    const units = parseFloat(ed.units);
+    const r = stockFor(p.compound).find((x) => (x.open_mg || 0) > 0) || [...stockFor(p.compound)].sort((a, b) => ((b.sealed || 0) > 0) - ((a.sealed || 0) > 0) || (b.vial_mg || 0) - (a.vial_mg || 0))[0];
+    const last = [...st.doses].filter((d) => d.protocol_id === p.id && !d.skipped).sort((a, b) => (a.day < b.day ? 1 : -1))[0];
+    const big = Number.isFinite(units) && units <= 100 ? (() => { const s2 = syringe(units); s2.setAttribute('class', 'syr bigsyr'); s2.style.setProperty('--who', 'var(--' + p.person.toLowerCase() + ')'); return s2; })() : null;
+    const kv = [['Who', p.person], ['Dose', (ed.units || '') + (ed.dose_mg ? ' (' + fmtMg(ed.dose_mg) + ')' : '')], ['When', daysText(p.weekdays || []) + ', ' + (p.at ? fmtTime(p.at) : p.time.toLowerCase())],
+      ['Vial in use', r ? r.vial + (r.vial_mg && parseFloat(r.bac) ? ' mixed with ' + r.bac : '') : 'None recorded'],
+      r && r.vial_mg && (r.open_mg || 0) > 0 ? ['Left in vial', fmtMg(r.open_mg)] : null,
+      r && useBy(r) ? ['Use by', nice(useBy(r))] : null,
+      ['Last taken', last ? nice(last.day) : 'Not in the last 2 weeks'],
+      nextChange(p, day) ? ['Next change', (nextChange(p, day).units || fmtMg(nextChange(p, day).dose_mg)) + ' from ' + nice(nextChange(p, day).from)] : null].filter(Boolean);
+    const body = h('div', { style: 'display:flex;flex-direction:column;gap:14px' },
+      big ? h('div', {}, h('div', { class: 'small muted', style: 'font-weight:700;margin-bottom:4px' }, 'Draw to ' + ed.units + ' on a U-100 syringe'), big) : null,
+      h('dl', { class: 'kv' }, kv.flatMap(([k, v]) => [h('dt', {}, k), h('dd', {}, v)])),
+      h('div', {}, h('div', { class: 'small muted', style: 'font-weight:800;margin-bottom:6px' }, 'How to take it'), h('div', { class: 'steps' }, (STEPS[route] || STEPS.Injection)(ed.units).map((t, i) => h('div', {}, h('i', {}, i + 1), h('span', {}, t))))),
+      h('div', { class: 'actions' },
+        r && r.vial_mg && parseFloat(r.bac) ? h('button', { class: 'btn', onclick: () => mixModal(r) }, 'How to mix') : null,
+        h('button', { class: 'btn', onclick: () => guideModal(p.compound) }, 'About ' + p.compound)));
+    modal(p.compound, body, async () => true, null, 'Done');
+  }
+  const GUIDE = {
+    'Retatrutide': { how: 'Acts on three appetite hormones at once, so food sits in the stomach longer and you feel full sooner.', store: 'Powder in the freezer (fridge is fine for a few days). Once mixed: fridge at 2\u20138\u00b0C, out of the light, never frozen, and use within 2\u20134 weeks.', cycle: 'Taken weekly through the program. Trials started low and stepped up slowly so the gut can settle.', watch: 'Nausea and reflux are common, especially after a dose increase.' },
+    'Cagrilintide': { how: 'A long-lasting copy of amylin, the hormone that tells you “I’m full”. It also slows the stomach.', store: 'Powder in the freezer (fridge is fine for a few days). Once mixed: fridge at 2\u20138\u00b0C, out of the light, never frozen, and use within 2\u20134 weeks.', cycle: 'Weekly. Most research pairs it with a GLP-1 type medicine.', watch: 'Adds to Reta’s gut effects, so nausea can stack up.' },
+    'Tesamorelin': { how: 'Copies the brain’s own “release growth hormone” signal, giving a natural burst of growth hormone.', store: 'Powder in the freezer (fridge is fine for a few days). Once mixed: fridge at 2\u20138\u00b0C, out of the light, never frozen, and use within 2\u20134 weeks.', cycle: 'Daily, usually at night. Trials tracked belly fat and IGF-1 over months.', watch: 'Can raise blood sugar. Water retention and joint aches are possible.' },
+    '5-Amino-1MQ': { how: 'Turns down an enzyme (NNMT) that helps cells store fat, so they may burn more instead.', store: 'Powder in the freezer (fridge is fine for a few days). Once mixed: fridge at 2\u20138\u00b0C, out of the light, never frozen, and use within 2\u20134 weeks.', cycle: 'Daily in the morning, usually for 8–12 weeks, then a break. Only animal studies so far.', watch: 'Mostly injection-site sting. Little human data.' },
+    'MOTS-c': { how: 'Works on mitochondria, the cell’s power plants, helping cells use fuel better.', store: 'Powder in the freezer (fridge is fine for a few days). Once mixed: fridge at 2\u20138\u00b0C, out of the light, never frozen, and use within 2\u20134 weeks.', cycle: 'A few times a week for a block of weeks, then reassess.', watch: 'Use the units for the vial size you mixed. The 40mg vial is much stronger.' },
+    'NAD+': { how: 'A molecule every cell uses to make energy and run repair enzymes.', store: 'Powder in the freezer (fridge is fine for a few days). Once mixed: fridge at 2\u20138\u00b0C, out of the light, never frozen, and use within 2\u20134 weeks.', cycle: 'Usually 2–3 times a week, in blocks with breaks.', watch: 'Going too fast causes flushing and chest tightness. Start low and slow.' },
+    'GHK-Cu': { how: 'A copper peptide that switches on the skin’s collagen and repair activity.', store: 'Powder in the freezer (fridge is fine for a few days). Once mixed: fridge at 2\u20138\u00b0C, out of the light, never frozen, and use within 2\u20134 weeks.', cycle: 'Daily in a block of weeks, then a break.', watch: 'A blue-green colour is normal. It’s the copper. Can sting.' },
+    'GHK-Cu Powder': { how: 'The same copper peptide, mixed into a face serum to firm the skin.', store: 'Keep the sealed powder dry, cool and out of the light. Keep the finished serum in the fridge and use it within a few weeks.', cycle: 'Morning and night as a thin layer. Peptomi’s guide mixes 300mg into a 30mL hyaluronic acid serum.', watch: 'Skin only, never inject. This powder isn’t sterile.' },
+    'SNAP-8': { how: 'A cosmetic peptide that calms the tiny face-muscle signals behind expression lines.', store: 'Powder in the freezer (fridge is fine for a few days). Keep the finished serum in the fridge and use it within a few weeks.', cycle: 'Thin layer on lines, ongoing.', watch: 'Patch-test first. Skin only.' },
+    'DSIP Nasal Spray': { how: 'A sleep-signal peptide from older research on deep sleep and stress hormones.', store: 'Powder in the freezer. Mix with 10mL saline (not BAC water) into the spray bottle, keep it in the fridge and finish within 1\u20132 weeks.', cycle: 'Usually a week or two, then only as needed. Evidence is mixed.', watch: 'Don’t expect a knockout effect.' },
+    'MT1': { how: 'Tells skin pigment cells to make more of the darker, browner colour.', store: 'Powder in the freezer (fridge is fine for a few days). Once mixed: fridge at 2\u20138\u00b0C, out of the light, never frozen, and use within 2\u20134 weeks.', cycle: 'A loading phase, then occasional maintenance. Not a forever daily.', watch: 'Nausea is common at first. Pause and see a doctor if moles change.' },
+    'ARA-290': { how: 'A piece of EPO that protects nerves and calms inflammation, without making extra blood.', store: 'Powder in the freezer (fridge is fine for a few days). Once mixed: fridge at 2\u20138\u00b0C, out of the light, never frozen, and use within 2\u20134 weeks.', cycle: 'Human trials ran about 4 weeks, then stopped to reassess.', watch: 'Mostly injection-site reactions in trials.' },
+    'BPC-157 + TB-500': { how: 'Two repair peptides: one boosts blood supply to an injury, the other helps repair cells move in.', store: 'Powder in the freezer (fridge is fine for a few days). Once mixed: fridge at 2\u20138\u00b0C, out of the light, never frozen, and use within 2\u20134 weeks.', cycle: 'A few weeks, then a pause. Not a forever daily.', watch: 'Mostly animal research. Banned in sport.' },
+  };
+  function guideModal(c) {
+    const g = GUIDE[c] || {};
+    const rows = stockFor(c).filter((r) => parseFloat(r.bac));
+    const sec = (t, v) => (v ? h('div', {}, h('div', { class: 'small muted', style: 'font-weight:800' }, t), h('div', {}, v)) : null);
+    const body = h('div', { style: 'display:flex;flex-direction:column;gap:12px' },
+      sec('What it’s for', PURPOSE[c] || ''), sec('How it works', g.how), sec('Storage', g.store),
+      rows.length ? sec('Mixing', rows.map((r) => r.vial + ' vial: ' + r.bac + (/saline/i.test(r.bac) ? '' : ' BAC water')).join(' · ')) : null,
+      sec('Usual cycle', g.cycle), sec('Watch for', g.watch),
+      h('div', { class: 'small muted' }, 'Plain-English summary based on Peptomi’s guides. Not medical advice.'),
+      rows.length ? h('div', { class: 'actions' }, rows.map((r) => h('button', { class: 'btn', onclick: () => mixModal(r) }, 'How to mix ' + r.vial))) : null);
+    modal(c, body, async () => true, null, 'Done');
+  }
+  // holiday pause
+  function renderHolds() {
+    const hs = st.holds.filter((x) => x.to >= TODAY).sort((a, b) => (a.from < b.from ? -1 : 1));
+    if (!hs.length) { $('#holds').replaceChildren(); return; }
+    $('#holds').replaceChildren(h('div', { class: 'card' }, h('div', { class: 'cardhead' }, h('h3', {}, 'Holiday pauses'), h('span', { class: 'chip acc' }, hs.length)),
+      hs.map((x) => h('div', { class: 'listrow' }, h('div', {}, h('div', { class: 't' }, nice(x.from) + ' to ' + nice(x.to, true)), h('div', { class: 'note', style: 'margin:0' }, (x.who === 'Both' ? 'Laura & Tim' : x.who) + ' · ' + (x.compounds && x.compounds.length ? x.compounds.join(', ') : 'everything') + (x.shifted ? ' · end dates pushed out' : ''))),
+        h('button', { class: 'btn sm danger', onclick: () => safe(() => col('holds').doc(x.id).delete(), 'Pause removed. End dates stay where they are.') }, 'Remove')))));
+  }
+  function holdModal() {
+    const from = h('input', { type: 'date', id: 'hd-f', value: TODAY }), to = h('input', { type: 'date', id: 'hd-t', value: addDays(TODAY, 6) });
+    const who = h('select', { id: 'hd-w' }, ['Both', 'Laura', 'Tim'].map((x) => h('option', { value: x }, x === 'Both' ? 'Both of us' : x)));
+    const comps = [...new Set(st.protocols.filter((p) => protoStatus(p)[0] !== 'Finished').map((p) => p.compound))].sort();
+    const boxes = comps.map((c, i) => h('input', { type: 'checkbox', id: 'hd-c' + i, value: c }));
+    const shift = h('input', { type: 'checkbox', id: 'hd-s', checked: true });
+    const body = h('div', { style: 'display:flex;flex-direction:column;gap:10px' },
+      h('div', { class: 'fields' }, field('From', from), field('To', to), field('Who', who)),
+      h('div', {}, h('div', { class: 'small muted', style: 'font-weight:700;margin-bottom:4px' }, 'Which compounds? Leave all unticked to pause everything.'), h('div', { class: 'days' }, boxes.map((b) => h('label', { for: b.id }, b, b.value)))),
+      h('label', { class: 'small', for: 'hd-s', style: 'display:flex;gap:6px;align-items:center' }, shift, 'Push end dates out by the same number of days'));
+    modal('Holiday pause', body, async () => {
+      if (!from.value || !to.value || to.value < from.value) { toast('Pick a from and to date.'); return false; }
+      const cs = boxes.filter((b) => b.checked).map((b) => b.value);
+      const days = daysBetween(from.value, to.value) + 1;
+      await safe(async () => {
+        await col('holds').add({ from: from.value, to: to.value, who: who.value, compounds: cs, shifted: shift.checked });
+        if (shift.checked) for (const p of st.protocols) {
+          if (p.paused || !p.end || p.end < from.value || (p.start && p.start > to.value)) continue;
+          if (who.value !== 'Both' && p.person !== who.value) continue;
+          if (cs.length && !cs.includes(p.compound)) continue;
+          await col('protocols').doc(p.id).update({ end: addDays(p.end, days) });
+        }
+      }, 'Holiday pause added');
+    }, null, 'Add pause');
+  }
+  // spacing rules
+  function spacingClashes() {
+    const rules = st.settings.spacing || [];
+    const out = [];
+    for (const rule of rules) {
+      const people = rule.person === 'Both' ? ['Laura', 'Tim'] : [rule.person];
+      const days = [];
+      for (let i = 0; i < 42; i++) { const d = addDays(TODAY, i); for (const who of people) { const a = st.protocols.some((p) => p.person === who && p.compound === rule.a && activeOn(p, d)); const b = st.protocols.some((p) => p.person === who && p.compound === rule.b && activeOn(p, d)); if (a && b) { days.push(d); break; } } }
+      out.push({ rule, days });
+    }
+    return out.filter((x) => x.days.length);
+  }
+  function renderSpacing() {
+    const rules = st.settings.spacing || [];
+    const clashes = spacingClashes();
+    $('#spacing').replaceChildren(h('div', { class: 'card' },
+      h('div', { class: 'cardhead' }, h('h3', {}, 'Spacing rules'), clashes.length ? h('span', { class: 'chip bad' }, clashes.length + ' clash' + (clashes.length === 1 ? '' : 'es')) : h('span', { class: 'chip ok' }, 'All clear')),
+      h('div', { class: 'note' }, 'Compounds that should never be taken on the same day. Checked over the next 6 weeks.'),
+      rules.length ? rules.map((r, i) => {
+        const c = clashes.find((x) => x.rule === r);
+        return h('div', { class: 'listrow' }, h('div', {}, h('div', { class: 't' }, r.a + ' never on a ' + r.b + ' day'), h('div', { class: 'note', style: 'margin:0;' + (c ? 'color:var(--bad);font-weight:700' : '') }, (r.person === 'Both' ? 'Laura & Tim' : r.person) + (c ? ' · clashes on ' + c.days.slice(0, 3).map((d) => nice(d)).join(', ') + (c.days.length > 3 ? ' and ' + (c.days.length - 3) + ' more' : '') : ' · no clashes'))),
+          h('button', { class: 'btn sm danger', onclick: () => { const list = rules.filter((_, j) => j !== i); safe(() => col('settings').doc('main').set({ ...st.settings, spacing: list }), 'Rule removed'); } }, 'Remove'));
+      }) : h('div', { class: 'note' }, 'No rules yet.'),
+      h('button', { class: 'btn sm', style: 'margin-top:8px', onclick: () => ruleModal() }, 'Add a rule')));
+  }
+  function ruleModal() {
+    const comps = compounds();
+    const a = h('select', { id: 'sr-a' }, comps.map((c) => h('option', { value: c }, c))), b = h('select', { id: 'sr-b' }, comps.map((c, i) => h('option', { value: c, selected: i === 1 }, c)));
+    const who = h('select', { id: 'sr-w' }, ['Both', 'Laura', 'Tim'].map((x) => h('option', { value: x }, x === 'Both' ? 'Both of us' : x)));
+    modal('Add a spacing rule', h('div', { class: 'fields' }, field('Never take', a), field('On the same day as', b), field('For', who)), async () => {
+      if (a.value === b.value) { toast('Pick two different compounds.'); return false; }
+      await safe(() => col('settings').doc('main').set({ ...st.settings, spacing: [...(st.settings.spacing || []), { a: a.value, b: b.value, person: who.value }] }), 'Rule added');
+    });
+  }
+  // fridge & freezer
+  function usedBetween(c, mg, until) {
+    const ps = st.protocols.filter((p) => p.compound === c && usesMg(p));
+    const logged = loggedSet();
+    let left = mg, used = 0;
+    for (let d = TODAY; d <= until; d = addDays(d, 1)) {
+      let need = 0;
+      for (const p of ps) if (activeOn(p, d) && !(d === TODAY && logged.has(doseId(d, p.id)))) need += eff(p, d).dose_mg || 0;
+      if (need > 0) { if (left + 1e-9 < need) break; left -= need; used += need; }
+    }
+    return used;
+  }
+  function fridgeRows() {
+    return st.stock.filter((r) => (r.vial_mg && (r.open_mg || 0) > 0) || (!r.vial_mg && r.mixed_on)).map((r) => {
+      const ub = useBy(r), fin = r.vial_mg ? finishDate(r.compound, r.open_mg) : null;
+      let waste = 0;
+      if (ub && r.vial_mg) { if (ub <= TODAY) waste = r.open_mg; else if (!fin || fin > ub) waste = Math.max(0, r.open_mg - usedBetween(r.compound, r.open_mg, addDays(ub, -1))); }
+      return { r, ub, fin, waste };
+    }).sort((x, y) => (x.ub || '9999').localeCompare(y.ub || '9999'));
+  }
+  const inFridge = (r) => Math.max(0, Math.min(r.sealed || 0, r.in_fridge || 0));
+  const inFreezer = (r) => (r.sealed || 0) - inFridge(r);
+  const moveToFridge = (r) => safe(() => col('stock').doc(r.id).update({ in_fridge: inFridge(r) + 1, fridge_since: inFridge(r) ? (r.fridge_since || TODAY) : TODAY }), 'Moved 1 × ' + r.compound + ' ' + r.vial + ' to the fridge');
+  const moveToFreezer = (r) => safe(() => col('stock').doc(r.id).update({ in_fridge: Math.max(0, inFridge(r) - 1), fridge_since: inFridge(r) - 1 > 0 ? (r.fridge_since || TODAY) : null }), 'Moved back to the freezer');
+  function mixNow(r, fromFridge) {
+    if (!(r.sealed > 0)) { toast('No sealed ' + r.compound + ' ' + r.vial + ' left.'); return; }
+    const takeFridge = (fromFridge && inFridge(r) > 0) || inFreezer(r) <= 0;
+    const left = Math.max(0, Math.min(r.sealed - 1, inFridge(r) - (takeFridge ? 1 : 0)));
+    const upd = { sealed: r.sealed - 1, in_fridge: left, fridge_since: left > 0 ? (r.fridge_since || TODAY) : null, mixed_on: TODAY };
+    if (r.vial_mg) upd.open_mg = r.vial_mg;
+    const doIt = () => safe(() => col('stock').doc(r.id).update(upd), 'Mixed a new ' + r.compound + ' ' + r.vial + ', dated today');
+    if (r.vial_mg && (r.open_mg || 0) > 0.01) modal('Replace the open vial?', h('div', { class: 'note' }, 'There’s still ' + fmtMg(r.open_mg) + ' left in the open ' + r.vial + ' vial. The app tracks one open vial at a time, so mixing a new one replaces it. Only do this if you’re binning the old one.'), async () => { await doIt(); }, null, 'Bin old and mix');
+    else doIt();
+  }
+  function addStockModal(where) {
+    const dl = h('datalist', { id: 'dl-comp5' }, compounds().map((c) => h('option', { value: c })));
+    const c = h('input', { id: 'as-c', list: 'dl-comp5', placeholder: 'e.g. Tesamorelin' });
+    const v = h('input', { id: 'as-v', placeholder: 'e.g. 20mg' });
+    const n = h('input', { id: 'as-n', type: 'number', min: 1, value: 1 });
+    const loc = h('select', { id: 'as-l' }, [['freezer', 'Freezer (sealed)'], ['fridge', 'Fridge (sealed, not mixed yet)'], ['mixed', 'Fridge (mixed, in use)']].map(([k, l]) => h('option', { value: k, selected: k === where }, l)));
+    const mg = h('input', { id: 'as-mg', type: 'number', step: 'any', min: 0, placeholder: 'Full vial if blank' });
+    const md = h('input', { id: 'as-md', type: 'date', value: TODAY });
+    const bac = h('input', { id: 'as-b', placeholder: 'e.g. 2mL' });
+    const fill = () => { const r = st.stock.find((x) => norm(x.compound) === norm(c.value) && (!v.value || strengthKey(x.vial) === strengthKey(v.value))); if (r) { if (!v.value) v.value = r.vial; if (!bac.value) bac.value = r.bac || ''; } };
+    c.addEventListener('change', fill);
+    const mixedBox = h('div', { class: 'fields' }, field('Mixed on', md), field('Mg left in it', mg));
+    const countBox = field('How many vials', n);
+    const show = () => { mixedBox.hidden = loc.value !== 'mixed'; countBox.hidden = loc.value === 'mixed'; };
+    loc.addEventListener('change', show); show();
+    const body = h('div', { style: 'display:flex;flex-direction:column;gap:10px' }, dl,
+      h('div', { class: 'fields' }, field('Compound', c), field('Vial size', v), field('Where', loc), countBox, field('Mix with (water)', bac)), mixedBox,
+      h('div', { class: 'note' }, 'If it’s already in your stock it’s added to that line. Otherwise a new line is created.'));
+    modal(where === 'freezer' ? 'Add to the freezer' : 'Add to the fridge', body, async () => {
+      const name = c.value.trim(); if (!name) { toast('Add the compound name.'); return false; }
+      const vial = v.value.trim(), count = Math.max(1, parseInt(n.value, 10) || 1), L = loc.value;
+      const vmg = /mg/i.test(vial) ? parseFloat(vial) || null : null;
+      const row = st.stock.find((x) => norm(x.compound) === norm(name) && strengthKey(x.vial) === strengthKey(vial));
+      await safe(async () => {
+        if (row) {
+          if (L === 'mixed') await col('stock').doc(row.id).update({ open_mg: r1(mg.value === '' ? (row.vial_mg || 0) : parseFloat(mg.value) || 0), mixed_on: md.value || TODAY, ...(bac.value ? { bac: bac.value.trim() } : {}) });
+          else await col('stock').doc(row.id).update({ sealed: (row.sealed || 0) + count, ...(L === 'fridge' ? { in_fridge: inFridge(row) + count, fridge_since: inFridge(row) ? (row.fridge_since || TODAY) : TODAY } : {}), ...(bac.value && !row.bac ? { bac: bac.value.trim() } : {}) });
+        } else {
+          await col('stock').add({ compound: name, vial, vial_mg: vmg, sealed: L === 'mixed' ? 0 : count, in_fridge: L === 'fridge' ? count : 0, fridge_since: L === 'fridge' ? TODAY : null,
+            open_mg: L === 'mixed' ? r1(mg.value === '' ? (vmg || 0) : parseFloat(mg.value) || 0) : 0, mixed_on: L === 'mixed' ? (md.value || TODAY) : null, bac: bac.value.trim(), note: '', use_min_days: 14, use_days: 28 });
+        }
+      }, L === 'mixed' ? 'Added to the fridge' : 'Added ' + count + ' to the ' + (L === 'fridge' ? 'fridge' : 'freezer'));
+    }, null, 'Add');
+  }
+  function renderFridge() {
+    const rows = fridgeRows();
+    const risky = rows.filter((x) => x.waste > 0.01);
+    const sealedRows = st.stock.filter((r) => inFridge(r) > 0).sort((a, b) => a.compound.localeCompare(b.compound));
+    const sealedTotal = sealedRows.reduce((a, r) => a + inFridge(r), 0);
+    const acts = (...b) => h('div', { style: 'grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:4px' }, ...b);
+    $('#fridgeView').replaceChildren(
+      h('div', { class: 'cardhead', style: 'margin-bottom:10px' }, h('h3', { style: 'margin:0;font-size:20px;font-weight:800' }, 'Fridge'), h('button', { class: 'btn primary', onclick: () => addStockModal('fridge') }, 'Add to fridge')),
+      h('div', { class: 'card' },
+        h('div', { class: 'cardhead' }, h('h3', {}, 'Mixed, in use'), risky.length ? h('span', { class: 'chip bad' }, risky.length + ' at risk of waste') : h('span', { class: 'chip ok' }, rows.length + ' open')),
+        h('div', { class: 'note' }, 'Soonest use-by first. Best-by and bin-by follow Peptomi’s guides. Red means some will expire before you can use it.'),
+        rows.length ? rows.map(({ r, ub, fin, waste }) => h('div', { class: 'fr' },
+          h('div', {}, h('div', { class: 't' }, r.compound + ' ' + r.vial), h('div', { class: 'small muted' }, r.vial_mg ? fmtMg(r.open_mg) + ' left' : 'Mixed bottle')),
+          h('div', { style: 'text-align:right' }, ub ? h('div', { class: ub <= TODAY ? 'useby-bad' : bestBy(r) <= TODAY ? 'useby-warn' : '', style: 'font-weight:800' }, (bestBy(r) > TODAY ? 'Best by ' + nice(bestBy(r)) : 'Bin by ' + nice(ub))) : h('div', { class: 'small muted' }, 'No mix date')),
+          h('div', { class: 'meta' }, (r.mixed_on ? 'Mixed ' + nice(r.mixed_on) + ' · ' : '') + (ub ? 'bin by ' + nice(ub) + ' · ' : '') + (r.vial_mg ? (fin ? 'runs out about ' + nice(fin) : 'not being used right now') : 'track by hand') + (r.bac ? ' · mixed with ' + r.bac : '')),
+          waste > 0.01 ? h('div', { class: 'risk' + (ub > TODAY ? ' warn' : '') }, ub <= TODAY ? 'Past its use-by. Bin the ' + fmtMg(r.open_mg) + ' left.' : 'About ' + fmtMg(waste) + ' will expire before you use it.') : null,
+          acts(h('button', { class: 'btn sm', onclick: () => stockModal(r) }, 'Edit'), r.sealed > 0 ? h('button', { class: 'btn sm', onclick: () => mixNow(r, true) }, 'Mix a new one') : null))) : h('div', { class: 'empty' }, 'No mixed vials recorded.')),
+      h('div', { class: 'card', style: 'margin-top:14px' },
+        h('div', { class: 'cardhead' }, h('h3', {}, 'Sealed, waiting to be mixed'), h('span', { class: 'chip acc' }, sealedTotal)),
+        h('div', { class: 'note' }, 'Unmixed vials out of the freezer. Peptomi says the fridge is fine for a few days, so mix them or move them back.'),
+        sealedRows.length ? sealedRows.map((r) => {
+          const days = r.fridge_since ? daysBetween(r.fridge_since, TODAY) : null;
+          return h('div', { class: 'fr' },
+            h('div', {}, h('div', { class: 't' }, r.compound + ' ' + r.vial), h('div', { class: 'small muted' }, r.fridge_since ? 'In the fridge since ' + nice(r.fridge_since) : 'In the fridge')),
+            h('div', { class: 'bigcount' }, inFridge(r)),
+            days != null && days >= 3 ? h('div', { class: 'risk warn' }, days + ' days in the fridge. Mix it soon or move it back to the freezer.') : null,
+            acts(h('button', { class: 'btn sm primary', onclick: () => mixNow(r, true) }, 'Mix it now'), h('button', { class: 'btn sm', onclick: () => moveToFreezer(r) }, 'Back to freezer'), parseFloat(r.bac) ? h('button', { class: 'btn sm', onclick: () => mixModal(r) }, 'How to mix') : null));
+        }) : h('div', { class: 'empty' }, 'Nothing sealed in the fridge. Tap “To fridge” on the Freezer list the day before you mix.')));
+  }
+  function renderFreezer() {
+    const rows = st.stock.filter((r) => inFreezer(r) > 0).sort((a, b) => a.compound.localeCompare(b.compound) || (a.vial_mg || 0) - (b.vial_mg || 0));
+    const total = rows.reduce((a, r) => a + inFreezer(r), 0);
+    $('#freezerView').replaceChildren(
+      h('div', { class: 'cardhead', style: 'margin-bottom:10px' }, h('h3', { style: 'margin:0;font-size:20px;font-weight:800' }, 'Freezer'), h('button', { class: 'btn primary', onclick: () => addStockModal('freezer') }, 'Add to freezer')),
+      h('div', { class: 'card' },
+        h('div', { class: 'cardhead' }, h('h3', {}, 'Sealed, unmixed'), h('span', { class: 'chip acc' }, total + ' vial' + (total === 1 ? '' : 's'))),
+        h('div', { class: 'note' }, 'Unmixed powder keeps best in the freezer. Move a vial to the fridge the day before you mix it.'),
+        rows.length ? rows.map((r) => {
+          const daily = dailyUse(r.compound), n = inFreezer(r);
+          return h('div', { class: 'fr' },
+            h('div', {}, h('div', { class: 't' }, r.compound + ' ' + r.vial), h('div', { class: 'small muted' }, r.vial_mg ? fmtMg(r.vial_mg * n) + ' total' + (daily ? ' · about ' + lastsText((r.vial_mg * n) / daily) + ' of use' : ' · not in use') : 'Sealed')),
+            h('div', { class: 'bigcount' }, n),
+            h('div', { style: 'grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:4px' },
+              h('button', { class: 'btn sm primary', onclick: () => moveToFridge(r) }, 'To fridge'),
+              h('button', { class: 'btn sm', onclick: () => mixNow(r, false) }, 'Mix now'),
+              h('button', { class: 'btn sm', onclick: () => stockModal(r) }, 'Edit')));
+        }) : h('div', { class: 'empty' }, 'Nothing in the freezer.')));
+  }
+  // status summary for the scheduled reminders
+  let lastStatus = '';
+  function writeStatus(proj) {
+    try {
+      const orders = Object.entries(proj).filter(([, p]) => p.orderBy).map(([c, p]) => ({ compound: c, vial: (stockFor(c).find((r) => r.vial_mg === p.bigVial) || {}).vial || '', vials: p.vials, orderBy: p.orderBy, runOut: p.runOut }));
+      const fridge = fridgeRows().map((x) => ({ compound: x.r.compound, vial: x.r.vial, useBy: x.ub, runsOut: x.fin, wasteMg: Math.round(x.waste * 10) / 10 }));
+      const events = [];
+      for (const p of st.protocols) {
+        if (p.start && p.start >= TODAY && !p.paused) events.push({ date: p.start, text: 'First ' + p.compound + ' dose for ' + p.person });
+        if (p.end && p.end >= TODAY && !p.paused) events.push({ date: p.end, text: 'Last ' + p.compound + ' dose for ' + p.person });
+        for (const c of p.changes || []) if (c.from >= TODAY) events.push({ date: c.from, text: p.person + '’s ' + p.compound + ' changes to ' + (c.units || fmtMg(c.dose_mg)) });
+        if (restartOf(p) && !restarted(p)) events.push({ date: restartOf(p), text: 'Restart ' + p.compound + ' for ' + p.person });
+      }
+      for (const x of st.holds) if (x.to >= TODAY) events.push({ date: x.from, text: 'Holiday pause until ' + x.to + ' (' + x.who + ')' });
+      const clashes = spacingClashes().map((x) => ({ rule: x.rule.a + ' / ' + x.rule.b, first: x.days[0] }));
+      const obj = { orders, fridge, events: events.sort((a, b) => (a.date < b.date ? -1 : 1)).slice(0, 40), clashes };
+      const json = JSON.stringify(obj);
+      if (json === lastStatus) return;
+      lastStatus = json;
+      clearTimeout(writeStatus.t);
+      writeStatus.t = setTimeout(() => { col('status').doc('current').set({ ...obj, computedOn: TODAY, at: new Date().toISOString() }).catch(() => {}); }, 1500);
+    } catch (e) { console.error(e); }
+  }
+
+  // ---------- wiring ----------
+  $('#tabs').addEventListener('click', (e) => { const b = e.target.closest('button[data-tab]'); if (!b) return; tab = b.dataset.tab; render(); window.scrollTo({ top: 0 }); });
+  $('#dayPrev').addEventListener('click', () => { viewDay = addDays(viewDay, weekMode ? -7 : -1); render(); });
+  $('#dayNext').addEventListener('click', () => { viewDay = addDays(viewDay, weekMode ? 7 : 1); render(); });
+  $('#dayToday').addEventListener('click', () => { viewDay = TODAY; render(); });
+  $('#addProtocol').addEventListener('click', () => protoModal(null));
+  $('#whoSeg').addEventListener('click', (e) => { const b = e.target.closest('button[data-who]'); if (!b) return; whoSel = b.dataset.who; try { localStorage.setItem('pp-who', whoSel); } catch (err) {} render(); });
+  $('#addStock').addEventListener('click', () => stockModal(null));
+  $('#addOrder').addEventListener('click', () => orderModal(null));
+  $('#quickCount').addEventListener('click', () => countModal());
+  $('#checkDelivery').addEventListener('click', () => deliveryModal(null));
+  $('#holidayBtn').addEventListener('click', () => holdModal());
+  $('#viewSeg').addEventListener('click', (e) => { const b = e.target.closest('button[data-v]'); if (!b) return; weekMode = b.dataset.v === 'week'; render(); });
+  $('#stockSeg').addEventListener('click', (e) => { const b = e.target.closest('button[data-s]'); if (!b) return; stockView = b.dataset.s; render(); });
+  $('#setBtn').addEventListener('click', () => themeModal());
+  $('#askBtn').addEventListener('click', () => askModal());
+  const hash = location.hash.slice(1); if (['today', 'protocols', 'stock', 'orders'].includes(hash)) tab = hash;
+
+  (async () => {
+    db = window.claude && window.claude.use ? await window.claude.use('db') : null;
+    if (!db) { $('#boot').textContent = 'Sign in to Claude to see and update the program.'; return; }
+    const sub = (name, q, key) => q.onSnapshot((snap) => { st[key] = snap.docs.map((d) => ({ id: d.id, ...d.data() })); loaded[key] = true; render(); },
+      () => { $('#boot').hidden = false; $('#boot').textContent = 'Couldn’t load the program. Refresh to try again.'; });
+    sub('protocols', db.collection('protocols'), 'protocols');
+    sub('stock', db.collection('stock'), 'stock');
+    sub('orders', db.collection('orders'), 'orders');
+    sub('doses', db.collection('doses').where('day', '>=', addDays(TODAY, -14)), 'doses');
+    sub('holds', db.collection('holds'), 'holds');
+    sub('habits', db.collection('habits').where('day', '>=', addDays(TODAY, -14)), 'habits');
+    db.doc('settings/main').onSnapshot((s) => { if (s.exists) Object.assign(st.settings, s.data()); applyTheme(st.settings.theme); render(); }, () => {});
+    try { sample = await window.claude.use('sample'); } catch (e) { sample = null; }
+    if (sample) $('#askBtn').hidden = false;
+    try { imgCaps = sample ? ((await sample.limits().catch(() => null)) || {}).images || null : null; } catch (e) { imgCaps = null; }
+    $('#checkDelivery').hidden = !imgCaps;
+    try { assets = await window.claude.use('assets'); } catch (e) { assets = null; }
+  })();
+})();
+</script>
+
+
+</body>
+</html>
