@@ -17,7 +17,6 @@ addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&/_b
 <script src="claude-shim.js"></script>
 </head>
 <body>
-
 <title>Annett Family Hub</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -336,6 +335,10 @@ nav.tabs button svg{width:22px;height:22px}
 
 
 
+
+.sky .wx{margin:8px 0 0;font-weight:600;opacity:.92;position:relative;font-size:.95rem}
+.ideas .idea{display:grid;gap:2px;text-align:left;width:100%;padding:10px 18px;border-top:1px solid var(--line)}
+.ideas .idea b{font-weight:700}.ideas .idea small{color:var(--muted)}
 /* ---------- tasks ---------- */
 .tcount{position:relative;color:var(--muted)}
 .tcount b{position:absolute;top:6px;right:4px;min-width:16px;height:16px;border-radius:8px;background:var(--accent);color:var(--accent-ink);font-size:.65rem;display:grid;place-items:center;padding:0 4px}
@@ -507,7 +510,7 @@ function pick(sel,attr,fn){document.querySelectorAll(sel).forEach(b=>b.onclick=(
 
 /* ---------- state ---------- */
 const S={me:store.get('fh-me')||'',tab:store.get('fh-tab2')||'home',aisle:store.get('fh-aisle')||'Other',list:store.get('fh-list')||'super',calWho:'',editUsuals:false,
-  events:{},shop:{},meals:{},chores:{},log:{},regulars:{},dinnerin:{},notes:{},school:{},birthdays:{},gifts:{},homejobs:{},settings:{},recipes:{},pantry:{},lunches:{},tasks:{},tcomments:{},
+  events:{},shop:{},meals:{},chores:{},log:{},regulars:{},dinnerin:{},notes:{},school:{},birthdays:{},gifts:{},homejobs:{},settings:{},recipes:{},pantry:{},lunches:{},tasks:{},tcomments:{},weather:{},mealideas:{},
   week:monday(new Date()),calWeek:monday(new Date()),ready:false,db:null};
 const PAGES=[['home','Today','home'],['cal','Calendar','cal'],['shop','Shopping','shop'],['meals','Dinners','meal'],['chores','Chores','chore']];
 const EXTRA=[['tasks','Tasks','tick'],['notice','Noticeboard','note'],['school','School','school'],['recipes','Recipes','book'],['pantry','Pantry & freezer','box'],['lunch','Lunches','lunch'],['bdays','Birthdays & gifts','gift'],['hjobs','Home jobs','tool'],['colours','Colours','palette']];
@@ -565,7 +568,7 @@ async function write(fn){if(!S.db){toast('Not connected yet. Try again in a mome
   const sub=(name,key)=>db.collection(name).onSnapshot(s=>{const o={};s.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});
     const j=JSON.stringify(o);const first=!(key in seen);if(!first&&seen[key]===j)return;seen[key]=j;S[key]=o;S.ready=true;soon()},()=>{});
   sub('events','events');sub('shopping','shop');sub('meals','meals');sub('chores','chores');sub('chorelog','log');
-  sub('regulars','regulars');sub('dinnerin','dinnerin');sub('notes','notes');sub('school','school');sub('birthdays','birthdays');sub('gifts','gifts');sub('homejobs','homejobs');sub('settings','settings');sub('recipes','recipes');sub('pantry','pantry');sub('lunches','lunches');sub('tasks','tasks');sub('tcomments','tcomments');
+  sub('regulars','regulars');sub('dinnerin','dinnerin');sub('notes','notes');sub('school','school');sub('birthdays','birthdays');sub('gifts','gifts');sub('homejobs','homejobs');sub('settings','settings');sub('recipes','recipes');sub('pantry','pantry');sub('lunches','lunches');sub('tasks','tasks');sub('weather','weather');sub('mealideas','mealideas');sub('tcomments','tcomments');
 })();
 
 /* ---------- render ---------- */
@@ -668,6 +671,21 @@ const jobWho=j=>Array.isArray(j.who)?j.who:(j.who?[j.who]:[]);
 function jobsDue(){const t=today();return listOf(S.homejobs).map(j=>Object.assign({due:jobDue(j)},j)).filter(j=>!(j.once&&j.done)&&j.due&&daysBetween(t,j.due)<=7).sort((a,b)=>a.due.localeCompare(b.due))}
 const liveNotes=()=>{const t=today();return listOf(S.notes).filter(n=>n.pinned||!n.until||n.until>=t).sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0)||(b.at||'').localeCompare(a.at||''))};
 
+/* ===== Weather (Bendigo): live from Open-Meteo in the app, or the copy Claude's briefs save to weather/latest ===== */
+const WXCODE=c=>c===0?'Clear':c<=1?'Mostly clear':c===2?'Partly cloudy':c===3?'Cloudy':c<=48?'Fog':c<=57?'Drizzle':c<=67?'Rain':c<=77?'Snow':c<=82?'Showers':'Storms';
+let WX=null;try{WX=JSON.parse(store.get('fh-wx')||'null')}catch(e){}
+async function loadWeather(){
+  if(WX&&Date.now()-WX.at<30*60e3)return;
+  try{const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=-36.76&longitude=144.28&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&timezone=Australia%2FMelbourne&forecast_days=2');
+    if(!r.ok)return;const j=await r.json();
+    WX={at:Date.now(),now:Math.round(j.current.temperature_2m),days:j.daily.time.map((t,i)=>({date:t,max:Math.round(j.daily.temperature_2m_max[i]),min:Math.round(j.daily.temperature_2m_min[i]),rain:j.daily.precipitation_probability_max[i],desc:WXCODE(j.daily.weather_code[i])}))};
+    store.set('fh-wx',JSON.stringify(WX));if(S.tab==='home')render()}catch(e){}
+}
+function wxDay(k){const live=WX&&WX.days.find(d=>d.date===k);if(live)return Object.assign({now:k===today()&&Date.now()-WX.at<3*3600e3?WX.now:null},live);
+  const doc=(S.weather.latest||{});const d=(doc.days||[]).find(x=>x.date===k);return d?Object.assign({now:null},d):null}
+const wxText=w=>w?`${w.now!=null?w.now+'° now. ':''}${w.desc}, ${w.max}° / ${w.min}°${w.rain!=null?', '+w.rain+'% chance of rain':''}`:'';
+setTimeout(loadWeather,500);setInterval(loadWeather,30*60e3);
+
 /* ===== Today (landing): sky that follows the time of day, then the family's day on one timeline ===== */
 function skyFor(h){
   if(h>=21||h<5)return{k:'night',bg:'linear-gradient(180deg,#0e0c30 0%,#24215a 60%,#3b2f7a 100%)',orb:'moon'};
@@ -705,12 +723,12 @@ VIEWS.home=function(v){
     ...jobsDue().map(j=>({k:j.due,t:esc(j.title),s:daysBetween(k,j.due)<0?'Overdue':'Due '+inDays(daysBetween(k,j.due)),ic:'tool',go:'hjobs'}))].sort((a,b)=>a.k.localeCompare(b.k));
   const notes=liveNotes().slice(0,3);
   v.innerHTML=`<section class="sky sky-${sky.k}" style="background:${sky.bg}"><span class="orb ${sky.orb}"></span>${sky.k==='night'?'<span class="stars"></span>':''}
-      <p class="sd">${DOWL[d.getDay()]} ${d.getDate()} ${MONL[d.getMonth()]}${HOLIDAYS[k]?', '+esc(HOLIDAYS[k]):''}</p><h1>${part}${p.id?', '+esc(p.name):''}.</h1>
+      <p class="sd">${DOWL[d.getDay()]} ${d.getDate()} ${MONL[d.getMonth()]}${HOLIDAYS[k]?', '+esc(HOLIDAYS[k]):''}</p><h1>${part}${p.id?', '+esc(p.name):''}.</h1>${wxDay(k)?`<p class="wx">${esc(wxText(wxDay(k)))}</p>`:''}
       <div class="faces">${USERS.map(f=>`<span class="av${f.id===S.me?' me':''}" style="background:${colour(f.id)}" title="${f.name}">${f.name[0]}</span>`).join('')}</div></section>
   <div class="homegrid">
     <div class="side">
       <button class="pin" id="toShop"><span class="pc">${open.length}</span><span class="pt"><b>Shopping</b><span>${open.length?esc(open.slice(0,3).map(i=>i.text).join(', '))+(open.length>3?' and '+(open.length-3)+' more':''):'Nothing to buy right now'}</span></span></button>
-      <button class="pin tmw" id="toCal"><span class="pt"><b>Tomorrow</b><span>${tomorrow.length?tomorrow.join('<br>')+(tev.length>3?'<br>and '+(tev.length-3)+' more':''):'Nothing on yet'}${tm.dinner?`<br>Dinner: ${esc(tm.dinner)}`:''}${LUNCH_PEOPLE.map(p=>{const l=lunchOf(p,tk);return l&&l.main?`<br>${p===S.me?'Your':esc(person(p).name)+"'s"} lunch: ${esc(l.main)}`:''}).join('')}</span></span></button>
+      <button class="pin tmw" id="toCal"><span class="pt"><b>Tomorrow</b><span>${wxDay(tk)?esc(wxDay(tk).desc+', '+wxDay(tk).max+'° / '+wxDay(tk).min+'°'+(wxDay(tk).rain!=null?', '+wxDay(tk).rain+'% rain':''))+'<br>':''}${tomorrow.length?tomorrow.join('<br>')+(tev.length>3?'<br>and '+(tev.length-3)+' more':''):'Nothing on yet'}${tm.dinner?`<br>Dinner: ${esc(tm.dinner)}`:''}${LUNCH_PEOPLE.map(p=>{const l=lunchOf(p,tk);return l&&l.main?`<br>${p===S.me?'Your':esc(person(p).name)+"'s"} lunch: ${esc(l.main)}`:''}).join('')}</span></span></button>
       <section class="card mini-card"><div class="mh"><b>Home for dinner tonight</b><span>${homeN} of ${USERS.length}</span></div>
         <div class="dinin">${USERS.map(u=>{const out=din[u.id]==='out';return `<button class="dpill${out?' out':''}" data-din="${u.id}" aria-pressed="${!out}"><span class="av" style="background:${colour(u.id)}">${u.name[0]}</span>${esc(u.name)}<small>${out?'Out':'Home'}</small></button>`}).join('')}</div></section>
       ${S.me?(()=>{const mt=myOpenTasks();return `<section class="card mini-card"><div class="mh"><b>Your tasks</b><button class="more" id="toTasks">${mt.length?mt.length+' open':'All tasks'}</button></div>${mt.length?mt.slice(0,5).map(taskRow).join(''):'<p class="hint" style="padding:0 16px 8px">Nothing for you right now.</p>'}</section>`})():''}
@@ -1151,6 +1169,8 @@ VIEWS.meals=function(v){
   const planned=days.filter(d=>(S.meals[ymd(d)]||{}).dinner).length;
   v.innerHTML=`<div class="ph"><div><h1>Dinners</h1><p>${nice(days[0])} to ${nice(days[6])}. ${planned} of 7 nights planned</p></div>
     <div class="wk"><button class="btn ghost" id="toRec">${svg('book')}Recipes</button><button class="round" id="wkPrev" aria-label="Previous week">${svg('left')}</button><button class="btn ghost" id="wkNow">This week</button><button class="round" id="wkNext" aria-label="Next week">${svg('right')}</button></div></div>
+  ${(()=>{const mi=S.mealideas[ymd(S.week)]||(ymd(S.week)===ymd(monday(new Date()))?null:null);if(!mi||!(mi.ideas||[]).length)return '';
+    return `<section class="card ideas"><div class="mh"><b>Claude's ideas for this week</b><span>Tap one to put it on a night</span></div>${mi.ideas.map((x,i)=>`<button class="idea" data-idea="${i}"><b>${esc(x.title)}</b>${x.why?`<small>${esc(x.why)}</small>`:''}</button>`).join('')}</section>`})()}
   <section class="card">${days.map(d=>{const k=ymd(d),m=S.meals[k]||{};const ing=(m.ingredients||[]).filter(Boolean);
     return `<button class="night${k===t?' tonight':''}" data-day="${k}"><span class="dn"><b>${DOW[d.getDay()]}</b><small>${nice(d)}</small></span>
       <span><span class="dish${m.dinner?'':' none'}">${m.dinner?esc(m.dinner):'Nothing planned'}</span>
@@ -1158,6 +1178,14 @@ VIEWS.meals=function(v){
       ${k===t?'<span class="tag">Tonight</span>':`<span style="color:var(--faint)">${svg('right','  width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"')}</span>`}</button>`}).join('')}</section>`;
   $('#toRec').onclick=()=>setTab('recipes');$('#wkPrev').onclick=()=>{S.week=addDays(S.week,-7);render()};$('#wkNext').onclick=()=>{S.week=addDays(S.week,7);render()};$('#wkNow').onclick=()=>{S.week=monday(new Date());render()};
   v.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>editMeal(b.dataset.day));
+  v.querySelectorAll('[data-idea]').forEach(b=>b.onclick=()=>useIdea((S.mealideas[ymd(S.week)].ideas||[])[+b.dataset.idea],days));
+}
+function useIdea(x,days){
+  if(!x||needMe())return;const r=x.recipe&&S.recipes[x.recipe];
+  openSheet(`<h2>${esc(x.title)}</h2>${x.why?`<p class="sub">${esc(x.why)}</p>`:''}<div class="field"><span>Put it on</span><div class="chips wrap">${days.map(d=>{const k=ymd(d),m=S.meals[k];return `<button type="button" class="chip" data-on="${k}">${DOW[d.getDay()]} ${d.getDate()}${m&&m.dinner?' <small>(has '+esc(m.dinner)+')</small>':''}</button>`}).join('')}</div></div>`);
+  document.querySelectorAll('[data-on]').forEach(b=>b.onclick=async()=>{const k=b.dataset.on,m=S.meals[k]||{};
+    const rr={dinner:x.title,recipe:r?x.recipe:'',time:m.time||'18:30',notes:m.notes||'',cook:m.cook||'',ingredients:r?(r.ingredients||[]):(x.ingredients||[]),updatedBy:S.me,updatedAt:nowIso()};
+    if(await write(db=>db.doc('meals/'+k).set(rr))){closeSheet();toast(x.title+' is on for '+niceK(k))}});
 }
 function editMeal(k){
   if(needMe())return;const m=S.meals[k]||{};const d=fromYmd(k);let cook=m.cook||'',recipe=m.recipe||'';const recs=listOf(S.recipes).sort((a,b)=>a.title.localeCompare(b.title));
@@ -1225,7 +1253,6 @@ function editChore(id){
 render();
 if(!S.me)setTimeout(pickMe,400);
 </script>
-
 
 </body>
 </html>
