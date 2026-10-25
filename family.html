@@ -17,7 +17,6 @@ addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&/_b
 <script src="claude-shim.js"></script>
 </head>
 <body>
-
 <title>Annett Family Hub</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -335,6 +334,19 @@ nav.tabs button{font-size:.66rem}
 nav.tabs button svg{width:22px;height:22px}
 
 
+
+/* ---------- tasks ---------- */
+.tcount{position:relative;color:var(--muted)}
+.tcount b{position:absolute;top:6px;right:4px;min-width:16px;height:16px;border-radius:8px;background:var(--accent);color:var(--accent-ink);font-size:.65rem;display:grid;place-items:center;padding:0 4px}
+.mini-card .row{padding-left:16px;min-height:56px}
+.tnotes{margin:0;white-space:pre-wrap;background:var(--sunk);border-radius:12px;padding:12px 14px}
+.comments{display:grid;gap:10px;max-height:40vh;overflow:auto}
+.cm{display:flex;gap:10px;align-items:flex-start}
+.cm>div{flex:1;min-width:0;background:var(--sunk);border-radius:12px;padding:8px 12px}
+.cm small{color:var(--faint)}
+.cm p{margin:2px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.av.sm2{width:28px;height:28px;font-size:.75rem;margin-top:4px}
+
 /* ---------- round 2 ---------- */
 .recgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
 .reccard{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:16px;padding:16px;text-align:left;display:grid;gap:6px}
@@ -453,6 +465,8 @@ const I={
  book:'<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>',
  box:'<path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/>',
  lunch:'<rect x="3.5" y="8" width="17" height="11" rx="3"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+ chat:'<path d="M4 5h16v11H9l-5 4z"/>',
+ tick:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7H4V5h11"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
  x:'<path d="M7 7l10 10M17 7L7 17"/>',
  pen:'<path d="M5 19l1-4L16 5l3 3L9 18z"/>',
@@ -492,14 +506,14 @@ function pick(sel,attr,fn){document.querySelectorAll(sel).forEach(b=>b.onclick=(
 
 /* ---------- state ---------- */
 const S={me:store.get('fh-me')||'',tab:store.get('fh-tab2')||'home',aisle:store.get('fh-aisle')||'Other',list:store.get('fh-list')||'super',calWho:'',editUsuals:false,
-  events:{},shop:{},meals:{},chores:{},log:{},regulars:{},dinnerin:{},notes:{},school:{},birthdays:{},gifts:{},homejobs:{},settings:{},recipes:{},pantry:{},lunches:{},
+  events:{},shop:{},meals:{},chores:{},log:{},regulars:{},dinnerin:{},notes:{},school:{},birthdays:{},gifts:{},homejobs:{},settings:{},recipes:{},pantry:{},lunches:{},tasks:{},tcomments:{},
   week:monday(new Date()),calWeek:monday(new Date()),ready:false,db:null};
 const PAGES=[['home','Today','home'],['cal','Calendar','cal'],['shop','Shopping','shop'],['meals','Dinners','meal'],['chores','Chores','chore']];
-const EXTRA=[['notice','Noticeboard','note'],['school','School','school'],['recipes','Recipes','book'],['pantry','Pantry & freezer','box'],['lunch',"Archer's lunches",'lunch'],['bdays','Birthdays & gifts','gift'],['hjobs','Home jobs','tool'],['colours','Colours','palette']];
+const EXTRA=[['tasks','Tasks','tick'],['notice','Noticeboard','note'],['school','School','school'],['recipes','Recipes','book'],['pantry','Pantry & freezer','box'],['lunch',"Archer's lunches",'lunch'],['bdays','Birthdays & gifts','gift'],['hjobs','Home jobs','tool'],['colours','Colours','palette']];
 const PHONE=[...PAGES,['more','More','more']];
 function paintNav(){
   const open=Object.values(S.shop).filter(i=>!i.done).length;
-  const cnt=k=>k==='shop'&&open?open:k==='school'?schoolDue().length:k==='hjobs'?jobsDue().length:0;
+  const cnt=k=>k==='tasks'?myOpenTasks().length:k==='shop'&&open?open:k==='school'?schoolDue().length:k==='hjobs'?jobsDue().length:0;
   const b=(k,n,ic,cls)=>{const c=cnt(k);return `<button data-tab="${k}" aria-current="${S.tab===k||(k==='more'&&EXTRA.some(x=>x[0]===S.tab))}">${svg(ic)}${cls?`<span>${n}</span>`:n}${c?(cls?`<span class="badge">${c}</span>`:`<span class="count">${c}</span>`):''}</button>`};
   $('#sideNav').innerHTML=PAGES.map(p=>b(...p)).join('')+'<div class="side-h">Family</div>'+EXTRA.map(p=>b(...p)).join('');
   $('#tabs').innerHTML=PHONE.map(p=>b(...p,1)).join('');
@@ -511,7 +525,7 @@ function setTab(t){S.tab=t;store.set('fh-tab2',t);render();scrollTo(0,0)}
 function paintColours(){const c=S.settings.colours||{},r=document.documentElement.style;for(const p of FAMILY){if(c[p.id]&&/^#[0-9a-f]{6}$/i.test(c[p.id]))r.setProperty('--'+p.id,c[p.id]);else r.removeProperty('--'+p.id)}}
 
 /* ---------- quick add ---------- */
-const ADDS=[['appt','Appointment','cal','For anyone in the family'],['shop','Shopping','shop','Add to a list'],['dinner','Dinner','meal','Plan a night'],['note','Note','note','Pin to the noticeboard'],['chore','Chore','chore','A job for the kids']];
+const ADDS=[['appt','Appointment','cal','For anyone in the family'],['shop','Shopping','shop','Add to a list'],['dinner','Dinner','meal','Plan a night'],['task','Task','tick','Give someone a job'],['note','Note','note','Pin to the noticeboard'],['chore','Chore','chore','A job for the kids']];
 function adds(){return ADDS.filter(a=>a[0]!=='chore'||isParent())}
 function paintTop(){
   const d=new Date();$('#topWhen').textContent=DOWL[d.getDay()]+' '+d.getDate()+' '+MONL[d.getMonth()];
@@ -522,7 +536,7 @@ function paintTop(){
 }
 $('#qaPhone').onclick=()=>{openSheet(`<h2>Add</h2><div class="addmenu">${adds().map(a=>`<button data-add="${a[0]}"><span class="ico">${svg(a[2])}</span>${a[1]}<small>${a[3]}</small></button>`).join('')}</div>`);
   document.querySelectorAll('#panel [data-add]').forEach(b=>b.onclick=()=>doAdd(b.dataset.add))};
-function doAdd(k){if(needMe())return;if(k==='appt')editEvent(null);else if(k==='dinner')editMeal(nextFreeNight());else if(k==='chore')editChore(null);else if(k==='note')editNote(null);else addShopSheet()}
+function doAdd(k){if(needMe())return;if(k==='appt')editEvent(null);else if(k==='dinner')editMeal(nextFreeNight());else if(k==='chore')editChore(null);else if(k==='note')editNote(null);else if(k==='task')editTask(null);else addShopSheet()}
 function nextFreeNight(){for(let i=0;i<14;i++){const k=ymd(addDays(new Date(),i));if(!(S.meals[k]||{}).dinner)return k}return today()}
 
 /* ---------- who's using this device ---------- */
@@ -550,7 +564,7 @@ async function write(fn){if(!S.db){toast('Not connected yet. Try again in a mome
   const sub=(name,key)=>db.collection(name).onSnapshot(s=>{const o={};s.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});
     const j=JSON.stringify(o);const first=!(key in seen);if(!first&&seen[key]===j)return;seen[key]=j;S[key]=o;S.ready=true;soon()},()=>{});
   sub('events','events');sub('shopping','shop');sub('meals','meals');sub('chores','chores');sub('chorelog','log');
-  sub('regulars','regulars');sub('dinnerin','dinnerin');sub('notes','notes');sub('school','school');sub('birthdays','birthdays');sub('gifts','gifts');sub('homejobs','homejobs');sub('settings','settings');sub('recipes','recipes');sub('pantry','pantry');sub('lunches','lunches');
+  sub('regulars','regulars');sub('dinnerin','dinnerin');sub('notes','notes');sub('school','school');sub('birthdays','birthdays');sub('gifts','gifts');sub('homejobs','homejobs');sub('settings','settings');sub('recipes','recipes');sub('pantry','pantry');sub('lunches','lunches');sub('tasks','tasks');sub('tcomments','tcomments');
 })();
 
 /* ---------- render ---------- */
@@ -698,6 +712,7 @@ VIEWS.home=function(v){
       <button class="pin tmw" id="toCal"><span class="pt"><b>Tomorrow</b><span>${tomorrow.length?tomorrow.join('<br>')+(tev.length>3?'<br>and '+(tev.length-3)+' more':''):'Nothing on yet'}${tm.dinner?`<br>Dinner: ${esc(tm.dinner)}`:''}${S.lunches[tk]&&S.lunches[tk].main?`<br>Archer's lunch: ${esc(S.lunches[tk].main)}`:''}</span></span></button>
       <section class="card mini-card"><div class="mh"><b>Home for dinner tonight</b><span>${homeN} of ${USERS.length}</span></div>
         <div class="dinin">${USERS.map(u=>{const out=din[u.id]==='out';return `<button class="dpill${out?' out':''}" data-din="${u.id}" aria-pressed="${!out}"><span class="av" style="background:${colour(u.id)}">${u.name[0]}</span>${esc(u.name)}<small>${out?'Out':'Home'}</small></button>`}).join('')}</div></section>
+      ${S.me?(()=>{const mt=myOpenTasks();return `<section class="card mini-card"><div class="mh"><b>Your tasks</b><button class="more" id="toTasks">${mt.length?mt.length+' open':'All tasks'}</button></div>${mt.length?mt.slice(0,5).map(taskRow).join(''):'<p class="hint" style="padding:0 16px 8px">Nothing for you right now.</p>'}</section>`})():''}
       ${notes.length?`<section class="card mini-card"><div class="mh"><b>Noticeboard</b><button class="more" id="toNotes">All notes</button></div>${notes.map(n=>`<button class="noteline" data-note="${esc(n.id)}"><span class="pip" style="background:${colour(n.by)}"></span><span>${esc(n.text)}<small>${esc(person(n.by).name)}</small></span></button>`).join('')}</section>`:''}
       ${up.length?`<section class="card mini-card"><div class="mh"><b>Coming up</b></div>${up.slice(0,6).map(u=>`<button class="upline" data-go="${u.go}"><span class="ui">${svg(u.ic)}</span><span><b>${u.t}</b><small>${u.s}</small></span></button>`).join('')}</section>`:''}
     </div>
@@ -713,6 +728,7 @@ VIEWS.home=function(v){
   $('#homeAddEv').onclick=()=>editEvent(null,k);
   const pt=$('#planTonight');if(pt)pt.onclick=()=>editMeal(k);
   const td=$('#tlDinner');if(td)td.onclick=()=>editMeal(k);
+  const tt=$('#toTasks');if(tt)tt.onclick=()=>setTab('tasks');bindTasks(v);
   const tn=$('#toNotes');if(tn)tn.onclick=()=>setTab('notice');
   v.querySelectorAll('[data-note]').forEach(b=>b.onclick=()=>editNote(b.dataset.note));
   v.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>setTab(b.dataset.go));
@@ -811,9 +827,67 @@ function editItem(id){
 
 /* ===== More (phone) ===== */
 VIEWS.more=function(v){
-  v.innerHTML=`<div class="ph"><div><h1>More</h1></div></div><div class="moregrid">${EXTRA.map(([k,n,ic])=>{const c=k==='school'?schoolDue().length:k==='hjobs'?jobsDue().length:k==='notice'?liveNotes().length:0;return `<button class="moretile" data-to="${k}"><span class="ico">${svg(ic)}</span><b>${n}</b>${c?`<span class="mc">${c}</span>`:''}</button>`}).join('')}</div>`;
+  v.innerHTML=`<div class="ph"><div><h1>More</h1></div></div><div class="moregrid">${EXTRA.map(([k,n,ic])=>{const c=k==='tasks'?myOpenTasks().length:k==='school'?schoolDue().length:k==='hjobs'?jobsDue().length:k==='notice'?liveNotes().length:0;return `<button class="moretile" data-to="${k}"><span class="ico">${svg(ic)}</span><b>${n}</b>${c?`<span class="mc">${c}</span>`:''}</button>`}).join('')}</div>`;
   v.querySelectorAll('[data-to]').forEach(b=>b.onclick=()=>setTab(b.dataset.to));
 };
+
+
+/* ===== Tasks: give a job or reminder to one or more people, with a comment thread on each ===== */
+const taskWho=t=>Array.isArray(t.who)?t.who:(t.who?[t.who]:[]);
+const myOpenTasks=()=>listOf(S.tasks).filter(t=>!t.done&&taskWho(t).includes(S.me)).sort(taskSort);
+function taskSort(a,b){return (a.due||'9999').localeCompare(b.due||'9999')||(a.at||'').localeCompare(b.at||'')}
+const commentsFor=id=>listOf(S.tcomments).filter(c=>c.task===id).sort((a,b)=>(a.at||'').localeCompare(b.at||''));
+const whenText=iso=>{if(!iso)return'';const d=new Date(iso),k=ymd(d),t=today();const hm=t12(pad(d.getHours())+':'+pad(d.getMinutes()));return (k===t?'Today':k===ymd(addDays(new Date(),-1))?'Yesterday':niceK(k))+' '+hm};
+function taskRow(t){
+  const n=t.due?daysBetween(today(),t.due):null,cc=commentsFor(t.id).length,w=taskWho(t);
+  return `<div class="row${t.done?' done':''}" data-task="${esc(t.id)}" role="button" tabindex="0" aria-pressed="${!!t.done}"><span class="check">${svg('check')}</span>
+   <span class="txt"><b>${esc(t.title)}</b><small>${w.map(x=>`<span class="pip" style="background:${colour(x)}"></span>${esc(person(x).name)}`).join(' ')}${t.by&&!(w.length===1&&w[0]===t.by)?`, from ${esc(person(t.by).name)}`:''}${t.due?`, <span class="${!t.done&&n<0?'late':!t.done&&n<=1?'soon':''}">${!t.done&&n<0?'overdue':'due '+inDays(n)}</span>`:''}${t.done&&t.doneBy?`, done by ${esc(person(t.doneBy).name)}`:''}</small></span>
+   <button class="icon tcount" data-topen="${esc(t.id)}" aria-label="Open ${esc(t.title)}">${svg('chat')}${cc?`<b>${cc}</b>`:''}</button></div>`;
+}
+function bindTasks(scope){
+  tapRows('[data-task]',function(e){if(e.target.closest('.icon'))return;if(needMe())return;const id=this.dataset.task,t=S.tasks[id];
+    write(db=>db.doc('tasks/'+id).set(Object.assign({},t,t.done?{done:false,doneBy:'',doneAt:''}:{done:true,doneBy:S.me,doneAt:nowIso()})))});
+  (scope||document).querySelectorAll('[data-topen]').forEach(b=>b.onclick=()=>showTask(b.dataset.topen));
+}
+VIEWS.tasks=function(v){
+  const f=S.taskWho||(S.me||'all');
+  const all=listOf(S.tasks).filter(t=>f==='all'||taskWho(t).includes(f)||(f==='from'&&t.by===S.me));
+  const open=all.filter(t=>!t.done).sort(taskSort),done=all.filter(t=>t.done).sort((a,b)=>(b.doneAt||'').localeCompare(a.doneAt||'')).slice(0,20);
+  v.innerHTML=`<div class="ph"><div><h1>Tasks</h1><p>Give someone a job or a reminder, like "call the plumber about the hot water". Tap the speech bubble to add comments.</p></div><button class="btn" id="newTask">${svg('plus')}New task</button></div>
+  <div class="chips" role="group" aria-label="Show">${S.me?`<button class="chip" data-tw="${S.me}" aria-pressed="${f===S.me}">Mine</button><button class="chip" data-tw="from" aria-pressed="${f==='from'}">I gave out</button>`:''}<button class="chip" data-tw="all" aria-pressed="${f==='all'}">Everyone</button>${USERS.filter(u=>u.id!==S.me).map(u=>`<button class="chip" data-tw="${u.id}" aria-pressed="${f===u.id}"><span class="pip" style="background:${colour(u.id)}"></span>${u.name}</button>`).join('')}</div>
+  <section class="card">${open.length?open.map(taskRow).join(''):`<div style="padding:18px"><div class="empty"><b>Nothing to do</b>${f===S.me?'No open tasks for you.':'No open tasks here.'}</div></div>`}</section>
+  ${done.length?`<section class="card"><div class="glabel">Done<span>${done.length}</span></div>${done.map(taskRow).join('')}</section>`:''}`;
+  $('#newTask').onclick=()=>editTask(null);
+  v.querySelectorAll('[data-tw]').forEach(b=>b.onclick=()=>{S.taskWho=b.dataset.tw;render()});
+  bindTasks(v);
+};
+function showTask(id){
+  const t=S.tasks[id];if(!t)return;const w=taskWho(t),cs=commentsFor(id);
+  openSheet(`<h2>${esc(t.title)}</h2><p class="sub">For ${esc(andJoin(w.map(x=>person(x).name))||'anyone')}${t.by?', from '+esc(person(t.by).name):''}${t.due?', due '+esc(niceK(t.due)):''}${t.done?'. Done'+(t.doneBy?' by '+esc(person(t.doneBy).name):''):''}</p>
+   ${t.notes?`<p class="tnotes">${esc(t.notes)}</p>`:''}
+   <div class="field"><span>Comments</span><div class="comments" id="tcList">${cs.length?cs.map(c=>`<div class="cm"><span class="av sm2" style="background:${colour(c.by)}">${esc(person(c.by).name[0]||'?')}</span><div><b>${esc(person(c.by).name)}</b> <small>${esc(whenText(c.at))}</small><p>${esc(c.text)}</p></div>${c.by===S.me?`<button class="icon" data-cdel="${esc(c.id)}" aria-label="Delete comment">${svg('x')}</button>`:''}</div>`).join(''):'<p class="hint">No comments yet.</p>'}</div></div>
+   <form class="inline" id="tcF"><input id="tcT" placeholder="Add a comment, e.g. Left a message, calling back Tuesday" autocomplete="off" aria-label="Comment"><button class="btn">Post</button></form>
+   <div class="actions"><button type="button" class="btn ghost" id="tDone">${t.done?'Mark not done':'Mark done'}</button><span class="grow"></span><button type="button" class="link" id="tEdit">Edit</button></div>`);
+  $('#tcF').onsubmit=async e=>{e.preventDefault();if(needMe())return;const x=$('#tcT').value.trim();if(!x)return;
+    if(await write(db=>db.collection('tcomments').doc(rid()).set({task:id,text:x.slice(0,500),by:S.me,at:nowIso()}))){$('#tcT').value='';setTimeout(()=>{if(!$('#sheet').hidden)showTask(id)},150)}};
+  document.querySelectorAll('[data-cdel]').forEach(b=>b.onclick=async()=>{if(await write(db=>db.doc('tcomments/'+b.dataset.cdel).delete()))setTimeout(()=>showTask(id),150)});
+  $('#tDone').onclick=async()=>{if(needMe())return;if(await write(db=>db.doc('tasks/'+id).set(Object.assign({},t,t.done?{done:false,doneBy:'',doneAt:''}:{done:true,doneBy:S.me,doneAt:nowIso()}))))closeSheet()};
+  $('#tEdit').onclick=()=>editTask(id);
+}
+function editTask(id){
+  if(needMe())return;const t=id?S.tasks[id]:{title:'',notes:'',who:[],due:''};const who=new Set(taskWho(t));
+  openSheet(`<h2>${id?'Edit task':'New task'}</h2><form class="form" id="tkF">
+   <label class="field"><span>What needs doing</span><input id="tkT" value="${esc(t.title)}" placeholder="e.g. Call Jenny about the hockey fees" autocomplete="off" required></label>
+   <div class="field"><span>Who's doing it</span><div class="chips wrap">${USERS.map(u=>`<button type="button" class="chip" data-tkw="${u.id}" aria-pressed="${who.has(u.id)}"><span class="pip" style="background:${colour(u.id)}"></span>${u.id===S.me?'Me':u.name}</button>`).join('')}</div></div>
+   <label class="field"><span>Due (optional)</span><input type="date" id="tkD" value="${esc(t.due||'')}"></label>
+   <label class="field"><span>Details (optional)</span><textarea id="tkN" placeholder="Phone number, what to ask, anything that helps">${esc(t.notes||'')}</textarea></label>
+   <div class="actions">${id?'<button type="button" class="link danger" id="tkX">Delete</button>':''}<span class="grow"></span><button class="btn">Save</button></div></form>`);
+  document.querySelectorAll('[data-tkw]').forEach(b=>b.onclick=()=>{const w=b.dataset.tkw;who.has(w)?who.delete(w):who.add(w);b.setAttribute('aria-pressed',who.has(w))});
+  $('#tkF').onsubmit=async e=>{e.preventDefault();const x=$('#tkT').value.trim();if(!x)return;if(!who.size){toast('Pick who is doing it');return}
+    const r=Object.assign({},t,{title:x.slice(0,140),who:[...who],due:$('#tkD').value,notes:$('#tkN').value.trim().slice(0,1000),by:t.by||S.me,at:t.at||nowIso(),updatedBy:S.me,updatedAt:nowIso()});if(!id){r.done=false}
+    const nid=id||rid();if(await write(db=>db.doc('tasks/'+nid).set(r))){closeSheet();toast(id?'Saved':'Task added for '+andJoin([...who].map(w=>w===S.me?'you':person(w).name)))}};
+  const x=$('#tkX');if(x)x.onclick=async()=>{const cs=commentsFor(id);if(await write(async db=>{await db.doc('tasks/'+id).delete();for(const c of cs)await db.doc('tcomments/'+c.id).delete()}))closeSheet()};
+}
 
 /* ===== Noticeboard ===== */
 VIEWS.notice=function(v){
@@ -1135,7 +1209,6 @@ function editChore(id){
 render();
 if(!S.me)setTimeout(pickMe,400);
 </script>
-
 
 </body>
 </html>
