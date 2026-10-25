@@ -397,16 +397,20 @@ document.querySelectorAll('[data-col]').forEach(b=>b.onclick=()=>{col=b.dataset.
 document.getElementById('setup').onchange=e=>{if(!e.target.value)return;push();applySetup(e.target.value);e.target.value='';render()};
 document.getElementById('b-cone').onclick=()=>{push();const n=S.cones.length;S.cones.push({x:400+(n%6)*22,y:30+Math.floor(n/6)*30});render()};
 const oppB=document.getElementById('b-opp');
+var VSTATE={};
 function setView(v){VIEW=v;[benchR,bt].forEach(e=>e.setAttribute('visibility',v==='blank'?'hidden':'visible'));['setup','b-addopp','b-opp'].forEach(id=>document.getElementById(id).hidden=v==='blank');document.querySelectorAll('[data-view]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.view===v));layout()}
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{
-  if(VIEW===b.dataset.view)return;push();setView(b.dataset.view);S.lines=[];
+  if(VIEW===b.dataset.view)return;push();
+  VSTATE[VIEW]=snap();setView(b.dataset.view); // each view keeps its own lineup, lines and cones
+  if(VSTATE[VIEW]){restore(VSTATE[VIEW]);render();return}
+  S.lines=[];
   if(VIEW==='blank'){S.cones=[];render();return}
   applySetup(VIEW==='corner'?'pcA':'433');
   if(VIEW==='corner')S.lines=[{type:'pass',col:'#f4f7fb',pts:[[900,398],[752,275]]},{type:'pass',col:'#ffd23f',pts:[[752,275],[888,262]]}];
   render()});
 oppB.onclick=()=>{S.opp=!S.opp;oppB.setAttribute('aria-pressed',S.opp);render()};
 document.getElementById('b-clear').onclick=()=>{if(!S.lines.length)return;push();S.lines=[];render()};
-document.getElementById('b-reset').onclick=()=>confirmBox('Reset the board?','Puts both teams back in 4-3-3, brings back removed opposition and clears lines, cones and steps. Team names stay.','Reset',()=>{push();S.removed=[];setView('full');applySetup('433');S.cones=[];S.lines=[];frames=[];cur=-1;render()});
+document.getElementById('b-reset').onclick=()=>confirmBox('Reset the board?','Puts both teams back in 4-3-3, brings back removed opposition and clears lines, cones and steps. Team names stay.','Reset',()=>{push();S.removed=[];VSTATE={};setView('full');applySetup('433');S.cones=[];S.lines=[];frames=[];cur=-1;render()});
 /* ---------- Full screen (only shown where the browser allows it) ---------- */
 const fsB=document.getElementById('b-fs'),de=document.documentElement;
 const fsOn=()=>document.fullscreenElement||document.webkitFullscreenElement;
@@ -530,12 +534,12 @@ var BOARDS=[],CUR=0,saveT=null;
 const boardsEl=document.getElementById('boards');
 function saveBoard(){
   if(!BOARDS[CUR])return;
-  Object.assign(BOARDS[CUR],{state:snap(),names:NAMES.slice(),view:VIEW,opp:S.opp,frames});
+  Object.assign(BOARDS[CUR],{state:snap(),names:NAMES.slice(),view:VIEW,opp:S.opp,frames,vstate:VSTATE});
   store.set('hb-boards',BOARDS);store.set('hb-cur',CUR);
 }
 function autosave(){if(!BOARDS||!BOARDS.length)return;clearTimeout(saveT);saveT=setTimeout(saveBoard,400)}
 function loadBoard(i){
-  CUR=i;const b=BOARDS[i];
+  CUR=i;const b=BOARDS[i];VSTATE=b.vstate?JSON.parse(JSON.stringify(b.vstate)):{};
   if(b.state)restore(b.state);
   if(b.names)NAMES=b.names.slice();saveNames();
   S.opp=b.opp!==false;oppB.setAttribute('aria-pressed',S.opp);
