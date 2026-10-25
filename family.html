@@ -262,6 +262,78 @@ main>*{min-width:0}
   .homegrid .side{margin-top:-34px;position:relative;z-index:1;padding:0 4px}
 }
 
+
+/* ---------- round 1 additions ---------- */
+.side-h{margin:16px 12px 6px;font-size:.75rem;font-weight:700;color:var(--side-muted)}
+.lift,.warn,.bl,.bw{display:flex;align-items:center;gap:6px;font-size:.82rem;margin-top:4px}
+.lift{color:var(--muted)}.warn{color:#b4423a;font-weight:700}
+.lift svg,.warn svg,.bl svg,.bw svg,.clashbar svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ev.clash{box-shadow:inset 3px 0 0 #d4402f}
+.ev.hol .tt{color:var(--accent-deep)}
+.blk .bl{opacity:.95;font-weight:600}.blk .bw{background:rgba(255,255,255,.92);color:#b4423a;border-radius:8px;padding:3px 8px;font-weight:700;justify-self:start}
+.blk.clash{outline:3px solid #ffd2cc}
+.clashbar{display:flex;align-items:center;gap:8px;background:#fff1ef;color:#b4423a;border:1px solid #ffd2cc;border-radius:14px;padding:10px 14px;font-weight:700;margin:0 0 12px}
+.adchip.hol{background:var(--accent-soft);border-color:#ffcdc5;color:var(--accent-deep)}
+.mini-card{padding:4px 0 8px}
+.mh{display:flex;align-items:center;gap:8px;padding:12px 16px 6px}
+.mh b{flex:1;font-weight:800}
+.mh span{color:var(--muted);font-size:.85rem;font-weight:600}
+.dinin{display:flex;flex-wrap:wrap;gap:6px;padding:4px 12px 8px}
+.dpill{display:flex;align-items:center;gap:6px;border:1px solid var(--line2);background:var(--surface);border-radius:999px;padding:4px 10px 4px 4px;font-weight:700;font-size:.85rem}
+.dpill .av{width:24px;height:24px;font-size:.7rem}
+.dpill small{color:var(--muted);font-weight:600}
+.dpill.out{opacity:.55;background:var(--sunk);text-decoration:line-through}
+.noteline,.upline{display:flex;gap:10px;align-items:flex-start;padding:8px 16px;width:100%;text-align:left}
+.noteline .pip{margin-top:6px}
+.noteline span,.upline span{min-width:0}
+.noteline small,.upline small{display:block;color:var(--muted);font-size:.8rem}
+.upline b{font-weight:700}
+.upline .ui{width:30px;height:30px;border-radius:9px;background:var(--accent-soft);color:var(--accent-deep);display:grid;place-items:center;flex:none}
+.upline .ui svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.workstrip .wline{display:flex;gap:12px;padding:6px 18px;font-size:.9rem;flex-wrap:wrap}
+.workstrip .wline:last-child{padding-bottom:14px}
+.workstrip .wline>span:last-child{color:var(--muted)}
+.dayblock .none{display:block;width:100%;text-align:left;padding:10px 18px;color:var(--faint);font-size:.9rem;border-top:1px solid var(--line)}
+.dayblock .dh + .none{border-top:0}
+.listtabs .chip{min-height:42px}
+.cnum{background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:0 7px;font-size:.75rem;margin-left:2px}
+.chip[aria-pressed="true"] .cnum{background:#fff;color:var(--side)}
+.inline .qty{flex:0 0 76px}
+.usuals{border-top:1px solid var(--line);padding:12px 14px 14px;display:grid;gap:8px}
+.uh{display:flex;align-items:baseline;gap:8px}.uh b{font-weight:800}.uh span{color:var(--muted);font-size:.85rem;flex:1}
+.usual.have{opacity:.45}
+.usual small{color:var(--faint)}
+.usual .ux{width:14px;height:14px;stroke:#b4423a;fill:none;stroke-width:2.5;stroke-linecap:round}
+.hint{color:var(--muted);font-size:.88rem;margin:0}
+.q{color:var(--accent-deep);font-weight:800}
+.inote{display:block;color:var(--muted);font-size:.86rem;font-style:italic}
+.moregrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.moretile{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px;display:grid;gap:10px;justify-items:start;text-align:left;font-weight:800;position:relative;min-height:110px}
+.moretile .ico{width:40px;height:40px;border-radius:12px;background:var(--accent-soft);color:var(--accent-deep);display:grid;place-items:center}
+.moretile .ico svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.moretile .mc{position:absolute;top:14px;right:14px;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:1px 9px;font-size:.78rem}
+.notes{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.notecard{background:var(--surface);border:1px solid var(--line);border-top:5px solid;border-radius:16px;padding:16px;text-align:left;display:grid;gap:10px;position:relative}
+.notecard .nt{font-weight:600;font-size:1.02rem;white-space:pre-wrap}
+.notecard small{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.pinb{justify-self:start;font-size:.72rem;font-weight:800;background:var(--side);color:#fff;border-radius:999px;padding:2px 9px}
+.late{color:#b4423a;font-weight:700}.soon{color:#9a5a00;font-weight:700}
+.due{font-size:.82rem;font-weight:700;color:var(--muted);white-space:nowrap}
+.bline{display:flex;align-items:center;gap:14px;padding:12px 18px;border-top:1px solid var(--line);width:100%;text-align:left}
+.bline:first-child{border-top:0}
+.bline .bd{width:48px;height:52px;border-radius:12px;background:var(--side);color:#fff;display:grid;place-items:center;align-content:center;flex:none;line-height:1}
+.bline .bd b{font-size:1.25rem}.bline .bd small{font-size:.72rem;color:var(--side-muted)}
+.bline .txt{flex:1}.bline .txt b{display:block}.bline .txt small{color:var(--muted)}
+.colrow{display:flex;align-items:center;gap:12px;padding:12px 18px;border-top:1px solid var(--line);flex-wrap:wrap}
+.colrow:first-child{border-top:0}
+.colrow b{min-width:80px}
+.sw{display:flex;flex-wrap:wrap;gap:6px;flex-basis:100%}
+@media (min-width:700px){.sw{flex-basis:auto}}
+.swatch{width:32px;height:32px;border-radius:50%;border:3px solid transparent}
+.swatch[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 2px #fff}
+nav.tabs button{font-size:.66rem}
+nav.tabs button svg{width:22px;height:22px}
+
 /* bottom tabs (phone) */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);display:flex;padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
 nav.tabs button{flex:1;height:var(--tab);display:grid;place-items:center;align-content:center;gap:3px;color:var(--faint);font-weight:700;font-size:.72rem;position:relative}
@@ -334,11 +406,19 @@ const FAMILY=[{id:'tim',name:'Tim',kid:false,user:true},{id:'laura',name:'Laura'
   {id:'kris',name:'Kris',kid:false,user:true},{id:'neville',name:'Neville',kid:false,user:false},{id:'maria',name:'Maria',kid:false,user:false}];
 const USERS=FAMILY.filter(p=>p.user);
 const KIDS=FAMILY.filter(p=>p.kid);
+const DRIVERS=['tim','laura','kris','sienna'];
 const person=id=>FAMILY.find(p=>p.id===id)||{id:'',name:'Someone'};
 const colour=id=>person(id).id?`var(--${id})`:'var(--faint)';
 const AISLES=['Fruit & veg','Meat & fish','Dairy & eggs','Bakery','Pantry','Frozen','Drinks','Household','Other'];
+const LISTS=[['super','Supermarket'],['hardware','Bunnings'],['chemist','Chemist'],['kmart','Kmart / Target']];
+const listName=k=>(LISTS.find(l=>l[0]===k)||LISTS[0])[1];
 const TYPES=[['appointment','Appointment'],['work','Work'],['sport','Sport'],['school','School'],['social','Social'],['other','Other']];
 const typeName=t=>(TYPES.find(x=>x[0]===t)||TYPES[5])[1];
+const PALETTE=['#3f6fb0','#2f80ed','#0e8f9a','#2f9a5a','#6a9a2f','#b58a12','#d9771f','#d4402f','#c4487a','#a23c8f','#7b55c7','#5b6b86','#9a6b2f','#3d3a8f'];
+/* Victorian public holidays (Business Victoria). In Greater Bendigo (west of the Campaspe) Bendigo Cup Day replaces Melbourne Cup Day in 2026.
+   2027 Cup-day arrangement and the 2027 AFL Grand Final Friday are not yet set, so they are left out until confirmed. */
+const HOLIDAYS={'2026-01-01':"New Year's Day",'2026-01-26':'Australia Day','2026-03-09':'Labour Day','2026-04-03':'Good Friday','2026-04-04':'Easter Saturday','2026-04-05':'Easter Sunday','2026-04-06':'Easter Monday','2026-04-25':'Anzac Day','2026-06-08':"King's Birthday",'2026-09-25':'AFL Grand Final Friday','2026-10-28':'Bendigo Cup Day','2026-12-25':'Christmas Day','2026-12-26':'Boxing Day','2026-12-28':'Boxing Day (extra day)',
+ '2027-01-01':"New Year's Day",'2027-01-26':'Australia Day','2027-03-08':'Labour Day','2027-03-26':'Good Friday','2027-03-27':'Easter Saturday','2027-03-28':'Easter Sunday','2027-03-29':'Easter Monday','2027-04-25':'Anzac Day','2027-06-14':"King's Birthday",'2027-12-25':'Christmas Day','2027-12-26':'Boxing Day','2027-12-27':'Christmas Day (extra day)','2027-12-28':'Boxing Day (extra day)'};
 
 /* ---------- icons ---------- */
 const I={
@@ -347,6 +427,15 @@ const I={
  shop:'<path d="M5 7h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z"/><path d="M9 7a3 3 0 0 1 6 0"/>',
  meal:'<circle cx="12" cy="13" r="6"/><path d="M3 4v6M21 4v16M19 4c0 3 2 5 2 5"/>',
  chore:'<path d="M8 12.5l2.5 2.5L16 9.5"/><rect x="3.5" y="3.5" width="17" height="17" rx="5"/>',
+ more:'<circle cx="5.5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18.5" cy="12" r="1.6"/>',
+ note:'<path d="M5 4h14v11l-5 5H5z"/><path d="M14 20v-5h5"/>',
+ school:'<path d="M3 9l9-5 9 5-9 5z"/><path d="M7 11v5c3 2 7 2 10 0v-5"/>',
+ gift:'<rect x="4" y="9" width="16" height="11" rx="2"/><path d="M3 9h18M12 9v11M12 9c-2-4-6-4-6-1s6 1 6 1c2-4 6-4 6-1s-6 1-6 1"/>',
+ tool:'<path d="M14 6a4 4 0 0 0 5 5l-8 8a2.5 2.5 0 0 1-3.5-3.5z"/>',
+ palette:'<path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 1.5-2s0-2 1.5-2H18a3 3 0 0 0 3-3c0-6-4-11-9-11z"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7" r="1.2"/><circle cx="16" cy="10" r="1.2"/>',
+ car:'<path d="M5 16V11l2-5h10l2 5v5z"/><path d="M5 11h14"/><circle cx="8" cy="16" r="1.6"/><circle cx="16" cy="16" r="1.6"/>',
+ warn:'<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
+ star:'<path d="M12 4l2.4 5 5.4.6-4 3.7 1.1 5.3L12 16l-4.9 2.6 1.1-5.3-4-3.7 5.4-.6z"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
  x:'<path d="M7 7l10 10M17 7L7 17"/>',
  pen:'<path d="M5 19l1-4L16 5l3 3L9 18z"/>',
@@ -364,33 +453,48 @@ const fromYmd=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d
 const today=()=>ymd(new Date());
 const monday=d=>{const x=new Date(d);const k=(x.getDay()+6)%7;x.setDate(x.getDate()-k);x.setHours(0,0,0,0);return x};
 const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const daysBetween=(a,b)=>Math.round((fromYmd(b)-fromYmd(a))/864e5);
 const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const DOWL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONL=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const nice=d=>d.getDate()+' '+MON[d.getMonth()];
+const niceK=k=>{const d=fromYmd(k);return DOW[d.getDay()]+' '+nice(d)};
 const nowIso=()=>new Date().toISOString();
 const rid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
 const t12=s=>{if(!s)return'';const [h,m]=s.split(':').map(Number);return (h%12||12)+(m?':'+pad(m):'')+(h<12?'am':'pm')};
-function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2200)}
+const toMin=s=>{const [h,m]=String(s||'0:0').split(':').map(Number);return h*60+(m||0)};
+const andJoin=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
+const inDays=n=>n===0?'today':n===1?'tomorrow':'in '+n+' days';
+function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2400)}
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
-const tapRows=(sel,fn)=>document.querySelectorAll(sel).forEach(b=>{b.onclick=fn;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fn.call(b,e)}}});
+const tapRows=(sel,fn)=>document.querySelectorAll(sel).forEach(b=>{b.onclick=fn;b.onkeydown=e=>{if(e.target!==b)return;if(e.key==='Enter'||e.key===' '){e.preventDefault();fn.call(b,e)}}});
 const isParent=()=>S.me==='tim'||S.me==='laura';
+const listOf=o=>Object.entries(o||{}).map(([id,d])=>Object.assign({id},d));
+function pick(sel,attr,fn){document.querySelectorAll(sel).forEach(b=>b.onclick=()=>{document.querySelectorAll(sel).forEach(x=>x.setAttribute('aria-pressed',x===b));fn(b.getAttribute(attr))})}
 
 /* ---------- state ---------- */
-const S={me:store.get('fh-me')||'',tab:store.get('fh-tab2')||'home',aisle:store.get('fh-aisle')||'Other',calWho:'',
-  shop:{},meals:{},chores:{},log:{},events:{},week:monday(new Date()),calWeek:monday(new Date()),ready:false,db:null};
+const S={me:store.get('fh-me')||'',tab:store.get('fh-tab2')||'home',aisle:store.get('fh-aisle')||'Other',list:store.get('fh-list')||'super',calWho:'',editUsuals:false,
+  events:{},shop:{},meals:{},chores:{},log:{},regulars:{},dinnerin:{},notes:{},school:{},birthdays:{},gifts:{},homejobs:{},settings:{},
+  week:monday(new Date()),calWeek:monday(new Date()),ready:false,db:null};
 const PAGES=[['home','Today','home'],['cal','Calendar','cal'],['shop','Shopping','shop'],['meals','Dinners','meal'],['chores','Chores','chore']];
+const EXTRA=[['notice','Noticeboard','note'],['school','School','school'],['bdays','Birthdays & gifts','gift'],['hjobs','Home jobs','tool'],['colours','Colours','palette']];
+const PHONE=[...PAGES,['more','More','more']];
 function paintNav(){
   const open=Object.values(S.shop).filter(i=>!i.done).length;
-  $('#sideNav').innerHTML=PAGES.map(([k,n,ic])=>`<button data-tab="${k}" aria-current="${S.tab===k}">${svg(ic)}${n}${k==='shop'&&open?`<span class="count">${open}</span>`:''}</button>`).join('');
-  $('#tabs').innerHTML=PAGES.map(([k,n,ic])=>`<button data-tab="${k}" aria-current="${S.tab===k}">${svg(ic)}<span>${n}</span>${k==='shop'&&open?`<span class="badge">${open}</span>`:''}</button>`).join('');
-  document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+  const cnt=k=>k==='shop'&&open?open:k==='school'?schoolDue().length:k==='hjobs'?jobsDue().length:0;
+  const b=(k,n,ic,cls)=>{const c=cnt(k);return `<button data-tab="${k}" aria-current="${S.tab===k||(k==='more'&&EXTRA.some(x=>x[0]===S.tab))}">${svg(ic)}${cls?`<span>${n}</span>`:n}${c?(cls?`<span class="badge">${c}</span>`:`<span class="count">${c}</span>`):''}</button>`};
+  $('#sideNav').innerHTML=PAGES.map(p=>b(...p)).join('')+'<div class="side-h">Family</div>'+EXTRA.map(p=>b(...p)).join('');
+  $('#tabs').innerHTML=PHONE.map(p=>b(...p,1)).join('');
+  document.querySelectorAll('#sideNav [data-tab],#tabs [data-tab]').forEach(x=>x.onclick=()=>setTab(x.dataset.tab));
 }
 function setTab(t){S.tab=t;store.set('fh-tab2',t);render();scrollTo(0,0)}
 
+/* ---------- colours (each person picks their own) ---------- */
+function paintColours(){const c=S.settings.colours||{},r=document.documentElement.style;for(const p of FAMILY){if(c[p.id]&&/^#[0-9a-f]{6}$/i.test(c[p.id]))r.setProperty('--'+p.id,c[p.id]);else r.removeProperty('--'+p.id)}}
+
 /* ---------- quick add ---------- */
-const ADDS=[['appt','Appointment','cal','For anyone in the family'],['shop','Shopping','shop','Add to the list'],['dinner','Dinner','meal','Plan a night'],['chore','Chore','chore','A job for the kids']];
+const ADDS=[['appt','Appointment','cal','For anyone in the family'],['shop','Shopping','shop','Add to a list'],['dinner','Dinner','meal','Plan a night'],['note','Note','note','Pin to the noticeboard'],['chore','Chore','chore','A job for the kids']];
 function adds(){return ADDS.filter(a=>a[0]!=='chore'||isParent())}
 function paintTop(){
   const d=new Date();$('#topWhen').textContent=DOWL[d.getDay()]+' '+d.getDate()+' '+MONL[d.getMonth()];
@@ -401,7 +505,7 @@ function paintTop(){
 }
 $('#qaPhone').onclick=()=>{openSheet(`<h2>Add</h2><div class="addmenu">${adds().map(a=>`<button data-add="${a[0]}"><span class="ico">${svg(a[2])}</span>${a[1]}<small>${a[3]}</small></button>`).join('')}</div>`);
   document.querySelectorAll('#panel [data-add]').forEach(b=>b.onclick=()=>doAdd(b.dataset.add))};
-function doAdd(k){if(needMe())return;if(k==='appt')editEvent(null);else if(k==='dinner')editMeal(nextFreeNight());else if(k==='chore')editChore(null);else addShopSheet()}
+function doAdd(k){if(needMe())return;if(k==='appt')editEvent(null);else if(k==='dinner')editMeal(nextFreeNight());else if(k==='chore')editChore(null);else if(k==='note')editNote(null);else addShopSheet()}
 function nextFreeNight(){for(let i=0;i<14;i++){const k=ymd(addDays(new Date(),i));if(!(S.meals[k]||{}).dinner)return k}return today()}
 
 /* ---------- who's using this device ---------- */
@@ -425,57 +529,99 @@ async function write(fn){if(!S.db){toast('Not connected yet. Try again in a mome
   let db=null;try{db=window.claude&&await window.claude.use('db')}catch(e){db=null}
   if(!db){S.ready=true;S.offline=true;render();return}
   S.db=db;
-  const sub=(name,key)=>db.collection(name).onSnapshot(s=>{const o={};s.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});S[key]=o;S.ready=true;render()},()=>{});
+  const seen={};let pend=false;const soon=()=>{if(pend)return;pend=true;setTimeout(()=>{pend=false;render()},0)};
+  const sub=(name,key)=>db.collection(name).onSnapshot(s=>{const o={};s.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});
+    const j=JSON.stringify(o);const first=!(key in seen);if(!first&&seen[key]===j)return;seen[key]=j;S[key]=o;S.ready=true;soon()},()=>{});
   sub('events','events');sub('shopping','shop');sub('meals','meals');sub('chores','chores');sub('chorelog','log');
+  sub('regulars','regulars');sub('dinnerin','dinnerin');sub('notes','notes');sub('school','school');sub('birthdays','birthdays');sub('gifts','gifts');sub('homejobs','homejobs');sub('settings','settings');
 })();
 
 /* ---------- render ---------- */
+const VIEWS={};
 function render(){
-  document.body.dataset.tab=S.ready&&!S.offline?S.tab:'';paintNav();paintTop();
+  document.body.dataset.tab=S.ready&&!S.offline?S.tab:'';paintColours();paintNav();paintTop();
   const v=$('#view');
-  const ae=document.activeElement,keep=ae&&(ae.id==='shopText'||ae.id==='quickShop')?{id:ae.id,v:ae.value}:null;
+  const ae=document.activeElement,keep=ae&&(ae.id==='shopText'||ae.id==='shopQty')?{id:ae.id,v:ae.value}:null;
   if(!S.ready){v.innerHTML='<div class="empty">Opening the family hub…</div>';return}
-  if(S.offline){v.innerHTML='<div class="card cb" style="padding:18px"><div class="empty"><b>Not connected</b>The family hub needs its shared storage to work here.</div></div>';return}
-  ({home:renderHome,cal:renderCal,shop:renderShop,meals:renderMeals,chores:renderChores}[S.tab]||renderHome)(v);
+  if(S.offline){v.innerHTML='<div class="card" style="padding:18px"><div class="empty"><b>Not connected</b>The family hub needs its shared storage to work here.</div></div>';return}
+  (VIEWS[S.tab]||VIEWS.home)(v);
   if(keep){const i=document.getElementById(keep.id);if(i){i.value=keep.v;i.focus()}}
 }
 
-/* ===== events ===== */
-const evList=()=>Object.entries(S.events).map(([id,e])=>Object.assign({id},e));
-const evOn=k=>evList().filter(e=>e.date===k).sort((a,b)=>(a.allDay?'':a.start||'99').localeCompare(b.allDay?'':b.start||'99'));
-function evRow(e,k){
-  const now=new Date(),past=k===today()&&!e.allDay&&(e.end||e.start)&&(e.end||e.start)<pad(now.getHours())+':'+pad(now.getMinutes());
+/* ===== events, lifts and clashes ===== */
+const evList=()=>listOf(S.events);
+const holidayOn=k=>HOLIDAYS[k]?{id:'hol-'+k,title:HOLIDAYS[k],allDay:true,holiday:true,who:[]}:null;
+const evOn=k=>{const h=holidayOn(k);return (h?[h]:[]).concat(evList().filter(e=>e.date===k).sort((a,b)=>(a.allDay?'':a.start||'99').localeCompare(b.allDay?'':b.start||'99')))};
+const evEnd=e=>e.end&&toMin(e.end)>toMin(e.start)?toMin(e.end):toMin(e.start)+60;
+function evWho(e){return andJoin((e.who||[]).map(id=>person(id).name))}
+/* Lift slots: drop-off covers the 30 minutes before the start, pick-up the 30 minutes after the end. */
+function liftSlots(e){const s=[];if(!e.start||e.allDay)return s;
+  if(e.liftTo)s.push({e,kind:'drop',driver:e.liftTo,a:toMin(e.start)-30,b:toMin(e.start)});
+  if(e.liftFrom)s.push({e,kind:'pick',driver:e.liftFrom,a:evEnd(e),b:evEnd(e)+30});return s}
+const overlap=(a1,b1,a2,b2)=>a1<b2&&a2<b1;
+function clashes(k){
+  const out={},add=(id,m)=>{(out[id]=out[id]||[]).includes(m)||out[id].push(m)};
+  const ev=evList().filter(e=>e.date===k&&!e.allDay&&e.start);
+  for(let i=0;i<ev.length;i++)for(let j=i+1;j<ev.length;j++){const a=ev[i],b=ev[j];
+    if(!overlap(toMin(a.start),evEnd(a),toMin(b.start),evEnd(b)))continue;
+    const both=(a.who||[]).filter(x=>(b.who||[]).includes(x));
+    if(both.length){const n=andJoin(both.map(x=>person(x).name));add(a.id,n+' also has '+b.title);add(b.id,n+' also has '+a.title)}}
+  const slots=ev.flatMap(liftSlots);
+  for(const s of slots){if(s.driver==='?'){add(s.e.id,(s.kind==='drop'?'Lift there':'Lift home')+' needs a driver');continue}
+    const dn=person(s.driver).name;
+    for(const e of ev){if(e.id===s.e.id||!(e.who||[]).includes(s.driver))continue;
+      if(overlap(s.a,s.b,toMin(e.start),evEnd(e)))add(s.e.id,dn+' is driving but has '+e.title)}
+    for(const o of slots){if(o===s||o.driver!==s.driver||o.e.id===s.e.id)continue;
+      if(overlap(s.a,s.b,o.a,o.b))add(s.e.id,dn+' has two lifts at once')}}
+  return out;
+}
+const liftText=e=>{const t=[];const n=x=>x==='?'?'needs a driver':person(x).name;if(e.liftTo)t.push('there: '+n(e.liftTo));if(e.liftFrom)t.push('home: '+n(e.liftFrom));return t.length?'Lift '+t.join(', '):''};
+function evRow(e,k,cl){
+  if(e.holiday)return `<div class="ev hol"><span class="tm">All day</span><span><span class="tt">${esc(e.title)}</span><span class="meta"><span class="type">Public holiday</span></span></span></div>`;
+  const now=new Date(),past=k===today()&&!e.allDay&&e.start&&evEnd(e)<toMin(pad(now.getHours())+':'+pad(now.getMinutes()));
   const who=(e.who||[]).map(id=>`<span class="who"><span class="pip" style="background:${colour(id)}"></span>${esc(person(id).name)}</span>`).join('');
-  return `<button class="ev${past?' past':''}" data-ev="${esc(e.id)}"><span class="tm">${e.allDay||!e.start?'All day':t12(e.start)}${!e.allDay&&e.end?`<small>to ${t12(e.end)}</small>`:''}</span>
-   <span><span class="tt">${esc(e.title)}</span><span class="meta">${who}${e.type&&e.type!=='other'?`<span class="type ${esc(e.type)}">${typeName(e.type)}</span>`:''}${e.where?`<span>${esc(e.where)}</span>`:''}</span></span></button>`;
+  const warn=(cl&&cl[e.id])||[];const lt=liftText(e);
+  return `<button class="ev${past?' past':''}${warn.length?' clash':''}" data-ev="${esc(e.id)}"><span class="tm">${e.allDay||!e.start?'All day':t12(e.start)}${!e.allDay&&e.end?`<small>to ${t12(e.end)}</small>`:''}</span>
+   <span><span class="tt">${esc(e.title)}</span><span class="meta">${who}${e.type&&e.type!=='other'?`<span class="type ${esc(e.type)}">${typeName(e.type)}</span>`:''}${e.where?`<span>${esc(e.where)}</span>`:''}</span>
+   ${lt?`<span class="lift">${svg('car')}${esc(lt)}</span>`:''}${warn.map(w=>`<span class="warn">${svg('warn')}${esc(w)}</span>`).join('')}</span></button>`;
 }
 function bindEv(){document.querySelectorAll('[data-ev]').forEach(b=>b.onclick=()=>editEvent(b.dataset.ev))}
 function editEvent(id,dateDefault){
   if(needMe())return;
-  const e=id?S.events[id]:{title:'',date:dateDefault||today(),start:'',end:'',allDay:false,who:S.me?[S.me]:[],type:'appointment',where:'',notes:''};
-  const who=new Set(e.who||[]);let type=e.type||'appointment';
+  const e=id?S.events[id]:{title:'',date:dateDefault||today(),start:'',end:'',allDay:false,who:S.me?[S.me]:[],type:'appointment',where:'',notes:'',liftTo:'',liftFrom:''};
+  const who=new Set(e.who||[]);let type=e.type||'appointment',lTo=e.liftTo||'',lFrom=e.liftFrom||'';
+  const drv=(sel,cur)=>`<div class="chips wrap">${[['','No lift'],['?','Needs a driver']].concat(DRIVERS.map(d=>[d,person(d).name])).map(([v,n])=>`<button type="button" class="chip" data-${sel}="${v}" aria-pressed="${cur===v}">${v&&v!=='?'?`<span class="pip" style="background:${colour(v)}"></span>`:''}${n}</button>`).join('')}</div>`;
   openSheet(`<h2>${id?'Edit':'New'} ${id?esc(typeName(type).toLowerCase()):'appointment'}</h2><form class="form" id="evF">
-   <label class="field"><span>What</span><input id="eTitle" value="${esc(e.title)}" placeholder="e.g. Dentist, Work, Hockey training" autocomplete="off" required></label>
+   <label class="field"><span>What</span><input id="eTitle" value="${esc(e.title)}" placeholder="e.g. Dentist, Work, Hockey game" autocomplete="off" required></label>
    <div class="field"><span>Who</span><div class="chips wrap">${FAMILY.map(p=>`<button type="button" class="chip" data-who="${p.id}" aria-pressed="${who.has(p.id)}"><span class="pip" style="background:${colour(p.id)}"></span>${p.name}</button>`).join('')}</div></div>
    <div class="field"><span>Type</span><div class="chips wrap">${TYPES.map(t=>`<button type="button" class="chip" data-type="${t[0]}" aria-pressed="${type===t[0]}">${t[1]}</button>`).join('')}</div></div>
    <label class="field"><span>Date</span><input type="date" id="eDate" value="${esc(e.date)}" required></label>
    <label class="toggle"><input type="checkbox" id="eAll"${e.allDay?' checked':''}>All day</label>
    <div class="two" id="eTimes"><label class="field"><span>Starts</span><input type="time" id="eStart" value="${esc(e.start||'')}"></label><label class="field"><span>Ends</span><input type="time" id="eEnd" value="${esc(e.end||'')}"></label></div>
    <label class="field"><span>Where (optional)</span><input id="eWhere" value="${esc(e.where||'')}" placeholder="e.g. Kangaroo Flat Dental" autocomplete="off"></label>
+   <div id="eLifts" class="form"><div class="field"><span>Lift there</span>${drv('lto',lTo)}</div><div class="field"><span>Lift home</span>${drv('lfrom',lFrom)}</div></div>
    <label class="field"><span>Notes (optional)</span><textarea id="eNotes">${esc(e.notes||'')}</textarea></label>
    <div class="actions">${id?'<button type="button" class="link danger" id="eDel">Delete</button>':''}<span class="grow"></span><button type="button" class="btn ghost" id="eCancel">Cancel</button><button class="btn">Save</button></div></form>`);
   document.querySelectorAll('[data-who]').forEach(b=>b.onclick=()=>{const p=b.dataset.who;who.has(p)?who.delete(p):who.add(p);b.setAttribute('aria-pressed',who.has(p))});
-  document.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{type=b.dataset.type;document.querySelectorAll('[data-type]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
-  const times=()=>$('#eTimes').hidden=$('#eAll').checked;$('#eAll').onchange=times;times();
+  pick('[data-type]','data-type',v=>type=v);pick('[data-lto]','data-lto',v=>lTo=v);pick('[data-lfrom]','data-lfrom',v=>lFrom=v);
+  const times=()=>{$('#eTimes').hidden=$('#eAll').checked;$('#eLifts').hidden=$('#eAll').checked};$('#eAll').onchange=times;times();
   $('#eCancel').onclick=closeSheet;
   $('#evF').onsubmit=async ev=>{ev.preventDefault();const t=$('#eTitle').value.trim(),d=$('#eDate').value;if(!t||!d)return;
     if(!who.size){toast('Pick who it is for');return}
     const all=$('#eAll').checked;
     const r={title:t.slice(0,100),date:d,allDay:all,start:all?'':$('#eStart').value,end:all?'':$('#eEnd').value,who:[...who],type,where:$('#eWhere').value.trim().slice(0,120),notes:$('#eNotes').value.trim().slice(0,1000),
-      addedBy:id?(e.addedBy||S.me):S.me,addedAt:id?(e.addedAt||nowIso()):nowIso(),updatedBy:S.me,updatedAt:nowIso()};
+      liftTo:all?'':lTo,liftFrom:all?'':lFrom,addedBy:id?(e.addedBy||S.me):S.me,addedAt:id?(e.addedAt||nowIso()):nowIso(),updatedBy:S.me,updatedAt:nowIso()};
     if(await write(db=>db.doc('events/'+(id||rid())).set(r))){closeSheet();toast(id?'Saved':'Added to the calendar')}};
   const del=$('#eDel');if(del)del.onclick=async()=>{if(await write(db=>db.doc('events/'+id).delete())){closeSheet();toast('Deleted')}};
 }
+
+/* ===== shared lookups for Today ===== */
+function schoolDue(){const t=today();return listOf(S.school).filter(s=>!s.done&&s.due&&daysBetween(t,s.due)<=7).sort((a,b)=>a.due.localeCompare(b.due))}
+function nextBday(b,from){const f=fromYmd(from);let d=new Date(f.getFullYear(),+b.md.slice(0,2)-1,+b.md.slice(3,5));if(ymd(d)<from)d=new Date(f.getFullYear()+1,d.getMonth(),d.getDate());return ymd(d)}
+function bdaysSoon(n){const t=today();return listOf(S.birthdays).filter(b=>b.md).map(b=>Object.assign({next:nextBday(b,t)},b)).filter(b=>daysBetween(t,b.next)<=n).sort((a,b)=>a.next.localeCompare(b.next))}
+function jobDue(j){if(!j.last)return today();const d=fromYmd(j.last);const n=+j.every||1;if(j.unit==='weeks')return ymd(addDays(d,7*n));const x=new Date(d);x.setMonth(x.getMonth()+n);return ymd(x)}
+function jobsDue(){const t=today();return listOf(S.homejobs).map(j=>Object.assign({due:jobDue(j)},j)).filter(j=>daysBetween(t,j.due)<=7).sort((a,b)=>a.due.localeCompare(b.due))}
+const liveNotes=()=>{const t=today();return listOf(S.notes).filter(n=>n.pinned||!n.until||n.until>=t).sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0)||(b.at||'').localeCompare(a.at||''))};
 
 /* ===== Today (landing): sky that follows the time of day, then the family's day on one timeline ===== */
 function skyFor(h){
@@ -485,11 +631,10 @@ function skyFor(h){
   return{k:'dusk',bg:'linear-gradient(180deg,#24215a 0%,#5b3a86 55%,#ff8a6a 100%)',orb:'sun-low'};
 }
 const hm=d=>pad(d.getHours())+':'+pad(d.getMinutes());
-function evWho(e){return (e.who||[]).map(id=>person(id).name).join(', ').replace(/, ([^,]*)$/,' and $1')}
-function renderHome(v){
+VIEWS.home=function(v){
   const d=new Date(),h=d.getHours(),p=person(S.me),k=today(),tk=ymd(addDays(d,1));
   const part=h<5?'Good night':h<12?'Good morning':h<17?'Good afternoon':h<21?'Good evening':'Good night';
-  const sky=skyFor(h);
+  const sky=skyFor(h),cl=clashes(k);
   const evs=evOn(k),allDay=evs.filter(e=>e.allDay||!e.start),timed=evs.filter(e=>!e.allDay&&e.start);
   const m=S.meals[k]||{};
   const items=timed.map(e=>({t:e.start,e}));
@@ -498,24 +643,37 @@ function renderHome(v){
   const now=hm(d);let nowAt=items.findIndex(i=>i.t>now);if(nowAt<0)nowAt=items.length;
   const open=Object.values(S.shop).filter(i=>!i.done).sort((a,b)=>(b.addedAt||'').localeCompare(a.addedAt||''));
   const tev=evOn(tk),tm=S.meals[tk]||{};
-  const tomorrow=tev.slice(0,3).map(e=>`${esc(evWho(e)||'Someone')}: ${esc(e.title)}${!e.allDay&&e.start?' '+t12(e.start):''}`);
+  const tomorrow=tev.slice(0,3).map(e=>e.holiday?esc(e.title)+' (public holiday)':`${esc(evWho(e)||'Someone')}: ${esc(e.title)}${!e.allDay&&e.start?' '+t12(e.start):''}`);
+  const nClash=Object.keys(cl).length;
   const slot=(i,idx)=>{
-    const past=idx<nowAt&&!(i.e&&i.e.end&&i.e.end>now);
+    const past=idx<nowAt&&!(i.e&&evEnd(i.e)>toMin(now));
     if(i.dinner)return `<div class="slot${past?' past':''}"><span class="tm">${t12(i.t)}</span><button class="blk dinnerblk" id="tlDinner"><b>Dinner: ${esc(i.dinner.dinner)}</b><span>${i.dinner.cook?esc(person(i.dinner.cook).name)+' cooking':'No cook chosen yet'}</span></button></div>`;
-    const e=i.e,c=(e.who||[])[0];
-    return `<div class="slot${past?' past':''}"><span class="tm">${t12(e.start)}</span><button class="blk" data-ev="${esc(e.id)}" style="background:${colour(c)}"><b>${esc(e.title)}${e.end?` <em>until ${t12(e.end)}</em>`:''}</b><span>${esc(evWho(e))}${e.where?', '+esc(e.where):''}</span></button></div>`};
+    const e=i.e,c=(e.who||[])[0],w=cl[e.id]||[],lt=liftText(e);
+    return `<div class="slot${past?' past':''}"><span class="tm">${t12(e.start)}</span><button class="blk${w.length?' clash':''}" data-ev="${esc(e.id)}" style="background:${colour(c)}"><b>${esc(e.title)}${e.end?` <em>until ${t12(e.end)}</em>`:''}</b><span>${esc(evWho(e))}${e.where?', '+esc(e.where):''}</span>${lt?`<span class="bl">${svg('car')}${esc(lt)}</span>`:''}${w.map(x=>`<span class="bw">${svg('warn')}${esc(x)}</span>`).join('')}</button></div>`};
   const nowLine=`<div class="slot nowslot"><span class="tm">Now</span><div class="nowline"></div></div>`;
   let tl='';items.forEach((i,idx)=>{if(idx===nowAt)tl+=nowLine;tl+=slot(i,idx)});if(nowAt===items.length&&items.length)tl+=nowLine;
+  // home for dinner
+  const din=S.dinnerin[k]||{};const homeN=USERS.filter(u=>din[u.id]!=='out').length;
+  // coming up
+  const up=[...schoolDue().map(s=>({k:s.due,t:`${esc(s.title)}${s.amount?' ($'+esc(s.amount)+')':''}`,s:`${esc(person(s.who).name)}, due ${inDays(daysBetween(k,s.due))}`,ic:'school',go:'school'})),
+    ...bdaysSoon(14).map(b=>({k:b.next,t:`${esc(b.name)}'s birthday`,s:inDays(daysBetween(k,b.next)).replace(/^./,c=>c.toUpperCase()),ic:'gift',go:'bdays'})),
+    ...jobsDue().map(j=>({k:j.due,t:esc(j.title),s:daysBetween(k,j.due)<0?'Overdue':'Due '+inDays(daysBetween(k,j.due)),ic:'tool',go:'hjobs'}))].sort((a,b)=>a.k.localeCompare(b.k));
+  const notes=liveNotes().slice(0,3);
   v.innerHTML=`<section class="sky sky-${sky.k}" style="background:${sky.bg}"><span class="orb ${sky.orb}"></span>${sky.k==='night'?'<span class="stars"></span>':''}
-      <p class="sd">${DOWL[d.getDay()]} ${d.getDate()} ${MONL[d.getMonth()]}</p><h1>${part}${p.id?', '+esc(p.name):''}.</h1>
+      <p class="sd">${DOWL[d.getDay()]} ${d.getDate()} ${MONL[d.getMonth()]}${HOLIDAYS[k]?', '+esc(HOLIDAYS[k]):''}</p><h1>${part}${p.id?', '+esc(p.name):''}.</h1>
       <div class="faces">${USERS.map(f=>`<span class="av${f.id===S.me?' me':''}" style="background:${colour(f.id)}" title="${f.name}">${f.name[0]}</span>`).join('')}</div></section>
   <div class="homegrid">
     <div class="side">
-      <button class="pin" id="toShop"><span class="pc">${open.length}</span><span class="pt"><b>Shopping list</b><span>${open.length?esc(open.slice(0,3).map(i=>i.text).join(', '))+(open.length>3?' and '+(open.length-3)+' more':''):'Nothing to buy right now'}</span></span></button>
+      <button class="pin" id="toShop"><span class="pc">${open.length}</span><span class="pt"><b>Shopping</b><span>${open.length?esc(open.slice(0,3).map(i=>i.text).join(', '))+(open.length>3?' and '+(open.length-3)+' more':''):'Nothing to buy right now'}</span></span></button>
       <button class="pin tmw" id="toCal"><span class="pt"><b>Tomorrow</b><span>${tomorrow.length?tomorrow.join('<br>')+(tev.length>3?'<br>and '+(tev.length-3)+' more':''):'Nothing on yet'}${tm.dinner?`<br>Dinner: ${esc(tm.dinner)}`:''}</span></span></button>
+      <section class="card mini-card"><div class="mh"><b>Home for dinner tonight</b><span>${homeN} of ${USERS.length}</span></div>
+        <div class="dinin">${USERS.map(u=>{const out=din[u.id]==='out';return `<button class="dpill${out?' out':''}" data-din="${u.id}" aria-pressed="${!out}"><span class="av" style="background:${colour(u.id)}">${u.name[0]}</span>${esc(u.name)}<small>${out?'Out':'Home'}</small></button>`}).join('')}</div></section>
+      ${notes.length?`<section class="card mini-card"><div class="mh"><b>Noticeboard</b><button class="more" id="toNotes">All notes</button></div>${notes.map(n=>`<button class="noteline" data-note="${esc(n.id)}"><span class="pip" style="background:${colour(n.by)}"></span><span>${esc(n.text)}<small>${esc(person(n.by).name)}</small></span></button>`).join('')}</section>`:''}
+      ${up.length?`<section class="card mini-card"><div class="mh"><b>Coming up</b></div>${up.slice(0,6).map(u=>`<button class="upline" data-go="${u.go}"><span class="ui">${svg(u.ic)}</span><span><b>${u.t}</b><small>${u.s}</small></span></button>`).join('')}</section>`:''}
     </div>
     <section class="tl"><h2>Today</h2>
-      ${allDay.length?`<div class="allday">${allDay.map(e=>`<button class="adchip" data-ev="${esc(e.id)}"><span class="pip" style="background:${colour((e.who||[])[0])}"></span>${esc(e.title)}<small>${esc(evWho(e))}</small></button>`).join('')}</div>`:''}
+      ${nClash?`<div class="clashbar">${svg('warn')}${nClash===1?'One thing needs sorting today':nClash+' things need sorting today'}</div>`:''}
+      ${allDay.length?`<div class="allday">${allDay.map(e=>e.holiday?`<span class="adchip hol">${esc(e.title)}<small>Public holiday</small></span>`:`<button class="adchip" data-ev="${esc(e.id)}"><span class="pip" style="background:${colour((e.who||[])[0])}"></span>${esc(e.title)}<small>${esc(evWho(e))}</small></button>`).join('')}</div>`:''}
       ${items.length?tl:`<p class="tlempty">${allDay.length?'Nothing else on today.':'Nothing on today.'} Add appointments, work shifts and sport so everyone knows who's where.</p>`}
       <div class="tlacts"><button class="btn ghost" id="homeAddEv">${svg('plus')}Add to today</button>${m.dinner?'':`<button class="btn ghost" id="planTonight">${svg('plus')}Plan dinner</button>`}</div>
     </section>
@@ -525,58 +683,234 @@ function renderHome(v){
   $('#homeAddEv').onclick=()=>editEvent(null,k);
   const pt=$('#planTonight');if(pt)pt.onclick=()=>editMeal(k);
   const td=$('#tlDinner');if(td)td.onclick=()=>editMeal(k);
-}
+  const tn=$('#toNotes');if(tn)tn.onclick=()=>setTab('notice');
+  v.querySelectorAll('[data-note]').forEach(b=>b.onclick=()=>editNote(b.dataset.note));
+  v.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>setTab(b.dataset.go));
+  v.querySelectorAll('[data-din]').forEach(b=>b.onclick=()=>{if(needMe())return;const u=b.dataset.din;const cur=Object.assign({},S.dinnerin[k]||{});cur[u]=cur[u]==='out'?'home':'out';cur.updatedBy=S.me;cur.updatedAt=nowIso();write(db=>db.doc('dinnerin/'+k).set(cur))});
+};
 
 /* ===== Calendar ===== */
-function renderCal(v){
+VIEWS.cal=function(v){
   const days=[...Array(7)].map((_,i)=>addDays(S.calWeek,i));const t=today();
-  const filt=e=>!S.calWho||(e.who||[]).includes(S.calWho);
+  const filt=e=>e.holiday||!S.calWho||(e.who||[]).includes(S.calWho);
+  const keys=days.map(ymd);
+  const work=evList().filter(e=>e.type==='work'&&keys.includes(e.date)).sort((a,b)=>(a.date+(a.start||'')).localeCompare(b.date+(b.start||'')));
+  const workers={};for(const e of work)for(const w of (e.who||[]))(workers[w]=workers[w]||[]).push(e);
   v.innerHTML=`<div class="ph"><div><h1>Calendar</h1><p>${nice(days[0])} to ${nice(days[6])}</p></div>
     <div class="wk"><button class="round" id="cPrev" aria-label="Previous week">${svg('left')}</button><button class="btn ghost" id="cToday">This week</button><button class="round" id="cNext" aria-label="Next week">${svg('right')}</button></div></div>
+  <section class="card workstrip"><div class="mh"><b>Working this week</b></div>${Object.keys(workers).length?Object.entries(workers).map(([w,es])=>`<div class="wline"><span class="who"><span class="pip" style="background:${colour(w)}"></span>${esc(person(w).name)}</span><span>${es.map(e=>`${DOW[fromYmd(e.date).getDay()]} ${e.allDay||!e.start?'all day':t12(e.start)+(e.end?'–'+t12(e.end):'')}`).join(', ')}</span></div>`).join(''):'<p class="emptyrow" style="padding:0 18px 14px">No work shifts added this week. Add one with the type set to Work.</p>'}</section>
   <div class="chips" role="group" aria-label="Show"><button class="chip" data-cw="" aria-pressed="${!S.calWho}">Everyone</button>${FAMILY.map(p=>`<button class="chip" data-cw="${p.id}" aria-pressed="${S.calWho===p.id}"><span class="pip" style="background:${colour(p.id)}"></span>${p.name}</button>`).join('')}</div>
-  <section class="card">${days.map(d=>{const k=ymd(d),evs=evOn(k).filter(filt);
-    return `<div class="dayblock"><div class="dh"><b>${DOWL[d.getDay()]}</b><span>${nice(d)}</span>${k===t?'<em>Today</em>':''}</div>${evs.length?evs.map(e=>evRow(e,k)).join(''):`<button class="none" data-addon="${k}" style="width:100%;text-align:left">Nothing on. Tap to add.</button>`}</div>`}).join('')}</section>`;
+  <section class="card">${days.map(d=>{const k=ymd(d),evs=evOn(k).filter(filt),cl=clashes(k);
+    return `<div class="dayblock"><div class="dh"><b>${DOWL[d.getDay()]}</b><span>${nice(d)}</span>${k===t?'<em>Today</em>':''}</div>${evs.length?evs.map(e=>evRow(e,k,cl)).join(''):''}<button class="none" data-addon="${k}">${evs.length?'+ Add':'Nothing on. Tap to add.'}</button></div>`}).join('')}</section>`;
   bindEv();
   document.querySelectorAll('[data-addon]').forEach(b=>b.onclick=()=>editEvent(null,b.dataset.addon));
   document.querySelectorAll('[data-cw]').forEach(b=>b.onclick=()=>{S.calWho=b.dataset.cw;render()});
   $('#cPrev').onclick=()=>{S.calWeek=addDays(S.calWeek,-7);render()};$('#cNext').onclick=()=>{S.calWeek=addDays(S.calWeek,7);render()};$('#cToday').onclick=()=>{S.calWeek=monday(new Date());render()};
-}
+};
 
-/* ===== Shopping ===== */
-async function addShop(t,aisle){return write(db=>db.collection('shopping').doc(rid()).set({text:t.slice(0,120),aisle,addedBy:S.me,addedAt:nowIso(),done:false,doneBy:'',doneAt:''}))}
-function aisleChips(){return `<div class="chips" role="group" aria-label="Aisle">${AISLES.map(a=>`<button type="button" class="chip" data-aisle="${esc(a)}" aria-pressed="${a===S.aisle}">${esc(a)}</button>`).join('')}</div>`}
-function bindAisles(scope){scope.querySelectorAll('[data-aisle]').forEach(b=>b.onclick=()=>{S.aisle=b.dataset.aisle;store.set('fh-aisle',S.aisle);scope.querySelectorAll('[data-aisle]').forEach(c=>c.setAttribute('aria-pressed',c===b))})}
+/* ===== Shopping: four lists, quantities and notes, one-tap usuals ===== */
+async function addShop(t,list,aisle,qty){return write(db=>db.collection('shopping').doc(rid()).set({text:t.slice(0,120),list,aisle:list==='super'?aisle:'Other',qty:(qty||'').slice(0,20),note:'',addedBy:S.me,addedAt:nowIso(),done:false,doneBy:'',doneAt:''}))}
+const listChips=(cur,attr)=>`<div class="chips">${LISTS.map(([k,n])=>`<button type="button" class="chip" data-${attr}="${k}" aria-pressed="${cur===k}">${n}</button>`).join('')}</div>`;
+function aisleChips(cur){return `<div class="chips" role="group" aria-label="Aisle">${AISLES.map(a=>`<button type="button" class="chip" data-aisle="${esc(a)}" aria-pressed="${a===cur}">${esc(a)}</button>`).join('')}</div>`}
 function addShopSheet(){
-  openSheet(`<h2>Add to shopping</h2><form class="form" id="shF"><label class="field"><span>Item</span><input id="shT" placeholder="e.g. 2L milk" autocomplete="off" required></label><div class="field"><span>Aisle</span>${aisleChips()}</div>
+  let list=S.list,aisle=S.aisle;
+  openSheet(`<h2>Add to shopping</h2><form class="form" id="shF"><div class="field"><span>List</span>${listChips(list,'sl')}</div>
+   <div class="two"><label class="field"><span>Item</span><input id="shT" placeholder="e.g. Milk" autocomplete="off" required></label><label class="field"><span>How many (optional)</span><input id="shQ" placeholder="e.g. 2L" autocomplete="off"></label></div>
+   <div class="field" id="shA"><span>Aisle</span>${aisleChips(aisle)}</div>
    <div class="actions"><span class="grow"></span><button type="button" class="btn ghost" id="shC">Done</button><button class="btn">Add</button></div></form>`);
-  bindAisles($('#panel'));$('#shC').onclick=closeSheet;
-  $('#shF').onsubmit=async e=>{e.preventDefault();const t=$('#shT').value.trim();if(!t)return;$('#shT').value='';if(await addShop(t,S.aisle))toast('Added '+t)};
+  pick('[data-sl]','data-sl',x=>{list=x;$('#shA').hidden=list!=='super'});$('#shA').hidden=list!=='super';
+  pick('[data-aisle]','data-aisle',x=>aisle=x);$('#shC').onclick=closeSheet;
+  $('#shF').onsubmit=async e=>{e.preventDefault();const t=$('#shT').value.trim();if(!t)return;const q=$('#shQ').value.trim();$('#shT').value='';$('#shQ').value='';if(await addShop(t,list,aisle,q))toast('Added '+t+' to '+listName(list))};
 }
-function renderShop(v){
-  const items=Object.entries(S.shop).map(([id,d])=>Object.assign({id},d));
-  const open=items.filter(i=>!i.done),bought=items.filter(i=>i.done).sort((a,b)=>(b.doneAt||'').localeCompare(a.doneAt||''));
-  const groups=AISLES.map(a=>({a,list:open.filter(i=>(i.aisle||'Other')===a).sort((x,y)=>(x.addedAt||'').localeCompare(y.addedAt||''))})).filter(g=>g.list.length);
-  v.innerHTML=`<div class="ph"><div><h1>Shopping</h1><p>${open.length?open.length+' thing'+(open.length===1?'':'s')+' to buy':'Nothing to buy right now'}</p></div>${bought.length?'<button class="btn ghost" id="clearBought">Clear bought</button>':''}</div>
-  <section class="card"><form class="composer" id="addShop"><div class="inline"><input id="shopText" placeholder="Add something, e.g. 2L milk" autocomplete="off" enterkeyhint="done" aria-label="Item"><button class="btn big">Add</button></div>${aisleChips()}</form></section>
-  ${groups.length?`<section class="card">${groups.map(g=>`<div class="glabel">${esc(g.a)}<span>${g.list.length}</span></div>${g.list.map(itemRow).join('')}`).join('')}</section>`:
-   `<section class="card"><div class="cb" style="padding-top:18px"><div class="empty"><b>All bought</b>Add something above. It shows on everyone's phone within a minute.</div></div></section>`}
+VIEWS.shop=function(v){
+  const items=listOf(S.shop).map(i=>Object.assign(i,{list:i.list||'super'}));
+  const inList=items.filter(i=>i.list===S.list);
+  const open=inList.filter(i=>!i.done),bought=inList.filter(i=>i.done).sort((a,b)=>(b.doneAt||'').localeCompare(a.doneAt||''));
+  const counts=Object.fromEntries(LISTS.map(([k])=>[k,items.filter(i=>i.list===k&&!i.done).length]));
+  const groups=S.list==='super'?AISLES.map(a=>({a,list:open.filter(i=>(i.aisle||'Other')===a)})).filter(g=>g.list.length):[{a:'',list:open}].filter(g=>g.list.length);
+  groups.forEach(g=>g.list.sort((x,y)=>(x.addedAt||'').localeCompare(y.addedAt||'')));
+  const usuals=listOf(S.regulars).filter(r=>(r.list||'super')===S.list).sort((a,b)=>a.text.localeCompare(b.text));
+  const onList=new Set(open.map(i=>i.text.toLowerCase()));
+  v.innerHTML=`<div class="ph"><div><h1>Shopping</h1><p>${open.length?open.length+' thing'+(open.length===1?'':'s')+' to buy at '+listName(S.list):'Nothing to buy at '+listName(S.list)}</p></div>${bought.length?'<button class="btn ghost" id="clearBought">Clear bought</button>':''}</div>
+  <div class="chips listtabs">${LISTS.map(([k,n])=>`<button class="chip" data-list="${k}" aria-pressed="${S.list===k}">${n}${counts[k]?` <b class="cnum">${counts[k]}</b>`:''}</button>`).join('')}</div>
+  <section class="card"><form class="composer" id="addShop"><div class="inline"><input id="shopText" placeholder="Add something, e.g. Milk" autocomplete="off" enterkeyhint="done" aria-label="Item"><input id="shopQty" class="qty" placeholder="Qty" autocomplete="off" aria-label="How many"><button class="btn big">Add</button></div>${S.list==='super'?aisleChips(S.aisle):''}</form>
+    <div class="usuals"><div class="uh"><b>Usuals</b><span>Tap to add</span><button class="link" id="editUsuals">${S.editUsuals?'Done':'Edit'}</button></div>
+      ${usuals.length?`<div class="chips wrap">${usuals.map(u=>`<button class="chip usual${onList.has(u.text.toLowerCase())?' have':''}" data-usual="${esc(u.id)}">${S.editUsuals?svg('x',' class="ux"'):''}${esc(u.text)}${u.qty?` <small>${esc(u.qty)}</small>`:''}</button>`).join('')}</div>`:`<p class="hint">Things you buy every time. Tap the pencil on any item and choose "Save as a usual".</p>`}</div></section>
+  ${groups.length?`<section class="card">${groups.map(g=>`${g.a?`<div class="glabel">${esc(g.a)}<span>${g.list.length}</span></div>`:''}${g.list.map(itemRow).join('')}`).join('')}</section>`:
+   `<section class="card"><div style="padding:18px"><div class="empty"><b>All bought</b>Add something above. It shows on everyone's phone within a minute.</div></div></section>`}
   ${bought.length?`<section class="card"><div class="glabel">Bought<span>${bought.length}</span></div>${bought.slice(0,30).map(itemRow).join('')}</section>`:''}`;
-  bindAisles(v);
-  $('#addShop').onsubmit=async e=>{e.preventDefault();if(needMe())return;const t=$('#shopText').value.trim();if(!t)return;$('#shopText').value='';await addShop(t,S.aisle)};
+  v.querySelectorAll('[data-list]').forEach(b=>b.onclick=()=>{S.list=b.dataset.list;store.set('fh-list',S.list);render()});
+  pick('#addShop [data-aisle]','data-aisle',x=>{S.aisle=x;store.set('fh-aisle',x)});
+  $('#addShop').onsubmit=async e=>{e.preventDefault();if(needMe())return;const t=$('#shopText').value.trim();if(!t)return;const q=$('#shopQty').value.trim();$('#shopText').value='';$('#shopQty').value='';await addShop(t,S.list,S.aisle,q);$('#shopText').focus()};
+  $('#editUsuals').onclick=()=>{S.editUsuals=!S.editUsuals;render()};
+  v.querySelectorAll('[data-usual]').forEach(b=>b.onclick=async()=>{const u=S.regulars[b.dataset.usual];if(!u)return;
+    if(S.editUsuals){await write(db=>db.doc('regulars/'+b.dataset.usual).delete());return}
+    if(needMe())return;if(onList.has(u.text.toLowerCase())){toast(u.text+' is already on the list');return}
+    if(await addShop(u.text,u.list||'super',u.aisle||'Other',u.qty||''))toast('Added '+u.text)});
   tapRows('[data-shop]',function(e){if(e.target.closest('.icon'))return;if(needMe())return;const id=this.dataset.shop,i=S.shop[id];
     write(db=>db.doc('shopping/'+id).set(Object.assign({},i,i.done?{done:false,doneBy:'',doneAt:''}:{done:true,doneBy:S.me,doneAt:nowIso()})))});
   v.querySelectorAll('.icon[data-del]').forEach(b=>b.onclick=()=>write(db=>db.doc('shopping/'+b.dataset.del).delete()));
+  v.querySelectorAll('.icon[data-edit]').forEach(b=>b.onclick=()=>editItem(b.dataset.edit));
   const cb=$('#clearBought');if(cb)cb.onclick=async()=>{for(const i of bought)await write(db=>db.doc('shopping/'+i.id).delete());toast('Cleared '+bought.length+' bought item'+(bought.length===1?'':'s'))};
-}
+};
 function itemRow(i){
   const by=i.done?i.doneBy:i.addedBy,p=person(by);
   return `<div class="row${i.done?' done':''}" data-shop="${esc(i.id)}" role="button" tabindex="0" aria-pressed="${!!i.done}"><span class="check">${svg('check')}</span>
-   <span class="txt"><b>${esc(i.text)}</b><small><span class="pip" style="background:${colour(by)}"></span>${i.done?'Bought by ':'Added by '}${esc(p.name)}</small></span>
-   <button class="icon" data-del="${esc(i.id)}" aria-label="Remove ${esc(i.text)}">${svg('x')}</button></div>`;
+   <span class="txt"><b>${i.qty?`<span class="q">${esc(i.qty)}</span> `:''}${esc(i.text)}</b>${i.note?`<span class="inote">${esc(i.note)}</span>`:''}<small><span class="pip" style="background:${colour(by)}"></span>${i.done?'Bought by ':'Added by '}${esc(p.name)}</small></span>
+   <button class="icon" data-edit="${esc(i.id)}" aria-label="Edit ${esc(i.text)}">${svg('pen')}</button><button class="icon" data-del="${esc(i.id)}" aria-label="Remove ${esc(i.text)}">${svg('x')}</button></div>`;
+}
+function editItem(id){
+  const i=S.shop[id];if(!i)return;let list=i.list||'super',aisle=i.aisle||'Other';
+  const usual=listOf(S.regulars).find(r=>r.text.toLowerCase()===i.text.toLowerCase()&&(r.list||'super')===list);
+  openSheet(`<h2>Edit item</h2><form class="form" id="itF">
+   <div class="two"><label class="field"><span>Item</span><input id="iT" value="${esc(i.text)}" autocomplete="off" required></label><label class="field"><span>How many</span><input id="iQ" value="${esc(i.qty||'')}" placeholder="e.g. 2L" autocomplete="off"></label></div>
+   <label class="field"><span>Note</span><input id="iN" value="${esc(i.note||'')}" placeholder="e.g. the full cream one" autocomplete="off"></label>
+   <div class="field"><span>List</span>${listChips(list,'il')}</div>
+   <div class="field" id="iA"><span>Aisle</span>${aisleChips(aisle)}</div>
+   <label class="toggle"><input type="checkbox" id="iU"${usual?' checked':''}>Save as a usual</label>
+   <div class="actions"><span class="grow"></span><button type="button" class="btn ghost" id="iC">Cancel</button><button class="btn">Save</button></div></form>`);
+  pick('[data-il]','data-il',x=>{list=x;$('#iA').hidden=list!=='super'});$('#iA').hidden=list!=='super';pick('#iA [data-aisle]','data-aisle',x=>aisle=x);$('#iC').onclick=closeSheet;
+  $('#itF').onsubmit=async e=>{e.preventDefault();const t=$('#iT').value.trim();if(!t)return;const q=$('#iQ').value.trim().slice(0,20);
+    const r=Object.assign({},i,{text:t.slice(0,120),qty:q,note:$('#iN').value.trim().slice(0,160),list,aisle:list==='super'?aisle:'Other'});
+    if(!await write(db=>db.doc('shopping/'+id).set(r)))return;
+    const want=$('#iU').checked;
+    if(want&&!usual)await write(db=>db.collection('regulars').doc(rid()).set({text:r.text,list,aisle:r.aisle,qty:q,addedBy:S.me}));
+    if(!want&&usual)await write(db=>db.doc('regulars/'+usual.id).delete());
+    closeSheet()};
 }
 
+/* ===== More (phone) ===== */
+VIEWS.more=function(v){
+  v.innerHTML=`<div class="ph"><div><h1>More</h1></div></div><div class="moregrid">${EXTRA.map(([k,n,ic])=>{const c=k==='school'?schoolDue().length:k==='hjobs'?jobsDue().length:k==='notice'?liveNotes().length:0;return `<button class="moretile" data-to="${k}"><span class="ico">${svg(ic)}</span><b>${n}</b>${c?`<span class="mc">${c}</span>`:''}</button>`}).join('')}</div>`;
+  v.querySelectorAll('[data-to]').forEach(b=>b.onclick=()=>setTab(b.dataset.to));
+};
+
+/* ===== Noticeboard ===== */
+VIEWS.notice=function(v){
+  const ns=liveNotes();
+  v.innerHTML=`<div class="ph"><div><h1>Noticeboard</h1><p>Short notes for everyone. They drop off after the date you choose.</p></div><button class="btn" id="newNote">${svg('plus')}New note</button></div>
+  ${ns.length?`<div class="notes">${ns.map(n=>`<button class="notecard" data-note="${esc(n.id)}" style="border-top-color:${colour(n.by)}">${n.pinned?'<span class="pinb">Pinned</span>':''}<span class="nt">${esc(n.text)}</span><small><span class="pip" style="background:${colour(n.by)}"></span>${esc(person(n.by).name)}${n.until&&!n.pinned?', until '+niceK(n.until):''}</small></button>`).join('')}</div>`:
+  '<section class="card" style="padding:18px"><div class="empty"><b>No notes</b>Post things like "Grandma visiting Saturday" or "Fridge repair man Tuesday".</div></section>'}`;
+  $('#newNote').onclick=()=>editNote(null);v.querySelectorAll('[data-note]').forEach(b=>b.onclick=()=>editNote(b.dataset.note));
+};
+function editNote(id){
+  if(needMe())return;const n=id?S.notes[id]:{text:'',until:ymd(addDays(new Date(),3)),pinned:false};
+  let keep=n.pinned?'pin':'date';
+  openSheet(`<h2>${id?'Edit note':'New note'}</h2><form class="form" id="nF">
+   <label class="field"><span>Note</span><textarea id="nT" placeholder="e.g. Grandma visiting Saturday" required>${esc(n.text)}</textarea></label>
+   <div class="field"><span>Keep it up</span><div class="chips"><button type="button" class="chip" data-keep="date" aria-pressed="${keep==='date'}">Until a date</button><button type="button" class="chip" data-keep="pin" aria-pressed="${keep==='pin'}">Pinned</button></div></div>
+   <label class="field" id="nUw"><span>Until</span><input type="date" id="nU" value="${esc(n.until||ymd(addDays(new Date(),3)))}"></label>
+   <div class="actions">${id?'<button type="button" class="link danger" id="nD">Delete</button>':''}<span class="grow"></span><button class="btn">${id?'Save':'Post'}</button></div></form>`);
+  const sh=()=>$('#nUw').hidden=keep==='pin';pick('[data-keep]','data-keep',x=>{keep=x;sh()});sh();
+  $('#nF').onsubmit=async e=>{e.preventDefault();const t=$('#nT').value.trim();if(!t)return;
+    const r={text:t.slice(0,300),pinned:keep==='pin',until:keep==='pin'?'':$('#nU').value,by:id?(n.by||S.me):S.me,at:id?(n.at||nowIso()):nowIso(),updatedBy:S.me};
+    if(await write(db=>db.doc('notes/'+(id||rid())).set(r))){closeSheet();toast(id?'Saved':'Posted')}};
+  const d=$('#nD');if(d)d.onclick=async()=>{if(await write(db=>db.doc('notes/'+id).delete()))closeSheet()};
+}
+
+/* ===== School notes and payments ===== */
+VIEWS.school=function(v){
+  const t=today(),all=listOf(S.school).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9'));
+  const open=all.filter(s=>!s.done),done=all.filter(s=>s.done).slice(0,15);
+  const row=s=>{const n=s.due?daysBetween(t,s.due):null;return `<div class="row${s.done?' done':''}" data-sch="${esc(s.id)}" role="button" tabindex="0" aria-pressed="${!!s.done}"><span class="check">${svg('check')}</span>
+    <span class="txt"><b>${esc(s.title)}${s.amount?` <span class="q">$${esc(s.amount)}</span>`:''}</b><small><span class="pip" style="background:${colour(s.who)}"></span>${esc(person(s.who).name)}${s.kind?', '+esc(s.kind):''}${s.due?`, <span class="${!s.done&&n<0?'late':!s.done&&n<=2?'soon':''}">${!s.done&&n<0?'overdue':'due '+niceK(s.due)}</span>`:''}${s.done&&s.doneBy?', done by '+esc(person(s.doneBy).name):''}</small></span>
+    <button class="icon" data-esch="${esc(s.id)}" aria-label="Edit">${svg('pen')}</button></div>`};
+  v.innerHTML=`<div class="ph"><div><h1>School</h1><p>Permission notes, excursions and payments, with due dates.</p></div><button class="btn" id="newSch">${svg('plus')}Add</button></div>
+  <section class="card">${open.length?open.map(row).join(''):'<div style="padding:18px"><div class="empty"><b>Nothing due</b>Add a note or payment as soon as it comes home.</div></div>'}</section>
+  ${done.length?`<section class="card"><div class="glabel">Done<span>${done.length}</span></div>${done.map(row).join('')}</section>`:''}`;
+  $('#newSch').onclick=()=>editSchool(null);v.querySelectorAll('[data-esch]').forEach(b=>b.onclick=()=>editSchool(b.dataset.esch));
+  tapRows('[data-sch]',function(e){if(e.target.closest('.icon'))return;if(needMe())return;const id=this.dataset.sch,s=S.school[id];write(db=>db.doc('school/'+id).set(Object.assign({},s,s.done?{done:false,doneBy:''}:{done:true,doneBy:S.me,doneAt:nowIso()})))});
+};
+function editSchool(id){
+  if(needMe())return;const s=id?S.school[id]:{title:'',who:'archer',kind:'Permission note',due:ymd(addDays(new Date(),3)),amount:''};let who=s.who,kind=s.kind||'Permission note';
+  openSheet(`<h2>${id?'Edit':'New school item'}</h2><form class="form" id="scF">
+   <label class="field"><span>What</span><input id="scT" value="${esc(s.title)}" placeholder="e.g. Zoo excursion" autocomplete="off" required></label>
+   <div class="field"><span>Who</span><div class="chips wrap">${KIDS.map(k=>`<button type="button" class="chip" data-sw="${k.id}" aria-pressed="${who===k.id}"><span class="pip" style="background:${colour(k.id)}"></span>${k.name}</button>`).join('')}</div></div>
+   <div class="field"><span>Type</span><div class="chips wrap">${['Permission note','Payment','Note and payment','Other'].map(x=>`<button type="button" class="chip" data-sk="${x}" aria-pressed="${kind===x}">${x}</button>`).join('')}</div></div>
+   <div class="two"><label class="field"><span>Due</span><input type="date" id="scD" value="${esc(s.due||'')}"></label><label class="field"><span>Amount $ (optional)</span><input id="scA" value="${esc(s.amount||'')}" inputmode="decimal" placeholder="e.g. 35"></label></div>
+   <div class="actions">${id?'<button type="button" class="link danger" id="scX">Delete</button>':''}<span class="grow"></span><button class="btn">Save</button></div></form>`);
+  pick('[data-sw]','data-sw',x=>who=x);pick('[data-sk]','data-sk',x=>kind=x);
+  $('#scF').onsubmit=async e=>{e.preventDefault();const t=$('#scT').value.trim();if(!t)return;
+    const r=Object.assign({},s,{title:t.slice(0,100),who,kind,due:$('#scD').value,amount:$('#scA').value.replace(/[^0-9.]/g,'').slice(0,8),addedBy:s.addedBy||S.me,updatedBy:S.me,updatedAt:nowIso()});if(!id){r.done=false}
+    if(await write(db=>db.doc('school/'+(id||rid())).set(r)))closeSheet()};
+  const x=$('#scX');if(x)x.onclick=async()=>{if(await write(db=>db.doc('school/'+id).delete()))closeSheet()};
+}
+
+/* ===== Birthdays and gift ideas (ideas are hidden from the person they're for) ===== */
+VIEWS.bdays=function(v){
+  const t=today(),bs=listOf(S.birthdays).filter(b=>b.md).map(b=>Object.assign({next:nextBday(b,t)},b)).sort((a,b)=>a.next.localeCompare(b.next));
+  const me=person(S.me).name.toLowerCase();
+  const gifts=listOf(S.gifts).filter(g=>(g.for||'').toLowerCase()!==me);
+  const hidden=listOf(S.gifts).length-gifts.length;
+  const names=[...new Set([...bs.map(b=>b.name),...gifts.map(g=>g.for)])];
+  v.innerHTML=`<div class="ph"><div><h1>Birthdays and gifts</h1><p>Gift ideas are hidden from the person they're for.</p></div><div class="actions"><button class="btn ghost" id="newGift">${svg('plus')}Gift idea</button><button class="btn" id="newB">${svg('plus')}Birthday</button></div></div>
+  <section class="card">${bs.length?bs.map(b=>{const n=daysBetween(t,b.next),age=b.year?fromYmd(b.next).getFullYear()-(+b.year):0;return `<button class="bline" data-b="${esc(b.id)}"><span class="bd"><b>${fromYmd(b.next).getDate()}</b><small>${MON[fromYmd(b.next).getMonth()]}</small></span><span class="txt"><b>${esc(b.name)}${age>0?` turns ${age}`:''}</b><small>${inDays(n).replace(/^./,c=>c.toUpperCase())}</small></span>${n<=14?'<span class="tag">Soon</span>':''}</button>`}).join(''):'<div style="padding:18px"><div class="empty"><b>No birthdays yet</b>Add the family and anyone else you buy for.</div></div>'}</section>
+  ${names.filter(nm=>gifts.some(g=>g.for===nm)).map(nm=>`<section class="card"><div class="glabel">Ideas for ${esc(nm)}<span>${gifts.filter(g=>g.for===nm).length}</span></div>${gifts.filter(g=>g.for===nm).map(g=>`<div class="row${g.bought?' done':''}" data-gift="${esc(g.id)}" role="button" tabindex="0" aria-pressed="${!!g.bought}"><span class="check">${svg('check')}</span><span class="txt"><b>${esc(g.idea)}</b><small><span class="pip" style="background:${colour(g.by)}"></span>${esc(person(g.by).name)}${g.bought?', bought':''}</small></span><button class="icon" data-gdel="${esc(g.id)}" aria-label="Delete idea">${svg('x')}</button></div>`).join('')}</section>`).join('')}
+  ${hidden?`<p class="hint">${hidden} gift idea${hidden===1?' is':'s are'} hidden because ${hidden===1?"it's":"they're"} for you.</p>`:''}`;
+  $('#newB').onclick=()=>editBday(null);$('#newGift').onclick=()=>editGift(names);
+  v.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>editBday(b.dataset.b));
+  v.querySelectorAll('[data-gdel]').forEach(b=>b.onclick=()=>write(db=>db.doc('gifts/'+b.dataset.gdel).delete()));
+  tapRows('[data-gift]',function(e){if(e.target.closest('.icon'))return;const g=S.gifts[this.dataset.gift];write(db=>db.doc('gifts/'+this.dataset.gift).set(Object.assign({},g,{bought:!g.bought})))});
+};
+function editBday(id){
+  if(needMe())return;const b=id?S.birthdays[id]:{name:'',md:'',year:''};
+  const yr=new Date().getFullYear(),val=b.md?(b.year||yr)+'-'+b.md:'';
+  openSheet(`<h2>${id?'Edit birthday':'New birthday'}</h2><form class="form" id="bF">
+   <label class="field"><span>Name</span><input id="bN" value="${esc(b.name)}" placeholder="e.g. Grandma" autocomplete="off" required list="famNames"><datalist id="famNames">${FAMILY.map(p=>`<option value="${p.name}">`).join('')}</datalist></label>
+   <label class="field"><span>Birthday</span><input type="date" id="bD" value="${esc(val)}" required></label>
+   <label class="toggle"><input type="checkbox" id="bY"${b.year?' checked':''}>Show the age they're turning</label>
+   <div class="actions">${id?'<button type="button" class="link danger" id="bX">Delete</button>':''}<span class="grow"></span><button class="btn">Save</button></div></form>`);
+  $('#bF').onsubmit=async e=>{e.preventDefault();const n=$('#bN').value.trim(),d=$('#bD').value;if(!n||!d)return;
+    const r={name:n.slice(0,40),md:d.slice(5),year:$('#bY').checked?d.slice(0,4):'',addedBy:b.addedBy||S.me};
+    if(await write(db=>db.doc('birthdays/'+(id||rid())).set(r)))closeSheet()};
+  const x=$('#bX');if(x)x.onclick=async()=>{if(await write(db=>db.doc('birthdays/'+id).delete()))closeSheet()};
+}
+function editGift(names){
+  if(needMe())return;const all=[...new Set([...FAMILY.map(p=>p.name),...names])].filter(n=>n.toLowerCase()!==person(S.me).name.toLowerCase());
+  openSheet(`<h2>New gift idea</h2><form class="form" id="gF">
+   <label class="field"><span>For</span><input id="gFor" placeholder="e.g. Laura" autocomplete="off" required list="giftNames"><datalist id="giftNames">${all.map(n=>`<option value="${esc(n)}">`).join('')}</datalist></label>
+   <label class="field"><span>Idea</span><input id="gI" placeholder="e.g. Aeon serum, the big one" autocomplete="off" required></label>
+   <p class="hint" style="margin:0">The person it's for won't see this idea.</p>
+   <div class="actions"><span class="grow"></span><button class="btn">Save idea</button></div></form>`);
+  $('#gF').onsubmit=async e=>{e.preventDefault();const f=$('#gFor').value.trim(),i=$('#gI').value.trim();if(!f||!i)return;
+    if(await write(db=>db.collection('gifts').doc(rid()).set({for:f.slice(0,40),idea:i.slice(0,160),by:S.me,at:nowIso(),bought:false}))){closeSheet();toast('Idea saved')}};
+}
+
+/* ===== Home maintenance ===== */
+VIEWS.hjobs=function(v){
+  const t=today(),js=listOf(S.homejobs).map(j=>Object.assign({due:jobDue(j)},j)).sort((a,b)=>a.due.localeCompare(b.due));
+  v.innerHTML=`<div class="ph"><div><h1>Home jobs</h1><p>Jobs that come round every few weeks or months. Tick one when it's done and the next due date resets.</p></div><button class="btn" id="newJob">${svg('plus')}New job</button></div>
+  <section class="card">${js.length?js.map(j=>{const n=daysBetween(t,j.due);return `<div class="row" data-job="${esc(j.id)}" role="button" tabindex="0"><span class="check">${svg('check')}</span><span class="txt"><b>${esc(j.title)}</b><small>${j.who?`<span class="pip" style="background:${colour(j.who)}"></span>${esc(person(j.who).name)}, `:''}every ${j.every} ${j.unit}${j.last?', last done '+niceK(j.last):''}</small></span><span class="due ${n<0?'late':n<=7?'soon':''}">${n<0?'Overdue':n===0?'Due today':'Due '+niceK(j.due)}</span><button class="icon" data-ejob="${esc(j.id)}" aria-label="Edit">${svg('pen')}</button></div>`}).join(''):'<div style="padding:18px"><div class="empty"><b>No jobs yet</b>For example: clean the gutters every 6 months, test smoke alarms every 12 months, clean air-con filters every 3 months.</div></div>'}</section>`;
+  $('#newJob').onclick=()=>editJob(null);v.querySelectorAll('[data-ejob]').forEach(b=>b.onclick=()=>editJob(b.dataset.ejob));
+  tapRows('[data-job]',async function(e){if(e.target.closest('.icon'))return;if(needMe())return;const id=this.dataset.job,j=S.homejobs[id];
+    if(await write(db=>db.doc('homejobs/'+id).set(Object.assign({},j,{last:today(),lastBy:S.me}))))toast(j.title+' done. Next due '+niceK(jobDue(Object.assign({},j,{last:today()}))))});
+};
+function editJob(id){
+  if(needMe())return;const j=id?S.homejobs[id]:{title:'',every:6,unit:'months',last:'',who:''};let unit=j.unit||'months',who=j.who||'';
+  openSheet(`<h2>${id?'Edit job':'New home job'}</h2><form class="form" id="jF">
+   <label class="field"><span>Job</span><input id="jT" value="${esc(j.title)}" placeholder="e.g. Clean the gutters" autocomplete="off" required></label>
+   <div class="two"><label class="field"><span>Every</span><input type="number" id="jE" min="1" max="60" value="${esc(j.every)}"></label><div class="field"><span>&nbsp;</span><div class="chips"><button type="button" class="chip" data-ju="weeks" aria-pressed="${unit==='weeks'}">Weeks</button><button type="button" class="chip" data-ju="months" aria-pressed="${unit==='months'}">Months</button></div></div></div>
+   <label class="field"><span>Last done (leave blank if not sure)</span><input type="date" id="jL" value="${esc(j.last||'')}"></label>
+   <div class="field"><span>Usually done by</span><div class="chips wrap">${[['','Anyone']].concat(USERS.map(u=>[u.id,u.name])).map(([k,n])=>`<button type="button" class="chip" data-jw="${k}" aria-pressed="${who===k}">${n}</button>`).join('')}</div></div>
+   <div class="actions">${id?'<button type="button" class="link danger" id="jX">Delete</button>':''}<span class="grow"></span><button class="btn">Save</button></div></form>`);
+  pick('[data-ju]','data-ju',x=>unit=x);pick('[data-jw]','data-jw',x=>who=x);
+  $('#jF').onsubmit=async e=>{e.preventDefault();const t=$('#jT').value.trim();if(!t)return;
+    const r={title:t.slice(0,80),every:Math.max(1,Math.min(60,+$('#jE').value||1)),unit,last:$('#jL').value,who,addedBy:j.addedBy||S.me};
+    if(await write(db=>db.doc('homejobs/'+(id||rid())).set(r)))closeSheet()};
+  const x=$('#jX');if(x)x.onclick=async()=>{if(await write(db=>db.doc('homejobs/'+id).delete()))closeSheet()};
+}
+
+/* ===== Colours: everyone picks their own; Tim and Laura can also set Neville's and Maria's ===== */
+VIEWS.colours=function(v){
+  const canSet=p=>p.id===S.me||(isParent()&&!p.user);
+  const cur=S.settings.colours||{};
+  v.innerHTML=`<div class="ph"><div><h1>Colours</h1><p>Pick your own colour. It shows on everything you add, on every device.</p></div></div>
+  <section class="card">${FAMILY.map(p=>`<div class="colrow"><span class="av lg" style="background:${colour(p.id)}">${p.name[0]}</span><b>${esc(p.name)}</b>${canSet(p)?`<div class="sw">${PALETTE.map(c=>`<button class="swatch" data-col="${p.id}" data-c="${c}" style="background:${c}" aria-label="${c}" aria-pressed="${(cur[p.id]||'').toLowerCase()===c}"></button>`).join('')}</div>`:`<span class="hint" style="margin:0">${p.user?'Only '+esc(p.name)+' can change this':'Tim or Laura can change this'}</span>`}</div>`).join('')}</section>`;
+  v.querySelectorAll('[data-col]').forEach(b=>b.onclick=()=>{if(needMe())return;const doc=S.settings.colours||{};const r=Object.assign({},doc,{[b.dataset.col]:b.dataset.c});write(db=>db.doc('settings/colours').set(r))});
+};
+
 /* ===== Dinners ===== */
-function renderMeals(v){
+VIEWS.meals=function(v){
   const days=[...Array(7)].map((_,k)=>addDays(S.week,k));const t=today();
   const planned=days.filter(d=>(S.meals[ymd(d)]||{}).dinner).length;
   v.innerHTML=`<div class="ph"><div><h1>Dinners</h1><p>${nice(days[0])} to ${nice(days[6])}. ${planned} of 7 nights planned</p></div>
@@ -604,7 +938,7 @@ function editMeal(k){
   const mc=$('#mClear');if(mc)mc.onclick=async()=>{if(await write(db=>db.doc('meals/'+k).delete()))closeSheet()};
   $('#mToList').onclick=async()=>{const r=read();if(!r.ingredients.length){toast('Add some ingredients first');return}
     const have=new Set(Object.values(S.shop).filter(i=>!i.done).map(i=>i.text.toLowerCase()));let n=0;
-    for(const t of r.ingredients){if(have.has(t.toLowerCase()))continue;await write(db=>db.collection('shopping').doc(rid()).set({text:t.slice(0,120),aisle:'Other',addedBy:S.me,addedAt:nowIso(),done:false,doneBy:'',doneAt:'',forMeal:k}));n++}
+    for(const t of r.ingredients){if(have.has(t.toLowerCase()))continue;await write(db=>db.collection('shopping').doc(rid()).set({text:t.slice(0,120),list:'super',aisle:'Other',qty:'',note:'',addedBy:S.me,addedAt:nowIso(),done:false,doneBy:'',doneAt:'',forMeal:k}));n++}
     if(r.dinner)await write(db=>db.doc('meals/'+k).set(r));
     toast(n?'Added '+n+' to shopping':'Already on the shopping list')};
 }
@@ -612,7 +946,7 @@ function editMeal(k){
 /* ===== Chores ===== */
 const periodKey=(c,d)=>c.freq==='weekly'?'w'+ymd(monday(d)):ymd(d);
 function choreDue(c,d){if(c.freq==='weekly')return true;const days=c.days&&c.days.length?c.days:[0,1,2,3,4,5,6];return days.includes(d.getDay())}
-function renderChores(v){
+VIEWS.chores=function(v){
   const d=new Date();const list=Object.entries(S.chores).map(([id,c])=>Object.assign({id},c)).filter(c=>c.active!==false);
   const par=isParent();
   v.innerHTML=`<div class="ph"><div><h1>Chores</h1><p>Daily jobs reset each morning, weekly jobs on Monday</p></div>${par?`<button class="btn" id="newChore">${svg('plus')}New chore</button>`:''}</div>
