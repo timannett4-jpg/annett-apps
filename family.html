@@ -509,7 +509,7 @@ const S={me:store.get('fh-me')||'',tab:store.get('fh-tab2')||'home',aisle:store.
   events:{},shop:{},meals:{},chores:{},log:{},regulars:{},dinnerin:{},notes:{},school:{},birthdays:{},gifts:{},homejobs:{},settings:{},recipes:{},pantry:{},lunches:{},tasks:{},tcomments:{},
   week:monday(new Date()),calWeek:monday(new Date()),ready:false,db:null};
 const PAGES=[['home','Today','home'],['cal','Calendar','cal'],['shop','Shopping','shop'],['meals','Dinners','meal'],['chores','Chores','chore']];
-const EXTRA=[['tasks','Tasks','tick'],['notice','Noticeboard','note'],['school','School','school'],['recipes','Recipes','book'],['pantry','Pantry & freezer','box'],['lunch',"Archer's lunches",'lunch'],['bdays','Birthdays & gifts','gift'],['hjobs','Home jobs','tool'],['colours','Colours','palette']];
+const EXTRA=[['tasks','Tasks','tick'],['notice','Noticeboard','note'],['school','School','school'],['recipes','Recipes','book'],['pantry','Pantry & freezer','box'],['lunch','Lunches','lunch'],['bdays','Birthdays & gifts','gift'],['hjobs','Home jobs','tool'],['colours','Colours','palette']];
 const PHONE=[...PAGES,['more','More','more']];
 function paintNav(){
   const open=Object.values(S.shop).filter(i=>!i.done).length;
@@ -709,7 +709,7 @@ VIEWS.home=function(v){
   <div class="homegrid">
     <div class="side">
       <button class="pin" id="toShop"><span class="pc">${open.length}</span><span class="pt"><b>Shopping</b><span>${open.length?esc(open.slice(0,3).map(i=>i.text).join(', '))+(open.length>3?' and '+(open.length-3)+' more':''):'Nothing to buy right now'}</span></span></button>
-      <button class="pin tmw" id="toCal"><span class="pt"><b>Tomorrow</b><span>${tomorrow.length?tomorrow.join('<br>')+(tev.length>3?'<br>and '+(tev.length-3)+' more':''):'Nothing on yet'}${tm.dinner?`<br>Dinner: ${esc(tm.dinner)}`:''}${S.lunches[tk]&&S.lunches[tk].main?`<br>Archer's lunch: ${esc(S.lunches[tk].main)}`:''}</span></span></button>
+      <button class="pin tmw" id="toCal"><span class="pt"><b>Tomorrow</b><span>${tomorrow.length?tomorrow.join('<br>')+(tev.length>3?'<br>and '+(tev.length-3)+' more':''):'Nothing on yet'}${tm.dinner?`<br>Dinner: ${esc(tm.dinner)}`:''}${LUNCH_PEOPLE.map(p=>{const l=lunchOf(p,tk);return l&&l.main?`<br>${p===S.me?'Your':esc(person(p).name)+"'s"} lunch: ${esc(l.main)}`:''}).join('')}</span></span></button>
       <section class="card mini-card"><div class="mh"><b>Home for dinner tonight</b><span>${homeN} of ${USERS.length}</span></div>
         <div class="dinin">${USERS.map(u=>{const out=din[u.id]==='out';return `<button class="dpill${out?' out':''}" data-din="${u.id}" aria-pressed="${!out}"><span class="av" style="background:${colour(u.id)}">${u.name[0]}</span>${esc(u.name)}<small>${out?'Out':'Home'}</small></button>`}).join('')}</div></section>
       ${S.me?(()=>{const mt=myOpenTasks();return `<section class="card mini-card"><div class="mh"><b>Your tasks</b><button class="more" id="toTasks">${mt.length?mt.length+' open':'All tasks'}</button></div>${mt.length?mt.slice(0,5).map(taskRow).join(''):'<p class="hint" style="padding:0 16px 8px">Nothing for you right now.</p>'}</section>`})():''}
@@ -1096,38 +1096,43 @@ function editPantry(id){
     if(await write(db=>db.doc('pantry/'+(id||rid())).set(r))){closeSheet();S.place=where;render()}};
 }
 
-/* ===== Archer's lunchbox planner ===== */
-const LUNCH_FOR='archer';
+/* ===== Lunchbox planner: Archer, Tim and Laura (Archer's days keep their original ids) ===== */
+const LUNCH_PEOPLE=['archer','tim','laura'];
+const lunchKey=(w,k)=>w==='archer'?k:w+'__'+k;
+const lunchOf=(w,k)=>S.lunches[lunchKey(w,k)];
+const lunchWho=()=>S.lunchWho||(LUNCH_PEOPLE.includes(S.me)?S.me:'archer');
 VIEWS.lunch=function(v){
+  const w=lunchWho(),nm=person(w).name;
   const wk=S.lunchWeek||monday(addDays(new Date(),new Date().getDay()===6||new Date().getDay()===0?2:0));
   const days=[...Array(5)].map((_,i)=>addDays(wk,i));const t=today();
-  const planned=days.filter(d=>S.lunches[ymd(d)]).length;
-  v.innerHTML=`<div class="ph"><div><h1>Archer's lunches</h1><p>${nice(days[0])} to ${nice(days[4])}. ${planned} of 5 school days planned</p></div>
+  const planned=days.filter(d=>lunchOf(w,ymd(d))).length;
+  v.innerHTML=`<div class="ph"><div><h1>Lunches</h1><p>${esc(nm)}: ${nice(days[0])} to ${nice(days[4])}. ${planned} of 5 days planned</p></div>
     <div class="wk"><button class="round" id="lPrev" aria-label="Previous week">${svg('left')}</button><button class="btn ghost" id="lNow">This week</button><button class="round" id="lNext" aria-label="Next week">${svg('right')}</button></div></div>
-  <section class="card">${days.map(d=>{const k=ymd(d),l=S.lunches[k];const hol=HOLIDAYS[k];
+  <div class="chips" role="group" aria-label="Whose lunches">${LUNCH_PEOPLE.map(p=>`<button class="chip" data-lw="${p}" aria-pressed="${w===p}"><span class="pip" style="background:${colour(p)}"></span>${person(p).name}</button>`).join('')}</div>
+  <section class="card">${days.map(d=>{const k=ymd(d),l=lunchOf(w,k);const hol=HOLIDAYS[k];
     return `<button class="night${k===t?' tonight':''}" data-lunch="${k}"><span class="dn"><b>${DOW[d.getDay()]}</b><small>${nice(d)}</small></span>
-      <span>${hol?`<span class="dish none">${esc(hol)} (public holiday)</span>`:l?`<span class="dish">${esc(l.main||'Lunch planned')}</span><span class="dmeta">${esc([l.snacks,l.fruit,l.drink].filter(Boolean).join(', '))}</span>`:'<span class="dish none">Nothing planned</span>'}</span>
+      <span>${l?`<span class="dish">${esc(l.main||'Lunch planned')}</span><span class="dmeta">${esc([l.snacks,l.fruit,l.drink].filter(Boolean).join(', '))}</span>`:hol?`<span class="dish none">${esc(hol)} (public holiday)</span>`:'<span class="dish none">Nothing planned</span>'}</span>
       ${k===t?'<span class="tag">Today</span>':''}</button>`}).join('')}</section>
   <div class="actions"><button class="btn ghost" id="lCopy">Copy last week</button><button class="btn ghost" id="lShop">Add this week's lunch items to shopping</button></div>`;
+  v.querySelectorAll('[data-lw]').forEach(b=>b.onclick=()=>{S.lunchWho=b.dataset.lw;render()});
   $('#lPrev').onclick=()=>{S.lunchWeek=addDays(wk,-7);render()};$('#lNext').onclick=()=>{S.lunchWeek=addDays(wk,7);render()};$('#lNow').onclick=()=>{S.lunchWeek=null;render()};
-  v.querySelectorAll('[data-lunch]').forEach(b=>b.onclick=()=>editLunch(b.dataset.lunch));
-  $('#lCopy').onclick=async()=>{if(needMe())return;let n=0;for(const d of days){const k=ymd(d),prev=S.lunches[ymd(addDays(d,-7))];if(!prev||S.lunches[k]||HOLIDAYS[k])continue;await write(db=>db.doc('lunches/'+k).set(Object.assign({},prev,{by:S.me,at:nowIso()})));n++}
+  v.querySelectorAll('[data-lunch]').forEach(b=>b.onclick=()=>editLunch(w,b.dataset.lunch));
+  $('#lCopy').onclick=async()=>{if(needMe())return;let n=0;for(const d of days){const k=ymd(d),prev=lunchOf(w,ymd(addDays(d,-7)));if(!prev||lunchOf(w,k)||HOLIDAYS[k])continue;await write(db=>db.doc('lunches/'+lunchKey(w,k)).set(Object.assign({},prev,{who:w,by:S.me,at:nowIso()})));n++}
     toast(n?'Copied '+n+' day'+(n===1?'':'s')+' from last week':'Nothing to copy (last week empty or this week already planned)')};
-  $('#lShop').onclick=async()=>{if(needMe())return;const items=[];for(const d of days){const l=S.lunches[ymd(d)];if(!l)continue;for(const f of [l.main,l.snacks,l.fruit,l.drink])String(f||'').split(',').map(x=>x.trim()).filter(Boolean).forEach(x=>{if(!items.some(y=>y.toLowerCase()===x.toLowerCase()))items.push(x)})}
+  $('#lShop').onclick=async()=>{if(needMe())return;const items=[];for(const d of days){const l=lunchOf(w,ymd(d));if(!l)continue;for(const f of [l.main,l.snacks,l.fruit,l.drink])String(f||'').split(',').map(x=>x.trim()).filter(Boolean).forEach(x=>{if(!items.some(y=>y.toLowerCase()===x.toLowerCase()))items.push(x)})}
     toast(items.length?await ingToShop(items,'lunch'):'Plan some lunches first')};
 };
-function editLunch(k){
-  if(needMe())return;const l=S.lunches[k]||{};const d=fromYmd(k);
-  openSheet(`<h2>Archer's lunch, ${DOWL[d.getDay()]} ${nice(d)}</h2><form class="form" id="luF">
+function editLunch(w,k){
+  if(needMe())return;const key=lunchKey(w,k),l=S.lunches[key]||{};const d=fromYmd(k);
+  openSheet(`<h2>${esc(person(w).name)}'s lunch, ${DOWL[d.getDay()]} ${nice(d)}</h2><form class="form" id="luF">
    <label class="field"><span>Main</span><input id="luM" value="${esc(l.main||'')}" placeholder="e.g. Ham and cheese wrap" autocomplete="off"></label>
    <label class="field"><span>Snacks</span><input id="luS" value="${esc(l.snacks||'')}" placeholder="e.g. Muesli bar, crackers" autocomplete="off"></label>
    <div class="two"><label class="field"><span>Fruit</span><input id="luF2" value="${esc(l.fruit||'')}" placeholder="e.g. Apple" autocomplete="off"></label><label class="field"><span>Drink</span><input id="luD" value="${esc(l.drink||'')}" placeholder="e.g. Water" autocomplete="off"></label></div>
-   <div class="actions">${S.lunches[k]?'<button type="button" class="link danger" id="luX">Clear</button>':''}<span class="grow"></span><button class="btn">Save</button></div></form>`);
-  $('#luF').onsubmit=async e=>{e.preventDefault();const r={main:$('#luM').value.trim().slice(0,80),snacks:$('#luS').value.trim().slice(0,120),fruit:$('#luF2').value.trim().slice(0,60),drink:$('#luD').value.trim().slice(0,40),who:LUNCH_FOR,by:S.me,at:nowIso()};
-    const empty=!r.main&&!r.snacks&&!r.fruit&&!r.drink;if(await write(db=>empty?db.doc('lunches/'+k).delete():db.doc('lunches/'+k).set(r)))closeSheet()};
-  const x=$('#luX');if(x)x.onclick=async()=>{if(await write(db=>db.doc('lunches/'+k).delete()))closeSheet()};
+   <div class="actions">${S.lunches[key]?'<button type="button" class="link danger" id="luX">Clear</button>':''}<span class="grow"></span><button class="btn">Save</button></div></form>`);
+  $('#luF').onsubmit=async e=>{e.preventDefault();const r={main:$('#luM').value.trim().slice(0,80),snacks:$('#luS').value.trim().slice(0,120),fruit:$('#luF2').value.trim().slice(0,60),drink:$('#luD').value.trim().slice(0,40),who:w,date:k,by:S.me,at:nowIso()};
+    const empty=!r.main&&!r.snacks&&!r.fruit&&!r.drink;if(await write(db=>empty?db.doc('lunches/'+key).delete():db.doc('lunches/'+key).set(r)))closeSheet()};
+  const x=$('#luX');if(x)x.onclick=async()=>{if(await write(db=>db.doc('lunches/'+key).delete()))closeSheet()};
 }
-
 
 /* ===== Dinners ===== */
 VIEWS.meals=function(v){
