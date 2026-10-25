@@ -142,7 +142,7 @@
   })();
 
   // ---------- Google Drive sync (whole store, merged per document) ----------
-  let pushT = null, busy = false;
+  let pushT = null, busy = false, lastOk = 0;
   const status = s => { window.dispatchEvent(new CustomEvent('annett-sync', { detail: s })); };
   function schedulePush() { clearTimeout(pushT); pushT = setTimeout(sync, 1500); }
   function mergeRemote(remote) {
@@ -153,28 +153,41 @@
     }
     return changed;
   }
+  // Every request gives up after a while, so a sync interrupted by the app being put
+  // away (common on iPhone/iPad) can never leave syncing stuck.
+  function fetchT(u, opts, ms) {
+    const c = new AbortController(), t = setTimeout(() => c.abort(), ms);
+    return fetch(u, Object.assign({ signal: c.signal, cache: 'no-store' }, opts || {})).finally(() => clearTimeout(t));
+  }
+  let busySince = 0, again = false;
   async function sync() {
-    const c = syncCfg(); if (!c.url || !c.key || busy) return;
-    busy = true; status('busy');
+    const c = syncCfg(); if (!c.url || !c.key) return;
+    if (busy && now() - busySince < 150000) { again = true; return; }
+    busy = true; busySince = now(); again = false; status('busy');
     try {
-      const g = await fetch(c.url + '?app=' + APP + '&k=' + encodeURIComponent(c.key)).then(r => r.json());
-      if (!g.ok) throw new Error(g.error);
-      const changed = mergeRemote(g.data);
-      const needPush = !g.data || Object.keys(S.docs).some(p => !g.data.docs[p] || S.docs[p].t > g.data.docs[p].t);
-      if (changed) { save(); emit(); }
-      if (needPush) {
+      for (let round = 0; round < 3; round++) {
+        const g = await fetchT(c.url + '?app=' + APP + '&k=' + encodeURIComponent(c.key), null, 45000).then(r => r.json());
+        if (!g.ok) throw new Error(g.error);
+        const changed = mergeRemote(g.data);
+        const needPush = !g.data || Object.keys(S.docs).some(p => !g.data.docs[p] || S.docs[p].t > g.data.docs[p].t);
+        if (changed) { save(); emit(); }
+        if (!needPush) break;
         const body = JSON.stringify({ k: c.key, app: APP, updated: Math.max(now(), (g.updated || 0) + 1), data: S });
-        const r = await fetch(c.url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body }).then(r => r.json());
+        const r = await fetchT(c.url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body }, 120000).then(r => r.json());
         if (!r.ok) throw new Error(r.error);
-        if (r.stale) { if (mergeRemote(r.data)) { save(); emit(); } busy = false; return sync(); }
+        if (!r.stale) break;
+        if (mergeRemote(r.data)) { save(); emit(); }
       }
-      status('ok');
+      lastOk = now(); status('ok');
     } catch (e) { status(e.message === 'bad key' ? 'badkey' : navigator.onLine ? 'error' : 'offline'); }
     busy = false;
+    if (again) setTimeout(sync, 500);
   }
   setTimeout(sync, 300);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') sync(); });
   addEventListener('online', sync);
+  addEventListener('focus', sync);
+  addEventListener('pageshow', sync);
   setInterval(() => { if (document.visibilityState === 'visible') sync(); }, 60000);
 
   // ---------- other capabilities ----------
@@ -207,7 +220,7 @@
   };
   const caps = { db, user, assets, downloads };
   window.claude = { use: async name => caps[name] || null };
-  window.annettSync = { now: sync, config: syncCfg,
+  window.annettSync = { now: sync, config: syncCfg, lastOk: () => lastOk,
     set(url, key) { const m = read(META, {}); m.url = url; m.key = key; write(META, m); shareCfg(); sync(); } };
 
   // ---------- offline + install ----------
@@ -218,17 +231,26 @@
     const b = document.createElement('button');
     b.id = 'annett-sync-badge';
     b.style.cssText = 'position:fixed;right:10px;bottom:calc(84px + env(safe-area-inset-bottom,0px));transition:opacity .4s;z-index:99999;font:600 11px system-ui,sans-serif;border-radius:999px;padding:6px 10px;border:1px solid rgba(0,0,0,.15);background:rgba(255,255,255,.92);color:#555;box-shadow:0 2px 8px rgba(0,0,0,.12);cursor:pointer';
-    const set = s => { const m = { busy: ['Syncing…', '#8a6d00'], ok: ['Synced', '#16794a'], error: ['Sync error', '#b42318'], offline: ['Offline', '#666'], badkey: ['Wrong key', '#b42318'], off: ['Sync off', '#666'] }[s] || ['', '#666'];
+    const set = s => { const m = { busy: ['Syncing…', '#8a6d00'], ok: ['Synced', '#16794a'], error: ['Sync error · tap to retry', '#b42318'], offline: ['Offline', '#666'], badkey: ['Wrong key', '#b42318'], off: ['Sync off', '#666'] }[s] || ['', '#666'];
       b.textContent = m[0]; b.style.color = m[1]; b.dataset.s = s;
       clearTimeout(b._t); b.style.opacity = 1; b.style.pointerEvents = 'auto';
       if (s === 'ok') b._t = setTimeout(() => { b.style.opacity = 0; b.style.pointerEvents = 'none'; }, 2500); };
     set(syncCfg().url ? 'busy' : 'off');
     addEventListener('annett-sync', e => set(e.detail));
-    b.onclick = () => {
+    // Tap: sync now (or set up sync if it isn't yet). Press and hold: change the sync link or key.
+    const ask = () => {
       const c = syncCfg();
       const url = prompt('Sync link (from your setup):', c.url || ''); if (url == null) return;
       const key = prompt('Sync key:', c.key || ''); if (key == null) return;
       window.annettSync.set(url.trim(), key.trim());
+    };
+    let held = false, holdT = null;
+    b.addEventListener('pointerdown', () => { held = false; holdT = setTimeout(() => { held = true; ask(); }, 900); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => b.addEventListener(ev, () => clearTimeout(holdT)));
+    b.onclick = () => {
+      if (held) { held = false; return; }
+      const c = syncCfg();
+      if (c.url && c.key && b.dataset.s !== 'badkey') { set('busy'); sync(); } else ask();
     };
     document.body.appendChild(b);
   });
