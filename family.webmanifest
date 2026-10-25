@@ -5,8 +5,8 @@
   "start_url": "./family.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#2f6fde",
-  "theme_color": "#2f6fde",
+  "background_color": "#24215a",
+  "theme_color": "#24215a",
   "icons": [
     {
       "src": "family-icon-192.png",
