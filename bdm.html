@@ -10438,8 +10438,8 @@ let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(renderChart
       if(!Array.isArray(kmEv[p.s])){kmLoadEv(p);return}autoDone[p.s]=1;if(live())saveLive(p);else queue(p,false)})}catch(e){}}
 
   /* ---------- drawing ---------- */
-  function paint(){try{if(!(view==="km"||($("#kmc")&&$("#kmc").open)))return;const p=kmPeriod(kmOff);const all=kmAll(p);
-    if(!all){if(!live()){$("#kmSub").textContent=kmCal[p.s]?"Loading…":"Your calendar for this fortnight hasn't synced to this device yet. Claude copies it across every hour.";}return}
+  function paint(){try{if(!(view==="km"||($("#kmc")&&$("#kmc").open)))return;const p=kmPeriod(kmOff);let all=kmAll(p),noCal=false;
+    if(!all){if(live())return;noCal=true;all=[];$("#kmSub").textContent="Your calendar trips for this fortnight haven't reached this device yet. Claude copies them across every hour; you can still add trips and lodge.";}
     const need={};all.filter(t=>!t.hidden&&!t.dist&&t.key).forEach(t=>{(need[t.key]=need[t.key]||{place:t.place,stops:t.stops,n:0}).n++});
     const nk=Object.entries(need);
     $("#kmMeasure").innerHTML=nk.length?`<section class="kmneed"><h4>Measure these once</h4><p class="sub2">Tap Maps for the drive from the office and back, read the total and type it in. Saved for every future claim.</p>
@@ -10452,7 +10452,7 @@ let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(renderChart
       const ed=editKey===t.evKey&&!t.hidden?`<div class="kmedit"><input type="number" inputmode="decimal" step="0.1" min="0" value="${t.dist?t.dist.km:""}" data-kmkmin="${id}" aria-label="Km for this trip, there and back"><button class="btn primary" data-kmkmok="${id}">Save km</button><button class="kmx" data-kmkmx="1">Cancel</button>${t.dist&&t.dist.src==="edited"&&!t.added?`<button class="kmx" data-kmkmreset="${id}">Use the measured distance</button>`:""}</div>`:"";
       return `<div class="kmleg2${t.hidden?" off":""}"><div class="w"><b>${esc(t.time?t.time+" · ":"")}${esc(t.what||"")}</b>${tags}${sub}${ed}</div><div class="r"><span class="k${t.dist||t.hidden?"":" miss"}">${t.hidden?"removed":k}</span>${btns}</div></div>`};
     $("#kmDays").innerHTML=(Object.keys(byDay).length?Object.keys(byDay).sort().map(dt=>{const ts=byDay[dt],on=ts.filter(t=>!t.hidden),sum=on.reduce((s,t)=>s+(t.dist?t.dist.km:0),0),g=on.filter(t=>!t.dist).length;
-      return `<div class="kmday"><div class="h"><b>${esc(fmtDay(dt))}</b><span class="${g?"part":""}">${!on.length?"removed":g?g+" to measure":sum.toFixed(1)+" km"}</span></div>${ts.map(leg).join("")}</div>`}).join(""):`<p class="sub2">No trips found in your calendar for this fortnight.</p>`)
+      return `<div class="kmday"><div class="h"><b>${esc(fmtDay(dt))}</b><span class="${g?"part":""}">${!on.length?"removed":g?g+" to measure":sum.toFixed(1)+" km"}</span></div>${ts.map(leg).join("")}</div>`}).join(""):(noCal?`<p class="sub2">Waiting for your calendar trips to sync to this device (hourly). They'll appear here with Edit and Remove.</p>`:`<p class="sub2">No trips found in your calendar for this fortnight.</p>`))
       +(W?(addOpen?addForm(p):`<div class="kmfoot" style="margin-top:10px"><button class="btn ghost" data-kmaddopen="1">+ Add a trip</button></div>`):"");
     paintBook(p,all);paintLodge(p)}catch(e){console.error(e)}}
   function addForm(p){const d=TODAY<p.s?p.s:TODAY>p.e?p.e:TODAY;
