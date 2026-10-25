@@ -934,7 +934,7 @@ VIEWS.recipes=function(v){
   const lastMade=t=>{let best='';for(const [k,m] of Object.entries(S.meals))if(m&&m.recipe===t&&k<=today()&&k>best)best=k;return best};
   v.innerHTML=`<div class="ph"><div><h1>Recipes</h1><p>The family's recipes. Put one on a night or send its ingredients to the shopping list.</p></div><button class="btn" id="newRec">${svg('plus')}New recipe</button></div>
   <div class="inline"><input id="rq" placeholder="Search recipes or ingredients" value="${esc(S.rq||'')}" autocomplete="off" aria-label="Search recipes"></div>
-  ${rs.length?`<div class="recgrid">${rs.map(r=>{const lm=lastMade(r.id);return `<button class="reccard" data-rec="${esc(r.id)}"><b>${esc(r.title)}</b><span>${[(r.ingredients||[]).length+' ingredients',r.time?esc(r.time):'',r.serves?'serves '+esc(r.serves):''].filter(Boolean).join(', ')}</span><small><span class="pip" style="background:${colour(r.by)}"></span>${esc(person(r.by).name)}${lm?', last cooked '+niceK(lm):''}</small></button>`}).join('')}</div>`:
+  ${rs.length?`<div class="recgrid">${rs.map(r=>{const lm=lastMade(r.id);return `<button class="reccard" data-rec="${esc(r.id)}"><b>${esc(r.title)}</b><span>${[(r.ingredients||[]).length+' ingredients',r.time?esc(r.time):'',r.serves?(/^\d+$/.test(r.serves)?'serves '+esc(r.serves):esc(r.serves)):''].filter(Boolean).join(', ')}</span><small><span class="pip" style="background:${colour(r.by)}"></span>${esc(person(r.by).name)}${lm?', last cooked '+niceK(lm):''}</small></button>`}).join('')}</div>`:
   `<section class="card" style="padding:18px"><div class="empty"><b>${q?'No recipes match':'No recipes yet'}</b>${q?'Try another word.':'Add the family favourites so they live next to the meal plan.'}</div></section>`}`;
   $('#newRec').onclick=()=>editRecipe(null);
   const rq=$('#rq');rq.oninput=()=>{S.rq=rq.value;clearTimeout(rq.t);rq.t=setTimeout(()=>{render();const x=$('#rq');if(x){x.focus();x.setSelectionRange(x.value.length,x.value.length)}},250)};
@@ -942,8 +942,9 @@ VIEWS.recipes=function(v){
 };
 function showRecipe(id){
   const r=S.recipes[id];if(!r)return;
-  openSheet(`<h2>${esc(r.title)}</h2><p class="sub">${[r.time?esc(r.time):'',r.serves?'Serves '+esc(r.serves):'','Added by '+esc(person(r.by).name)].filter(Boolean).join('. ')}</p>
+  openSheet(`<h2>${esc(r.title)}</h2><p class="sub">${[r.time?esc(r.time):'',r.serves?(/^\d+$/.test(r.serves)?'Serves '+esc(r.serves):esc(r.serves)):'','Added by '+esc(person(r.by).name)].filter(Boolean).join('. ')}</p>
    <div class="field"><span>Ingredients</span><ul class="ing">${(r.ingredients||[]).map(i=>`<li>${esc(i)}</li>`).join('')||'<li>None listed</li>'}</ul></div>
+   ${r.source?`<p class="hint" style="margin:0">${esc(r.source)}</p>`:''}
    ${r.method?`<div class="field"><span>Method</span><div class="method">${splitLines(r.method).map((m,i)=>`<p><b>${i+1}</b>${esc(m)}</p>`).join('')}</div></div>`:''}
    <div class="field"><span>Cook it on</span><div class="chips wrap">${[...Array(7)].map((_,i)=>{const k=ymd(addDays(new Date(),i));const m=S.meals[k];return `<button type="button" class="chip" data-on="${k}">${i===0?'Tonight':i===1?'Tomorrow':DOW[fromYmd(k).getDay()]}${m&&m.dinner?' <small>(has '+esc(m.dinner)+')</small>':''}</button>`}).join('')}</div></div>
    <div class="actions"><button type="button" class="btn ghost" id="rShop">Add ingredients to shopping</button><span class="grow"></span><button type="button" class="link" id="rEdit">Edit</button></div>`);
