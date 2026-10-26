@@ -350,6 +350,9 @@ nav.tabs button svg{width:22px;height:22px}
 .bphx{position:absolute;top:4px;right:4px;width:28px;height:28px;border-radius:50%;background:rgba(20,18,50,.7);color:#fff;display:grid;place-items:center}
 .bphx svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.4;fill:none;stroke-linecap:round}
 .bpick{justify-self:start;cursor:pointer}
+.phnote{display:none}
+.bph.nophoto a{display:none}
+.bph.nophoto .phnote{display:grid;place-items:center;height:100%;padding:8px;text-align:center;font-size:.78rem;color:var(--muted)}
 .av.xl{width:56px;height:56px;font-size:1.4rem}
 .megrid{display:grid;gap:20px;align-items:start}
 .mecol{display:grid;gap:20px}
@@ -1058,7 +1061,7 @@ let ASSETS=null;(async()=>{try{ASSETS=window.claude?await window.claude.use('ass
 async function shrinkPhoto(f){if(!/^image\/(jpeg|png|webp|heic|heif)$/i.test(f.type||''))return f;
   try{const bmp=await createImageBitmap(f);const sc=Math.min(1,2000/Math.max(bmp.width,bmp.height));const c=document.createElement('canvas');c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
     const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.85));return b&&b.size<f.size?b:f}catch(e){return f}}
-const photoTiles=(ps,rm)=>(ps||[]).map((p,i)=>`<figure class="bph">${/pdf/.test(p.type||'')?`<a class="bpdf" href="${blobUrl(p.id)}" target="_blank" rel="noopener">${svg('note')}<span>PDF</span></a>`:`<a href="${blobUrl(p.id)}" target="_blank" rel="noopener"><img src="${blobUrl(p.id)}" alt="Photo of the bill" loading="lazy"></a>`}${rm?`<button type="button" class="bphx" data-rmph="${i}" aria-label="Remove">${svg('x')}</button>`:''}</figure>`).join('');
+const photoTiles=(ps,rm)=>(ps||[]).map((p,i)=>`<figure class="bph">${/pdf/.test(p.type||'')?`<a class="bpdf" href="${blobUrl(p.id)}" target="_blank" rel="noopener">${svg('note')}<span>PDF</span></a>`:`<a href="${blobUrl(p.id)}" target="_blank" rel="noopener"><img src="${blobUrl(p.id)}" alt="Photo of the bill" loading="lazy" onerror="this.closest('figure').classList.add('nophoto')"></a><span class="phnote">Photo saved on the phone app</span>`}${rm?`<button type="button" class="bphx" data-rmph="${i}" aria-label="Remove">${svg('x')}</button>`:''}</figure>`).join('');
 VIEWS.bills=function(v){
   if(!isParent()){v.innerHTML=`<div class="ph"><div><h1>Bills</h1><p>Bills are kept for Tim and Laura.</p></div></div>`;return}
   const t=today(),open=billsOpen();
