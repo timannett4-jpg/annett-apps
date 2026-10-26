@@ -17,6 +17,7 @@ addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&/_b
 <script src="claude-shim.js"></script>
 </head>
 <body>
+
 <title>Annett Meal Planner</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -199,6 +200,39 @@ ol.steps li{margin:0 0 8px}
 .fz .cnt span b{display:block;font-size:1.4rem;color:var(--ink)}
 .fz .round{width:36px;height:36px;font-size:1.2rem;font-weight:700}
 #fzOwn{margin-top:4px}
+/* pantry staples */
+.st{display:flex;align-items:center;gap:8px;padding:9px 12px 9px 16px;border-top:1px solid var(--line)}
+.aisle+.st{border-top:0}
+.st .nm{flex:1;min-width:0}
+.st .nm b{display:block;font-weight:600;overflow-wrap:anywhere}
+.st .nm small{display:block;color:var(--buy);font-size:.78rem;font-weight:700}
+.st .amt{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line2);background:var(--sunk);font-size:.85rem;font-weight:600;color:var(--ink);max-width:38%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none}
+.st .amt.none{color:var(--faint);border-style:dashed;background:var(--surface)}
+.st .lowb{min-height:34px;padding:0 10px;border-radius:999px;border:1px solid var(--line2);font-size:.8rem;font-weight:700;color:var(--muted);flex:none}
+.st .lowb[aria-pressed="true"]{background:var(--buy-soft);border-color:#f0c4b2;color:var(--buy)}
+.st .x{width:32px;height:34px;display:grid;place-items:center;color:var(--faint);border-radius:10px;flex:none}
+.staplesum{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:var(--good-soft);color:#1f5a33;font-size:.9rem;font-weight:600;margin-top:10px}
+.staplesum.none{background:var(--sunk);color:var(--muted)}
+.staplesum .grow{min-width:0}
+.addrow{display:grid;grid-template-columns:1fr 36%;gap:8px}
+select{width:100%;border:1px solid var(--line2);border-radius:14px;background:var(--sunk);padding:0 12px;min-height:48px;min-width:0}
+.chip.add{border-style:dashed;min-height:36px;padding:0 12px;font-size:.88rem}
+.chip.add svg{width:14px;height:14px}
+.night.sug{background:#fff8f6;align-items:flex-start}
+.night.sug .w b{color:var(--ink)}
+.night .sugt{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-deep);margin-bottom:2px}
+.night .ctx{display:block;color:#2b5a7a;font-size:.8rem;font-weight:600;margin-top:2px}
+.night .prep{display:flex;align-items:flex-start;gap:6px;margin-top:6px;font-size:.8rem;font-weight:700;color:#7a4a12}
+.night .prep svg{width:14px;height:14px;margin-top:2px}
+.night .taken{color:var(--muted);font-weight:600}
+.sugacts{display:flex;gap:8px;margin-top:10px}
+.night .open{flex:1;min-width:0;text-align:left;display:block}
+.draftcard{border-color:#f4c6bd;background:linear-gradient(180deg,#fff,#fff8f6)}
+.draftcard .row{flex-wrap:wrap}
+.prepbox{background:#fdf3e4;border:1px solid #f1dcb8;border-radius:14px;padding:12px 14px;margin:0 0 14px}
+.prepbox .label{display:flex;align-items:center;gap:6px;margin:0 0 6px;color:#7a4a12}
+.prepbox p{margin:4px 0;font-size:.93rem}
+.qa .label{font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:16px 0 8px}
 </style>
 
 <header class="top">
@@ -237,7 +271,8 @@ const I={
   week:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
   cart:'<path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20.5" r="1.2"/><circle cx="17" cy="20.5" r="1.2"/>',
   left:'<path d="M15 18l-6-6 6-6"/>',right:'<path d="M9 18l6-6-6-6"/>',
-  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',plus:'<path d="M12 5v14M5 12h14"/>',snow:'<path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 4l3 2 3-2M9 20l3-2 3 2"/>',spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/>'
+  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',plus:'<path d="M12 5v14M5 12h14"/>',snow:'<path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 4l3 2 3-2M9 20l3-2 3 2"/>',spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/>',
+  jar:'<path d="M8 3h8M7 6.5h10"/><path d="M7 6.5V19a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6.5"/><path d="M7 11.5h10"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
 };
 const svg=k=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${I[k]}</svg>`;
 
@@ -249,6 +284,19 @@ const METHODS=['Slow cooker','Oven','BBQ','Stovetop','Air fryer'];
 const PREFS=['Freezer-friendly','Salad','Low carb','High protein','Quick (under 30 min)','Kid-friendly'];
 const isFreezer=r=>(r.prefs||[]).includes('Freezer-friendly');
 const AISLES=['Fruit & veg','Meat & fish','Dairy & eggs','Bakery','Pantry','Frozen','Drinks','Household','Other'];
+/* Pantry staples: things always in the cupboard, kept once so nobody has to type them for every request. */
+const STAPLE_CATS=['Herbs & spices','Baking','Sauces & condiments','Oils & vinegars','Stock & tins','Rice, pasta & grains','Fridge & freezer','Other'];
+const STARTERS={
+  'Herbs & spices':['Dried oregano','Dried mixed herbs','Dried thyme','Ground cumin','Ground coriander','Smoked paprika','Sweet paprika','Curry powder','Garam masala','Ground cinnamon','Ground turmeric','Chilli flakes','Garlic powder','Onion powder','Bay leaves','Chicken salt'],
+  'Baking':['Plain flour','Self-raising flour','Cornflour','White sugar','Caster sugar','Brown sugar','Icing sugar','Baking powder','Bicarb soda','Vanilla essence','Cocoa'],
+  'Sauces & condiments':['Soy sauce','Worcestershire sauce','Tomato sauce','BBQ sauce','Sweet chilli sauce','Oyster sauce','Fish sauce','Honey','Dijon mustard','Mayonnaise','Tomato paste'],
+  'Oils & vinegars':['Olive oil','Vegetable oil','Sesame oil','White vinegar','Balsamic vinegar','Apple cider vinegar'],
+  'Stock & tins':['Chicken stock','Beef stock','Vegetable stock','Tinned tomatoes','Coconut milk','Chickpeas','Kidney beans','Tinned tuna','Corn kernels'],
+  'Rice, pasta & grains':['White rice','Basmati rice','Spaghetti','Penne','Egg noodles','Rolled oats','Breadcrumbs','Couscous'],
+  'Fridge & freezer':['Butter','Milk','Eggs','Cheddar cheese','Parmesan','Crushed garlic (jar)','Crushed ginger (jar)','Frozen peas','Frozen mixed veg']
+};
+const stapleCat=s=>STAPLE_CATS.includes(s.cat)?s.cat:'Other';
+const stapleAisle=s=>stapleCat(s)==='Fridge & freezer'||stapleCat(s)==='Other'?'Other':'Pantry';
 
 /* The same instructions are used by the scheduled task that answers requests sent from the home-screen app. */
 function recipePrompt(r){
@@ -257,6 +305,9 @@ function recipePrompt(r){
 
 WHAT THEY HAVE (pantry, fridge and freezer, in their words):
 ${r.pantry||'(nothing listed)'}
+
+PANTRY STAPLES ALWAYS ON HAND (with how much they have, where known):
+${r.staples||'(none listed)'}
 
 HOW THEY WANT TO COOK: ${r.methods&&r.methods.length?r.methods.join(', '):'any method'}
 PREFERENCES: ${r.prefs&&r.prefs.length?r.prefs.join(', '):'none'}
@@ -267,6 +318,7 @@ RULES
 - FREEZER-FRIENDLY: only suggest dishes that freeze and reheat well (stews, curries, braises, bolognese, soups, pies, bakes, meatballs, marinated raw meat). Avoid things that go watery or rubbery when frozen (salad leaves, fried or crumbed food meant to be crisp, creamy sauces that split, cooked pasta in soup). Every option must include the "freezer" object.`:''}
 - Build each recipe mainly around what they have. Keep the extra things to buy short and ordinary (an Australian supermarket like Coles or Woolworths).
 - Assume they always have: salt, pepper, cooking oil, water. Don't list those.
+- Pantry staples count as things they have: use them freely and mark them "have": true, but never need more than the amount listed (if a recipe needs more than they have, mark it "have": false so it goes on the shopping list). Anything under RUNNING LOW is "have": false if the recipe needs it.
 - If cooking methods are given, every recipe must use one of them. Respect every preference (e.g. low carb means no rice, pasta, bread or potato as the base; Kid-friendly means mild, no chilli heat).
 - Use Australian names and metric units (capsicum, coriander, spring onion, mince, g, kg, ml, tbsp).
 - Make the options genuinely different from each other.
@@ -274,14 +326,14 @@ RULES
 
 Reply with ONLY this JSON, nothing else:
 {"options":[{"title":"...","why":"one short sentence on why it suits what they asked","method":"one of: Slow cooker, Oven, BBQ, Stovetop, Air fryer","time":"e.g. 35 min or 6 hrs on low","tags":["e.g. High protein","Low carb"],"uses":["items from their list this uses"],"ingredients":[{"item":"Chicken thighs","qty":"1.5 kg","have":true,"aisle":"Meat & fish"}],"steps":["..."],"makes":${total}${fz?`,"freezer":{"portion":"how to cool, split and pack it, e.g. Cool, split into ${b>1?b-1:1} family-size containers (7 serves each), label and date","keeps":"e.g. Up to 3 months","reheat":"how to thaw and reheat, e.g. Thaw overnight in the fridge, then reheat covered in a 180°C oven for 30 min or on the stove until piping hot"}`:''}}]}
-"have" is true when the item is on their list, false when they need to buy it. "aisle" is one of: ${AISLES.join(', ')}.`;
+"have" is true when the item is on their list or in their staples (in a big enough amount), false when they need to buy it. "aisle" is one of: ${AISLES.join(', ')}.`;
 }
 
 /* ---------- state ---------- */
 const S={tab:store.get('mp-tab')||'ideas',me:store.get('mp-me')||'',week:monday(new Date()),
-  requests:{},plan:{},shopsend:{},freezer:{},batches:+(store.get('mp-batches')||2),methods:new Set(JSON.parse(store.get('mp-methods')||'[]')),prefs:new Set(JSON.parse(store.get('mp-prefs')||'[]')),
+  requests:{},plan:{},shopsend:{},freezer:{},staples:{},drafts:{},batches:+(store.get('mp-batches')||2),methods:new Set(JSON.parse(store.get('mp-methods')||'[]')),prefs:new Set(JSON.parse(store.get('mp-prefs')||'[]')),
   db:null,sample:null,ready:false,thinking:{}};
-const TABS=[['ideas','Ideas','idea'],['week','This week','week'],['freezer','Freezer','snow'],['buy','To buy','cart']];
+const TABS=[['ideas','Ideas','idea'],['pantry','Pantry','jar'],['week','This week','week'],['freezer','Freezer','snow'],['buy','To buy','cart']];
 const weekKey=()=>ymd(S.week);
 const planFor=k=>S.plan[k]||{week:k,nights:{},skip:[],sent:[]};
 const list=o=>Object.entries(o||{}).map(([id,v])=>Object.assign({id},v));
@@ -295,7 +347,7 @@ const list=o=>Object.entries(o||{}).map(([id,v])=>Object.assign({id},v));
   const seen={};let pend=false;
   const soon=()=>{if(pend)return;pend=true;setTimeout(()=>{pend=false;render()},0)};
   const sub=name=>db.collection(name).onSnapshot(s=>{const o={};s.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});const j=JSON.stringify(o);if(seen[name]===j)return;seen[name]=j;S[name]=o;S.ready=true;soon()},()=>{});
-  sub('requests');sub('plan');sub('shopsend');sub('freezer');
+  sub('requests');sub('plan');sub('shopsend');sub('freezer');sub('staples');sub('drafts');
   try{S.sample=await claude.use('sample')}catch(e){S.sample=null}
   render();
   if(!S.me)pickMe();
@@ -322,10 +374,11 @@ function closeSheet(){$('#sheet').hidden=true}
 $('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet')closeSheet()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
 
+function goTab(t){S.tab=t;store.set('mp-tab',t);render();scrollTo(0,0)}
 function render(){
   paintTabs();
   const v=$('#view');
-  if(S.tab==='week')viewWeek(v);else if(S.tab==='freezer')viewFreezer(v);else if(S.tab==='buy')viewBuy(v);else viewIdeas(v);
+  if(S.tab==='pantry')viewPantry(v);else if(S.tab==='week')viewWeek(v);else if(S.tab==='freezer')viewFreezer(v);else if(S.tab==='buy')viewBuy(v);else viewIdeas(v);
 }
 
 /* ---------- Ideas ---------- */
@@ -335,9 +388,10 @@ function viewIdeas(v){
   const latest=reqs.slice(0,2),older=reqs.slice(2,12);
   v.innerHTML=`<h1>What's for dinner?</h1><p class="lede">Tell Claude what you've got and how you'd like to cook it. You'll get recipe ideas for ${SERVES}, then pick nights for them.</p>
   <section class="card">
-    <label class="label" for="pan">What's in the pantry, fridge and freezer?</label>
-    <textarea id="pan" placeholder="e.g. chicken thighs, rice, half a pumpkin, 2 capsicums, tin of coconut milk, frozen peas, feta">${esc(draft)}</textarea>
+    <label class="label" for="pan">What fresh food have you got? (meat, veg, leftovers)</label>
+    <textarea id="pan" placeholder="e.g. chicken thighs, half a pumpkin, 2 capsicums, feta, leftover roast lamb">${esc(draft)}</textarea>
     <p class="hint">Type it or tap the microphone on your keyboard and say it.</p>
+    ${staplesSum()}
     <span class="label">How do you want to cook?</span>
     <div class="chips" role="group" aria-label="Cooking method">${METHODS.map(m=>`<button type="button" class="chip" data-m="${esc(m)}" aria-pressed="${S.methods.has(m)}">${esc(m)}</button>`).join('')}</div>
     <span class="label">Anything else you're after?</span>
@@ -354,6 +408,7 @@ function viewIdeas(v){
   ${older.length?`<details class="older"><summary>Earlier ideas (${older.length})</summary>${older.map(reqBlock).join('')}</details>`:''}
   ${!reqs.length&&S.ready?'<div class="emptybox"><b>No ideas yet</b>Fill in what you have above and tap Get recipe ideas.</div>':''}`;
   $('#pan').oninput=e=>store.set('mp-pantry',e.target.value);
+  $('#goPantry').onclick=()=>goTab('pantry');
   $('#notes').oninput=e=>store.set('mp-notes',e.target.value);
   v.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const m=b.dataset.m;S.methods.has(m)?S.methods.delete(m):S.methods.add(m);b.setAttribute('aria-pressed',S.methods.has(m));store.set('mp-methods',JSON.stringify([...S.methods]))});
   v.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{const m=b.dataset.p;S.prefs.has(m)?S.prefs.delete(m):S.prefs.add(m);b.setAttribute('aria-pressed',S.prefs.has(m));store.set('mp-prefs',JSON.stringify([...S.prefs]));if(m==='Freezer-friendly'){$('#batchRow').hidden=!S.prefs.has(m);servesNote()}});
@@ -361,6 +416,9 @@ function viewIdeas(v){
   $('#ask').onclick=ask;
   bindOpts(v);
 }
+function staplesSum(){const all=staplesList(),low=all.filter(s=>s.low).length;
+  return all.length?`<div class="staplesum">${svg('jar')}<span class="grow">Claude also knows your ${all.length} pantry staple${all.length===1?'':'s'}${low?` (${low} running low)`:''}, so no need to type them.</span><button class="link" id="goPantry">Edit</button></div>`
+   :`<div class="staplesum none">${svg('jar')}<span class="grow">Add your herbs, spices, flour and other staples once and Claude will always know what you have.</span><button class="link" id="goPantry">Add</button></div>`}
 function servesNote(){const e=$('.serves span');if(e)e.textContent=S.prefs.has('Freezer-friendly')&&S.batches>1?`Recipes make ${S.batches*SERVES} serves (${S.batches} meals of ${SERVES}).`:`Recipes are for ${SERVES} people.`}
 function plannedTitles(){const t=new Set();for(const p of Object.values(S.plan))for(const r of Object.values(p.nights||{}))if(r&&r.title)t.add(r.title);return t}
 function reqBlock(r){
@@ -389,8 +447,8 @@ function bindOpts(v){
 async function ask(){
   if(needMe())return;
   const pantry=$('#pan').value.trim(),notes=$('#notes').value.trim();
-  if(!pantry&&!S.methods.size&&!S.prefs.size&&!notes){toast('Tell Claude what you have, or how you want to cook');$('#pan').focus();return}
-  const r={by:S.me,at:nowIso(),pantry:pantry.slice(0,3000),methods:[...S.methods],prefs:[...S.prefs],notes:notes.slice(0,500),serves:SERVES,batches:S.prefs.has('Freezer-friendly')?S.batches:1,count:6,state:S.sample?'thinking':'queued'};
+  if(!pantry&&!S.methods.size&&!S.prefs.size&&!notes&&!staplesList().length){toast('Tell Claude what you have, or how you want to cook');$('#pan').focus();return}
+  const r={by:S.me,at:nowIso(),pantry:pantry.slice(0,3000),methods:[...S.methods],prefs:[...S.prefs],notes:notes.slice(0,500),staples:staplesText(),serves:SERVES,batches:S.prefs.has('Freezer-friendly')?S.batches:1,count:6,state:S.sample?'thinking':'queued'};
   const id=rid();
   if(!await write(db=>db.doc('requests/'+id).set(r)))return;
   if(S.sample)generate(id,r);else toast('Sent. Ideas will be here within the hour.');
@@ -418,6 +476,19 @@ async function generate(id,r){
 }
 
 /* ---------- recipe sheet and night picker ---------- */
+/* Prep reminders for a planned dinner: from the recipe's own prep notes, or worked out from how it's cooked.
+   The scheduled task uses the same rules when it copies the plan into the Family Hub. Dinner is about 6pm. */
+const DINNER_H=18;
+function clockTxt(h){const t=Math.round(Math.max(5,h)*4)*15,hh=Math.floor(t/60),mm=t%60;return (hh%12||12)+(mm?':'+pad(mm):'')+(hh<12?'am':'pm')}
+function prepFor(r){
+  if(!r)return {};const p=Object.assign({},r.prep||{});
+  if(r.fromFreezer&&!p.nightBefore)p.nightBefore='Take '+r.title+' out of the freezer to thaw in the fridge';
+  if(!p.morning&&!p.afternoon&&/slow cook/i.test(r.method||'')){const m=String(r.time||'').match(/(\d+(?:\.\d+)?)\s*(?:-\s*\d+\s*)?(?:hrs?|hours?)/i);
+    if(m){const st=DINNER_H-parseFloat(m[1])-0.5;const t='Slow cooker on by '+clockTxt(st)+' ('+r.title+')';if(st<12)p.morning=t;else p.afternoon=t}}
+  return p;
+}
+function prepBlock(r){const p=prepFor(r);if(!p.nightBefore&&!p.morning&&!p.afternoon)return'';
+  return `<div class="prepbox"><span class="label">${svg('clock')}Prep reminders</span>${p.nightBefore?`<p><b>Night before:</b> ${esc(p.nightBefore)}</p>`:''}${p.morning?`<p><b>Morning:</b> ${esc(p.morning)}</p>`:''}${p.afternoon?`<p><b>Afternoon:</b> ${esc(p.afternoon)}</p>`:''}</div>`}
 function freezerBlock(f){if(!f)return'';return `<div class="fzbox"><span class="label">${svg('snow')}Freezer</span>
    ${f.portion?`<p><b>Freeze and portion:</b> ${esc(f.portion)}</p>`:''}${f.keeps?`<p><b>Keeps:</b> ${esc(f.keeps)}</p>`:''}${f.reheat?`<p><b>Thaw and reheat:</b> ${esc(f.reheat)}</p>`:''}</div>`}
 function showRecipe(o,opt){
@@ -425,21 +496,23 @@ function showRecipe(o,opt){
   const nightDoc=opt.night?(planFor(ymd(monday(fromYmd(opt.night)))).nights||{})[opt.night]:null;
   if(o.fromFreezer){
     openSheet(`<h2>${esc(o.title)}</h2><p class="sub">From the freezer${o.frozenAt?' · frozen '+nice(new Date(o.frozenAt)):''}</p>
-     ${o.freezer&&o.freezer.reheat?`<div class="fzbox"><span class="label">${svg('snow')}Thaw and reheat</span><p>${esc(o.freezer.reheat)}</p></div>`:'<p>Thaw overnight in the fridge, then reheat until piping hot.</p>'}
+     ${prepBlock(o)}${o.freezer&&o.freezer.reheat?`<div class="fzbox"><span class="label">${svg('snow')}Thaw and reheat</span><p>${esc(o.freezer.reheat)}</p></div>`:'<p>Thaw overnight in the fridge, then reheat until piping hot.</p>'}
      ${o.notes?`<p>${esc(o.notes)}</p>`:''}
-     <div class="actions">${opt.night?`<button class="btn ghost" id="rMove">Move to another night</button><span class="grow"></span><button class="link danger" id="rDel">Take off ${esc(DOWL[fromYmd(opt.night).getDay()])} (back in the freezer)</button>`:''}</div>`);
+     <div class="actions">${opt.keep?`<button class="btn" id="rKeep">${svg('check')}Keep for ${esc(DOWL[fromYmd(opt.keep).getDay()])}</button><button class="link danger" id="rDrop">Not this one</button>`:''}${opt.night?`<button class="btn ghost" id="rMove">Move to another night</button><span class="grow"></span><button class="link danger" id="rDel">Take off ${esc(DOWL[fromYmd(opt.night).getDay()])} (back in the freezer)</button>`:''}</div>`);
   }else{
   openSheet(`<h2>${esc(o.title)}</h2><p class="sub">${[o.method,o.time,b>1?`Makes ${o.makes||b*SERVES} (eat ${SERVES}, freeze ${(b-1)*SERVES})`:'Serves '+(o.serves||SERVES)].filter(Boolean).map(esc).join(' · ')}</p>
    ${o.why?`<p style="margin:0 0 14px">${esc(o.why)}</p>`:''}
+   ${prepBlock(o)}
    <span class="label">Ingredients</span>
    <ul class="ings">${ing.map(x=>`<li><span class="k ${x.have?'h':'b'}">${x.have?'Have':'Buy'}</span><span>${esc(x.item)}</span><span class="qq">${esc(x.qty)}</span></li>`).join('')}</ul>
    <span class="label">Method</span>
    <ol class="steps">${(o.steps||[]).map(t=>`<li>${esc(t)}</li>`).join('')}</ol>
    ${freezerBlock(o.freezer)}
    ${opt.night&&nightDoc&&nightDoc.frozeAt?`<div class="note">${nightDoc.froze} meal${nightDoc.froze===1?'':'s'} went into the freezer ${DOW[new Date(nightDoc.frozeAt).getDay()]} ${nice(new Date(nightDoc.frozeAt))}.</div>`:''}
-   <div class="actions">${opt.add?`<button class="btn" id="rAdd">${svg('plus')}Add to a night</button>`:''}${opt.night&&!(nightDoc&&nightDoc.frozeAt)?`<button class="btn" id="rFz">${svg('snow')}Cooked it: freeze ${b>1?b-1+' meal'+(b-1===1?'':'s'):'leftovers'}</button>`:''}${opt.night?`<button class="btn ghost" id="rMove">Move</button><span class="grow"></span><button class="link danger" id="rDel">Take off ${esc(DOWL[fromYmd(opt.night).getDay()])}</button>`:''}</div>`);
+   <div class="actions">${opt.keep?`<button class="btn" id="rKeep">${svg('check')}Keep for ${esc(DOWL[fromYmd(opt.keep).getDay()])}</button><button class="link danger" id="rDrop">Not this one</button>`:''}${opt.add?`<button class="btn" id="rAdd">${svg('plus')}Add to a night</button>`:''}${opt.night&&!(nightDoc&&nightDoc.frozeAt)?`<button class="btn" id="rFz">${svg('snow')}Cooked it: freeze ${b>1?b-1+' meal'+(b-1===1?'':'s'):'leftovers'}</button>`:''}${opt.night?`<button class="btn ghost" id="rMove">Move</button><span class="grow"></span><button class="link danger" id="rDel">Take off ${esc(DOWL[fromYmd(opt.night).getDay()])}</button>`:''}</div>`);
   }
   if(opt.add)$('#rAdd').onclick=()=>pickNight(o);
+  if(opt.keep){$('#rKeep').onclick=async()=>{if(await useSuggestions([opt.keep]))closeSheet()};$('#rDrop').onclick=async()=>{if(await dropSuggestion(opt.keep))closeSheet()}}
   const fzb=$('#rFz');if(fzb)fzb.onclick=()=>freezeSheet(o,Math.max(1,b-1),opt.night);
   if(opt.night){$('#rMove').onclick=()=>pickNight(o,opt.night);$('#rDel').onclick=async()=>{
     if(await setNight(opt.night,null)){if(o.fromFreezer)await adjustFreezer(o.fromFreezer,1,o);closeSheet();toast(o.fromFreezer?'Taken off the plan and back in the freezer':'Taken off the plan')}}}
@@ -520,19 +593,136 @@ async function setNight(dk,o,from){
   return ok;
 }
 
+/* ---------- Pantry staples ---------- */
+function staplesList(){return list(S.staples).filter(s=>s.item).sort((a,b)=>STAPLE_CATS.indexOf(stapleCat(a))-STAPLE_CATS.indexOf(stapleCat(b))||String(a.item).localeCompare(String(b.item)))}
+/* What goes into each request, e.g. "Plain flour (2 kg), Ground cumin" then the running-low line. */
+function staplesText(){const all=staplesList(),f=s=>s.item+(s.qty?' ('+s.qty+')':''),ok=all.filter(s=>!s.low).map(f),low=all.filter(s=>s.low).map(f);
+  return (ok.join(', ')+(low.length?(ok.length?'\n':'')+'RUNNING LOW (don\'t rely on these): '+low.join(', '):'')).slice(0,4000)}
+const stData=s=>({item:s.item,qty:s.qty||'',cat:stapleCat(s),low:!!s.low,by:s.by||S.me,at:s.at||nowIso()});
+const stRow=s=>`<div class="st"><span class="nm"><b>${esc(s.item)}</b>${s.low?'<small>Running low</small>':''}</span><button class="amt${s.qty?'':' none'}" data-sq="${esc(s.id)}" aria-label="How much ${esc(s.item)}">${s.qty?esc(s.qty):'How much?'}</button><button class="lowb" data-sl="${esc(s.id)}" aria-pressed="${!!s.low}">Low</button><button class="x" data-sx="${esc(s.id)}" aria-label="Remove ${esc(s.item)}">${svg('x')}</button></div>`;
+async function addStaple(item,qty,cat){
+  item=String(item||'').trim().slice(0,60);qty=String(qty||'').trim().slice(0,40);if(!item)return false;
+  const same=staplesList().find(s=>norm(s.item)===norm(item));
+  if(same){if(!qty){toast(same.item+' is already in your staples');return false}
+    return write(db=>db.doc('staples/'+same.id).set(Object.assign(stData(same),{qty,low:false,by:S.me,at:nowIso()})))}
+  return write(db=>db.doc('staples/'+rid()).set({item,qty,cat:STAPLE_CATS.includes(cat)?cat:'Other',low:false,by:S.me,at:nowIso()}));
+}
+function viewPantry(v){
+  const all=staplesList(),have=new Set(all.map(s=>norm(s.item))),low=all.filter(s=>s.low).length;
+  const groups=STAPLE_CATS.map(c=>[c,all.filter(s=>stapleCat(s)===c)]).filter(g=>g[1].length);
+  const qa=STAPLE_CATS.map(c=>[c,(STARTERS[c]||[]).filter(x=>!have.has(norm(x)))]).filter(g=>g[1].length);
+  const cat=STAPLE_CATS.includes(S.stCat)?S.stCat:'Herbs & spices';
+  v.innerHTML=`<h1>Pantry staples</h1><p class="lede">What you always keep in the cupboard. Claude counts these as things you have every time it suggests recipes, so on the Ideas tab you only type the fresh food. Tap <b>Low</b> on anything running out and it goes on the To buy list.</p>
+  <section class="card">
+    <span class="label">Add a staple</span>
+    <div class="addrow"><input id="stI" placeholder="e.g. Smoked paprika" autocomplete="off" enterkeyhint="next"><input id="stQ" placeholder="How much" autocomplete="off" enterkeyhint="done"></div>
+    <div class="row" style="margin-top:8px"><select id="stC" aria-label="Type of staple">${STAPLE_CATS.map(c=>`<option${c===cat?' selected':''}>${esc(c)}</option>`).join('')}</select><button class="btn" id="stAdd">${svg('plus')}Add</button></div>
+    <p class="hint">How much can be anything that helps: 2 kg, 1 jar, half a bottle, nearly empty.</p>
+  </section>
+  ${groups.length?`<p class="lede" style="margin:4px 2px 10px">${all.length} staple${all.length===1?'':'s'}${low?` · ${low} running low`:''}</p><section class="card flush">${groups.map(([c,its])=>`<div class="aisle">${esc(c)}</div>${its.map(stRow).join('')}`).join('')}</section>`
+   :'<div class="card emptybox"><b>No staples yet</b>Tap the common ones below to add them, or type your own above.</div>'}
+  ${qa.length?`<section class="card qa"><h2>Quick add</h2><p class="hint" style="margin:-4px 0 0">Tap anything you keep in stock. Add how much after, if you like.</p>
+   ${qa.map(([c,xs])=>`<span class="label">${esc(c)}</span><div class="chips">${xs.map(x=>`<button type="button" class="chip add" data-qa="${esc(x)}" data-c="${esc(c)}">${svg('plus')}${esc(x)}</button>`).join('')}</div>`).join('')}</section>`:''}`;
+  const go=async()=>{if(needMe())return;const i=$('#stI').value.trim();if(!i){toast('What is it?');$('#stI').focus();return}
+    if(await addStaple(i,$('#stQ').value,$('#stC').value)){toast(i+' added');$('#stI').value='';$('#stQ').value='';$('#stI').focus()}};
+  $('#stAdd').onclick=go;
+  $('#stI').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('#stQ').focus()}};
+  $('#stQ').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();go()}};
+  $('#stC').onchange=e=>{S.stCat=e.target.value};
+  v.querySelectorAll('[data-qa]').forEach(b=>b.onclick=async()=>{if(needMe())return;b.disabled=true;if(await addStaple(b.dataset.qa,'',b.dataset.c))toast(b.dataset.qa+' added');else b.disabled=false});
+  v.querySelectorAll('[data-sl]').forEach(b=>b.onclick=()=>{if(needMe())return;const s=S.staples[b.dataset.sl];if(!s)return;
+    write(db=>db.doc('staples/'+b.dataset.sl).set(Object.assign(stData(s),{low:!s.low,by:S.me,at:nowIso()})))});
+  v.querySelectorAll('[data-sx]').forEach(b=>b.onclick=async()=>{if(needMe())return;const id=b.dataset.sx,s=S.staples[id];if(!s)return;
+    if(await write(db=>db.doc('staples/'+id).delete()))toast(s.item+' removed')});
+  v.querySelectorAll('[data-sq]').forEach(b=>b.onclick=()=>editStaple(b.dataset.sq));
+}
+function editStaple(id){
+  if(needMe())return;const s=S.staples[id];if(!s)return;
+  openSheet(`<h2>${esc(s.item)}</h2><p class="sub">${esc(stapleCat(s))}</p>
+   <label class="label" for="eQ">How much have you got?</label><input id="eQ" value="${esc(s.qty||'')}" placeholder="e.g. 2 kg, 1 jar, half a bottle" autocomplete="off">
+   <label class="label" for="eN">Name</label><input id="eN" value="${esc(s.item)}" autocomplete="off">
+   <label class="label" for="eC">Type</label><select id="eC">${STAPLE_CATS.map(c=>`<option${c===stapleCat(s)?' selected':''}>${esc(c)}</option>`).join('')}</select>
+   <div class="actions"><button class="link danger" id="eDel">Remove</button><span class="grow"></span><button class="btn" id="eGo">Save</button></div>`);
+  setTimeout(()=>{const q=$('#eQ');if(q)q.focus()},50);
+  const save=async()=>{const n=$('#eN').value.trim().slice(0,60);if(!n){toast('It needs a name');return}
+    if(await write(db=>db.doc('staples/'+id).set(Object.assign(stData(s),{item:n,qty:$('#eQ').value.trim().slice(0,40),cat:$('#eC').value,by:S.me,at:nowIso()})))){closeSheet();toast('Saved')}};
+  $('#eGo').onclick=save;$('#eQ').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();save()}};
+  $('#eDel').onclick=async()=>{if(await write(db=>db.doc('staples/'+id).delete())){closeSheet();toast(s.item+' removed')}};
+}
+
 /* ---------- This week ---------- */
-function thawNote(p,d){const nk=ymd(addDays(d,1)),nr=((planFor(ymd(monday(addDays(d,1))))).nights||{})[nk];return nr&&nr.fromFreezer?`<span class="thaw">${svg('snow')}Take out to thaw for tomorrow: ${esc(nr.title)}</span>`:''}
+/* Claude's draft for a week lives in drafts/<monday>: {week, state queued|working|done|error, by, at, note,
+   nights:{date: recipe + why + prep}, days:{date:{busy, weather, out, taken}}, used:[dates], dropped:[dates]}.
+   The scheduled task fills it (it can see the Family Hub calendar, who's home and the forecast). */
+function draftFor(k){return S.drafts[k]||null}
+function suggestionFor(k,dk){const dr=draftFor(k),p=planFor(k);if(!dr||dr.state!=='done'||(p.nights||{})[dk])return null;
+  if((dr.used||[]).includes(dk)||(dr.dropped||[]).includes(dk))return null;return (dr.nights||{})[dk]||null}
+const stripSug=o=>{const x=Object.assign({},o);delete x.suggested;return x};
+async function useSuggestions(dks){
+  if(needMe())return false;const k=ymd(monday(fromYmd(dks[0]))),p=planFor(k),dr=draftFor(k);if(!dr)return false;
+  const n=Object.assign({},p.nights),fz={},took=[];
+  for(const dk of dks){const o=suggestionFor(k,dk);if(!o)continue;n[dk]=Object.assign(stripSug(o),{by:S.me,at:nowIso(),fromDraft:true});took.push(dk);if(o.fromFreezer)fz[o.fromFreezer]=(fz[o.fromFreezer]||0)-1}
+  if(!took.length)return false;
+  const ok=await write(async db=>{
+    await db.doc('plan/'+k).set(Object.assign({skip:[],sent:[]},p,{week:k,nights:n,updatedBy:S.me,updatedAt:nowIso()}));
+    await db.doc('drafts/'+k).set(Object.assign({},dr,{used:[...new Set([...(dr.used||[]),...took])]}));
+    for(const [id,d] of Object.entries(fz)){const f=S.freezer[id];if(!f)continue;const left=(+f.portions||0)+d;if(left<=0)await db.doc('freezer/'+id).delete();else await db.doc('freezer/'+id).set(Object.assign({},f,{portions:left}))}
+  });
+  if(ok)toast(took.length===1?n[took[0]].title+' is on '+DOWL[fromYmd(took[0]).getDay()]:took.length+' dinners added to the plan');
+  return ok;
+}
+async function dropSuggestion(dk){if(needMe())return false;const k=ymd(monday(fromYmd(dk))),dr=draftFor(k);if(!dr)return false;
+  return write(db=>db.doc('drafts/'+k).set(Object.assign({},dr,{dropped:[...new Set([...(dr.dropped||[]),dk])]})))}
+function askDraft(k){
+  if(needMe())return;const dr=draftFor(k),d0=fromYmd(k);
+  openSheet(`<h2>Plan ${k===ymd(monday(new Date()))?'this week':'the week of '+nice(d0)} for me</h2>
+   <p class="sub">Claude fills every free night around the Family Hub calendar, who's home, the weather, the freezer and your staples. You then keep or swap each one.</p>
+   <label class="label" for="dN">Anything Claude should know? (optional)</label>
+   <input id="dN" value="${esc(dr&&dr.note||'')}" placeholder="e.g. use the lamb, Laura's away Wednesday, cheap week" autocomplete="off">
+   <div class="actions"><span class="grow"></span><button class="btn" id="dGo">${svg('spark')}Plan it</button></div>
+   <p class="hint" style="margin-top:12px">It'll be ready within the hour and you'll get a notification.</p>`);
+  $('#dGo').onclick=async()=>{const note=$('#dN').value.trim().slice(0,400);
+    if(await write(db=>db.doc('drafts/'+k).set({week:k,state:'queued',by:S.me,at:nowIso(),note,nights:{},days:{},used:[],dropped:[]}))){closeSheet();toast('Sent. Your week will be planned within the hour.')}};
+}
+function prepLines(d){
+  const dk=ymd(d),r=(planFor(ymd(monday(d))).nights||{})[dk],nk=ymd(addDays(d,1)),nr=(planFor(ymd(monday(addDays(d,1)))).nights||{})[nk];
+  const out=[],p=prepFor(r),np=prepFor(nr);
+  if(p.morning)out.push(p.morning);if(p.afternoon)out.push(p.afternoon);
+  if(np.nightBefore)out.push('Tonight: '+np.nightBefore.replace(/^./,c=>c.toLowerCase())+' for tomorrow');
+  return out.map(t=>`<span class="prep">${svg(/freezer|thaw/i.test(t)?'snow':'clock')}${esc(t)}</span>`).join('');
+}
+function dayCtx(dr,dk){const c=dr&&dr.days&&dr.days[dk];if(!c)return'';
+  const bits=[c.busy,c.weather,c.out&&c.out.length?'Out: '+c.out.map(id=>person(id).name).join(', '):''].filter(Boolean);
+  return bits.length?`<span class="ctx">${esc(bits.join(' · '))}</span>`:''}
 function viewWeek(v){
-  const k=weekKey(),p=planFor(k),days=[...Array(7)].map((_,i)=>addDays(S.week,i)),t=today();
-  const n=Object.keys(p.nights||{}).length;
-  v.innerHTML=`<h1>This week's dinners</h1><p class="lede">${n?`${n} of 7 nights planned.`:'Nothing planned yet.'} Tap a night to see the recipe, or pick ideas from the Ideas tab.</p>
+  const k=weekKey(),p=planFor(k),days=[...Array(7)].map((_,i)=>addDays(S.week,i)),t=today(),dr=draftFor(k);
+  const n=Object.keys(p.nights||{}).length,dks=days.map(ymd),sugs=dks.filter(dk=>suggestionFor(k,dk));
+  const past=ymd(addDays(S.week,6))<t,busy=dr&&(dr.state==='queued'||dr.state==='working');
+  let box='';
+  if(busy)box=`<div class="status"><span class="spin"></span>Claude is planning this week around the calendar, the weather and the freezer. It'll be ready within the hour.</div>`;
+  else if(sugs.length)box=`<section class="card draftcard"><h2>Claude's plan for this week</h2><p class="hint" style="margin:-4px 0 12px">${sugs.length} suggestion${sugs.length===1?'':'s'} below. Keep the ones you like, cross off the rest${dr.note?'. You asked: '+esc(dr.note):''}.</p>
+    <div class="row"><button class="btn" id="useAll">${svg('check')}Keep all ${sugs.length}</button><button class="link" id="reDraft">Plan it again</button></div></section>`;
+  else if(dr&&dr.state==='error')box=`<div class="status err">Claude couldn't plan this week${dr.error?': '+esc(dr.error):''}. <button class="link" id="reDraft">Try again</button></div>`;
+  else if(n<7&&!past)box=`<button class="btn wide" id="draftBtn" style="margin-bottom:14px">${svg('spark')}Plan ${n?'the rest of ':''}this week for me</button>`;
+  v.innerHTML=`<h1>This week's dinners</h1><p class="lede">${n?`${n} of 7 nights planned.`:'Nothing planned yet.'} Tap a night to see the recipe and prep reminders.</p>
   <div class="wk"><button class="round" id="wPrev" aria-label="Previous week">${svg('left')}</button><b>${nice(days[0])} to ${nice(days[6])}</b><button class="round" id="wNext" aria-label="Next week">${svg('right')}</button></div>
-  <section class="card flush">${days.map(d=>{const dk=ymd(d),r=(p.nights||{})[dk];return `<button class="night${dk===t?' today':''}" data-n="${dk}"><span class="d"><b>${DOW[d.getDay()]}</b><span>${d.getDate()}</span></span><span class="w">${r?`<b>${r.fromFreezer?svg('snow')+' ':''}${esc(r.title)}</b><small>${[r.method,r.time,+r.batches>1&&!r.fromFreezer?'makes '+(r.makes||r.batches*SERVES):''].filter(Boolean).map(esc).join(' · ')}${r.by?' · added by '+esc(person(r.by).name):''}</small>`:'<span class="empty">Nothing yet</span>'}${thawNote(p,d)}</span>${svg('right')}</button>`}).join('')}</section>
+  ${box}
+  <section class="card flush">${days.map(d=>{const dk=ymd(d),r=(p.nights||{})[dk],sg=suggestionFor(k,dk),c=dr&&dr.days&&dr.days[dk];
+    const day=`<span class="d"><b>${DOW[d.getDay()]}</b><span>${d.getDate()}</span></span>`;
+    if(sg)return `<div class="night sug${dk===t?' today':''}">${day}<span class="w"><button class="open" data-sg="${dk}"><span class="sugt">Suggested</span><b>${sg.fromFreezer?svg('snow')+' ':''}${esc(sg.title)}</b><small>${esc([sg.method,sg.time].filter(Boolean).join(' · '))}${sg.why?' · '+esc(sg.why):''}</small>${dayCtx(dr,dk)}</button>
+      <span class="sugacts"><button class="btn sm" data-keep="${dk}">${svg('check')}Keep</button><button class="btn sm ghost" data-drop="${dk}">${svg('x')}Not this</button></span></span></div>`;
+    return `<button class="night${dk===t?' today':''}" data-n="${dk}">${day}<span class="w">${r?`<b>${r.fromFreezer?svg('snow')+' ':''}${esc(r.title)}</b><small>${[r.method,r.time,+r.batches>1&&!r.fromFreezer?'makes '+(r.makes||r.batches*SERVES):''].filter(Boolean).map(esc).join(' · ')}${r.by?' · added by '+esc(person(r.by).name):''}</small>`:c&&c.taken?`<b class="taken">${esc(c.taken)}</b><small>Already in the Family Hub</small>`:'<span class="empty">Nothing yet</span>'}${dayCtx(dr,dk)}${prepLines(d)}</span>${svg('right')}</button>`}).join('')}</section>
   ${n?`<button class="btn dark wide" id="toBuy">${svg('cart')}See what to buy</button>`:''}`;
   $('#wPrev').onclick=()=>{S.week=addDays(S.week,-7);render()};$('#wNext').onclick=()=>{S.week=addDays(S.week,7);render()};
-  const tb=$('#toBuy');if(tb)tb.onclick=()=>{S.tab='buy';store.set('mp-tab','buy');render();scrollTo(0,0)};
+  const tb=$('#toBuy');if(tb)tb.onclick=()=>goTab('buy');
+  const db_=$('#draftBtn');if(db_)db_.onclick=()=>askDraft(k);
+  const rd=$('#reDraft');if(rd)rd.onclick=()=>askDraft(k);
+  const ua=$('#useAll');if(ua)ua.onclick=()=>useSuggestions(sugs);
+  v.querySelectorAll('[data-keep]').forEach(b=>b.onclick=()=>useSuggestions([b.dataset.keep]));
+  v.querySelectorAll('[data-drop]').forEach(b=>b.onclick=()=>dropSuggestion(b.dataset.drop));
+  v.querySelectorAll('[data-sg]').forEach(b=>b.onclick=()=>showRecipe(suggestionFor(k,b.dataset.sg),{keep:b.dataset.sg}));
   v.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{const dk=b.dataset.n,r=(p.nights||{})[dk];
-    if(r)showRecipe(r,{night:dk});else{S.tab='ideas';store.set('mp-tab','ideas');render();scrollTo(0,0);toast('Pick an idea, then choose '+DOWL[fromYmd(dk).getDay()])}});
+    if(r)showRecipe(r,{night:dk});else{goTab('ideas');toast('Pick an idea, then choose '+DOWL[fromYmd(dk).getDay()])}});
 }
 
 /* ---------- To buy ---------- */
@@ -543,6 +733,9 @@ function toBuy(){
     for(const x of r.ingredients||[]){if(x.have||!x.item)continue;const key=norm(x.item);
       const it=m[key]||(m[key]={key,item:x.item,aisle:x.aisle||'Other',qtys:[],meals:[]});
       if(x.qty)it.qtys.push(x.qty);const lab=DOW[fromYmd(dk).getDay()]+' '+r.title;if(!it.meals.includes(lab))it.meals.push(lab)}}
+  for(const s of staplesList()){if(!s.low)continue;const key=norm(s.item);
+    if(m[key]){m[key].meals.push('running low in the pantry');m[key].staple=s.id;continue}
+    m[key]={key,item:s.item,aisle:stapleAisle(s),qtys:[],meals:['Running low in the pantry'],staple:s.id}}
   return Object.values(m).map(i=>Object.assign(i,{qty:sumQty(i.qtys),on:!skip.has(i.key),sent:sent.has(i.key)}));
 }
 /* "1" + "2" -> "3"; "400 ml" + "400 ml" -> "800 ml"; anything else is listed as given. */
@@ -555,11 +748,11 @@ function viewBuy(v){
   const sends=list(S.shopsend).filter(s=>s.week===k).sort((a,b)=>(b.at||'').localeCompare(a.at||''));
   const waiting=sends.find(s=>s.state==='queued'),last=sends.find(s=>s.state==='done');
   const groups=AISLES.map(a=>[a,items.filter(i=>i.aisle===a)]).filter(g=>g[1].length);
-  v.innerHTML=`<h1>To buy</h1><p class="lede">Everything the week's dinners need that you don't already have. Untick anything you've got, then send the rest to the Family Hub shopping list.</p>
+  v.innerHTML=`<h1>To buy</h1><p class="lede">Everything the week's dinners need that you don't already have, plus pantry staples marked Low. It all goes onto the Family Hub shopping list by itself about 2 hours after a dinner is planned, so untick anything you've already got before then (or tap Send now).</p>
   <div class="wk"><button class="round" id="bPrev" aria-label="Previous week">${svg('left')}</button><b>${nice(days[0])} to ${nice(days[6])}</b><button class="round" id="bNext" aria-label="Next week">${svg('right')}</button></div>
   ${waiting?`<div class="note wait">${waiting.items.length} item${waiting.items.length===1?'':'s'} on the way to the Family Hub shopping list. ${S.sample?'They\'ll be there within the hour.':'They\'ll be there within the hour.'}</div>`:last?`<div class="note">${last.added!=null?last.added:last.items.length} item${(last.added!=null?last.added:last.items.length)===1?'':'s'} added to the Family Hub Supermarket list${last.doneAt?' '+DOW[new Date(last.doneAt).getDay()]+' '+nice(new Date(last.doneAt)):''}.</div>`:''}
   ${items.length?`<section class="card flush">${groups.map(([a,its])=>`<div class="aisle">${esc(a)}</div>${its.map(i=>`<button class="item${i.sent?' sent':''}" data-it="${esc(i.key)}" aria-pressed="${i.on}" ${i.sent?'disabled':''}><span class="box">${i.on?svg('check'):''}</span><span class="txt"><b>${esc(i.item)}</b><small>${i.sent?'On the Family Hub list · ':''}${esc(i.meals.join(', '))}</small></span><span class="q">${esc(i.qty)}</span></button>`).join('')}`).join('')}</section>
-   <div class="sendbar"><button class="btn wide" id="send" ${todo.length?'':'disabled'}>${svg('cart')}${todo.length?`Add ${todo.length} item${todo.length===1?'':'s'} to Family Hub shopping`:'Nothing new to send'}</button></div>`
+   <div class="sendbar"><button class="btn wide" id="send" ${todo.length?'':'disabled'}>${svg('cart')}${todo.length?`Send ${todo.length} item${todo.length===1?'':'s'} to the Family Hub now`:'All on the Family Hub list'}</button></div>`
    :`<div class="card emptybox"><b>Nothing to buy yet</b>${Object.keys(p.nights||{}).length?'Everything this week uses what you have.':'Put some recipes on this week first.'}</div>`}`;
   $('#bPrev').onclick=()=>{S.week=addDays(S.week,-7);render()};$('#bNext').onclick=()=>{S.week=addDays(S.week,7);render()};
   v.querySelectorAll('[data-it]').forEach(b=>b.onclick=()=>{if(needMe())return;const key=b.dataset.it,pp=planFor(k),s=new Set(pp.skip||[]);s.has(key)?s.delete(key):s.add(key);
@@ -568,10 +761,13 @@ function viewBuy(v){
     const payload=todo.map(i=>({text:i.item,qty:i.qty.slice(0,40),aisle:i.aisle,note:('For '+i.meals.join(', ')).slice(0,120)}));
     const pp=planFor(k);
     const ok=await write(async db=>{await db.doc('shopsend/'+rid()).set({week:k,items:payload,by:S.me,at:nowIso(),state:'queued'});
-      await db.doc('plan/'+k).set(Object.assign({skip:[]},pp,{week:k,sent:[...new Set([...(pp.sent||[]),...todo.map(i=>i.key)])],updatedBy:S.me,updatedAt:nowIso()}))});
+      await db.doc('plan/'+k).set(Object.assign({skip:[]},pp,{week:k,sent:[...new Set([...(pp.sent||[]),...todo.map(i=>i.key)])],updatedBy:S.me,updatedAt:nowIso()}));
+      /* Staples sent to the shopping list stop showing as low: they're on their way. */
+      for(const i of todo){const st=i.staple&&S.staples[i.staple];if(st)await db.doc('staples/'+i.staple).set(Object.assign(stData(st),{low:false,by:S.me,at:nowIso()}))}});
     if(ok)toast('Sent. They\'ll be on the Family Hub list within the hour.');else sb.disabled=false};
 }
 </script>
+
 
 </body>
 </html>
