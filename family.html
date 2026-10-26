@@ -338,6 +338,21 @@ nav.tabs button svg{width:22px;height:22px}
 
 
 .sky .wx{margin:8px 0 0;font-weight:600;opacity:.92;position:relative;font-size:.95rem}
+.av.xl{width:56px;height:56px;font-size:1.4rem}
+.megrid{display:grid;gap:20px;align-items:start}
+.mecol{display:grid;gap:20px}
+@media (min-width:900px){.megrid{grid-template-columns:1.1fr 1fr}}
+.dinrow{display:flex;align-items:center;gap:12px;padding:8px 16px;border-top:1px solid var(--line)}
+.dinrow.tonight{background:var(--accent-soft)}
+.dinrow .dn{flex:1;min-width:0;display:grid}
+.dinrow .dn b{font-weight:800}
+.dinrow .dn small{color:var(--muted);font-size:.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seg{display:flex;gap:4px;flex:none}
+.seg .chip{min-height:36px;padding:6px 12px}
+.usualbox{border-top:1px solid var(--line);padding:12px 16px 10px;display:grid;gap:8px}
+.usualbox b{font-weight:800}
+.linkish{color:var(--accent-deep);font-weight:700;text-decoration:underline;padding:0}
+.more svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;vertical-align:-2px}
 .ideas .idea{display:grid;gap:2px;text-align:left;width:100%;padding:10px 18px;border-top:1px solid var(--line)}
 .ideas .idea b{font-weight:700}.ideas .idea small{color:var(--muted)}
 /* ---------- tasks ---------- */
@@ -428,7 +443,7 @@ nav.tabs button[aria-current="true"]::before{content:"";position:absolute;top:0;
       <div class="when" id="topWhen"></div>
       <div class="qa" id="qaDesk"></div>
       <button class="btn qa-phone" id="qaPhone" aria-label="Add something"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add</button>
-      <button class="me-phone" id="mePhone" aria-label="Change who is using this device"><span class="av" id="phoneAv">?</span></button>
+      <button class="me-phone" id="mePhone" aria-label="My page"><span class="av" id="phoneAv">?</span></button>
     </div></header>
     <main id="view"></main>
   </div>
@@ -448,7 +463,7 @@ const DRIVERS=['tim','laura','kris','sienna'];
 const person=id=>FAMILY.find(p=>p.id===id)||{id:'',name:'Someone'};
 const colour=id=>person(id).id?`var(--${id})`:'var(--faint)';
 const AISLES=['Fruit & veg','Meat & fish','Dairy & eggs','Bakery','Pantry','Frozen','Drinks','Household','Other'];
-const LISTS=[['super','Supermarket'],['hardware','Bunnings'],['chemist','Chemist'],['kmart','Kmart / Target']];
+const LISTS=[['super','Supermarket'],['costco','Costco'],['hardware','Bunnings'],['chemist','Chemist'],['kmart','Kmart / Target']];
 const listName=k=>(LISTS.find(l=>l[0]===k)||LISTS[0])[1];
 const TYPES=[['appointment','Appointment'],['work','Work'],['sport','Sport'],['school','School'],['social','Social'],['other','Other']];
 const typeName=t=>(TYPES.find(x=>x[0]===t)||TYPES[5])[1];
@@ -483,7 +498,8 @@ const I={
  x:'<path d="M7 7l10 10M17 7L7 17"/>',
  pen:'<path d="M5 19l1-4L16 5l3 3L9 18z"/>',
  left:'<path d="M15 6l-6 6 6 6"/>', right:'<path d="M9 6l6 6-6 6"/>',
- check:'<path d="M6 12.5l4 4L18 8"/>'
+ check:'<path d="M6 12.5l4 4L18 8"/>',
+ user:'<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.8 4-5.5 7.5-5.5s6.3 1.7 7.5 5.5"/>'
 };
 const svg=(k,extra='')=>`<svg viewBox="0 0 24 24"${extra}>${I[k]}</svg>`;
 
@@ -521,7 +537,7 @@ const S={me:store.get('fh-me')||'',tab:store.get('fh-tab2')||'home',aisle:store.
   events:{},shop:{},meals:{},chores:{},log:{},regulars:{},dinnerin:{},notes:{},school:{},birthdays:{},gifts:{},homejobs:{},settings:{},recipes:{},pantry:{},lunches:{},tasks:{},tcomments:{},weather:{},mealideas:{},
   week:monday(new Date()),calWeek:monday(new Date()),ready:false,db:null};
 const PAGES=[['home','Today','home'],['cal','Calendar','cal'],['shop','Shopping','shop'],['meals','Dinners','meal'],['chores','Chores','chore']];
-const EXTRA=[['tasks','Tasks','tick'],['notice','Noticeboard','note'],['school','School','school'],['recipes','Recipes','book'],['pantry','Pantry & freezer','box'],['lunch','Lunches','lunch'],['bdays','Birthdays & gifts','gift'],['hjobs','Home jobs','tool'],['colours','Colours','palette']];
+const EXTRA=[['me','My page','user'],['tasks','Tasks','tick'],['notice','Noticeboard','note'],['school','School','school'],['recipes','Recipes','book'],['pantry','Pantry & freezer','box'],['lunch','Lunches','lunch'],['bdays','Birthdays & gifts','gift'],['hjobs','Home jobs','tool'],['colours','Colours','palette']];
 const PHONE=[...PAGES,['more','More','more']];
 function paintNav(){
   const open=Object.values(S.shop).filter(i=>!i.done).length;
@@ -557,7 +573,7 @@ function pickMe(){
   <div class="people">${USERS.map(p=>`<button class="person" data-me="${p.id}" aria-pressed="${S.me===p.id}"><span class="av" style="background:${colour(p.id)}">${p.name[0]}</span>${p.name}</button>`).join('')}</div>`);
   document.querySelectorAll('[data-me]').forEach(b=>b.onclick=()=>{S.me=b.dataset.me;store.set('fh-me',S.me);closeSheet();render()});
 }
-$('#sideMe').onclick=pickMe;$('#mePhone').onclick=pickMe;
+const goMe=()=>{if(S.me)setTab('me');else pickMe()};$('#sideMe').onclick=goMe;$('#mePhone').onclick=goMe;
 function needMe(){if(!S.me){pickMe();return true}return false}
 
 /* ---------- sheet ---------- */
@@ -701,6 +717,13 @@ function skyFor(h){
   if(h<17)return{k:'day',bg:'linear-gradient(180deg,#3567cf 0%,#6f9ff0 60%,#b9d4ff 100%)',orb:'sun-high'};
   return{k:'dusk',bg:'linear-gradient(180deg,#24215a 0%,#5b3a86 55%,#ff8a6a 100%)',orb:'sun-low'};
 }
+/* ---------- home for dinner: per-night answers (dinnerin/<date>) on top of each person's usual nights out (settings/dinnerusual) ---------- */
+const usualOut=(u,k)=>(((S.settings.dinnerusual||{})[u])||[]).includes(fromYmd(k).getDay());
+const isOut=(u,k)=>{const x=(S.dinnerin[k]||{})[u];return x?x==='out':usualOut(u,k)};
+const homeCount=k=>USERS.filter(u=>!isOut(u.id,k)).length;
+/* Saving the same answer as your usual clears that night back to the usual, so a later change to your usual still applies. */
+function setDin(u,k,out){const cur=Object.assign({},S.dinnerin[k]||{});if(out===usualOut(u,k))delete cur[u];else cur[u]=out?'out':'home';cur.updatedBy=S.me;cur.updatedAt=nowIso();
+  const left=Object.keys(cur).filter(x=>x!=='updatedBy'&&x!=='updatedAt').length;if(!left&&!S.dinnerin[k])return Promise.resolve(true);return write(db=>left?db.doc('dinnerin/'+k).set(cur):db.doc('dinnerin/'+k).delete())}
 const hm=d=>pad(d.getHours())+':'+pad(d.getMinutes());
 VIEWS.home=function(v){
   const d=new Date(),h=d.getHours(),p=person(S.me),k=today(),tk=ymd(addDays(d,1));
@@ -724,7 +747,7 @@ VIEWS.home=function(v){
   const nowLine=`<div class="slot nowslot"><span class="tm">Now</span><div class="nowline"></div></div>`;
   let tl='';items.forEach((i,idx)=>{if(idx===nowAt)tl+=nowLine;tl+=slot(i,idx)});if(nowAt===items.length&&items.length)tl+=nowLine;
   // home for dinner
-  const din=S.dinnerin[k]||{};const homeN=USERS.filter(u=>din[u.id]!=='out').length;
+  const homeN=homeCount(k);
   // coming up
   const up=[...schoolDue().map(s=>({k:s.due,t:`${esc(s.title)}${s.amount?' ($'+esc(s.amount)+')':''}`,s:`${esc(person(s.who).name)}, due ${inDays(daysBetween(k,s.due))}`,ic:'school',go:'school'})),
     ...bdaysSoon(14).map(b=>({k:b.next,t:`${esc(b.name)}'s birthday`,s:inDays(daysBetween(k,b.next)).replace(/^./,c=>c.toUpperCase()),ic:'gift',go:'bdays'})),
@@ -736,9 +759,9 @@ VIEWS.home=function(v){
   <div class="homegrid">
     <div class="side">
       <button class="pin" id="toShop"><span class="pc">${open.length}</span><span class="pt"><b>Shopping</b><span>${open.length?esc(open.slice(0,3).map(i=>i.text).join(', '))+(open.length>3?' and '+(open.length-3)+' more':''):'Nothing to buy right now'}</span></span></button>
-      <button class="pin tmw" id="toCal"><span class="pt"><b>Tomorrow</b><span>${wxDay(tk)?esc(wxDay(tk).desc+', '+wxDay(tk).max+'° / '+wxDay(tk).min+'°'+(wxDay(tk).rain!=null?', '+wxDay(tk).rain+'% rain':''))+'<br>':''}${tomorrow.length?tomorrow.join('<br>')+(tev.length>3?'<br>and '+(tev.length-3)+' more':''):'Nothing on yet'}${tm.dinner?`<br>Dinner: ${esc(tm.dinner)}`:''}${LUNCH_PEOPLE.map(p=>{const l=lunchOf(p,tk);return l&&l.main?`<br>${p===S.me?'Your':esc(person(p).name)+"'s"} lunch: ${esc(l.main)}`:''}).join('')}</span></span></button>
-      <section class="card mini-card"><div class="mh"><b>Home for dinner tonight</b><span>${homeN} of ${USERS.length}</span></div>
-        <div class="dinin">${USERS.map(u=>{const out=din[u.id]==='out';return `<button class="dpill${out?' out':''}" data-din="${u.id}" aria-pressed="${!out}"><span class="av" style="background:${colour(u.id)}">${u.name[0]}</span>${esc(u.name)}<small>${out?'Out':'Home'}</small></button>`}).join('')}</div></section>
+      <button class="pin tmw" id="toCal"><span class="pt"><b>Tomorrow</b><span>${wxDay(tk)?esc(wxDay(tk).desc+', '+wxDay(tk).max+'° / '+wxDay(tk).min+'°'+(wxDay(tk).rain!=null?', '+wxDay(tk).rain+'% rain':''))+'<br>':''}${tomorrow.length?tomorrow.join('<br>')+(tev.length>3?'<br>and '+(tev.length-3)+' more':''):'Nothing on yet'}${tm.dinner?`<br>Dinner: ${esc(tm.dinner)}`:''}${(()=>{const o=USERS.filter(u=>isOut(u.id,tk));return o.length?`<br>Out for dinner: ${esc(andJoin(o.map(u=>u.name)))}`:''})()}${LUNCH_PEOPLE.map(p=>{const l=lunchOf(p,tk);return l&&l.main?`<br>${p===S.me?'Your':esc(person(p).name)+"'s"} lunch: ${esc(l.main)}`:''}).join('')}</span></span></button>
+      <section class="card mini-card"><div class="mh"><b>Home for dinner tonight</b><span>${homeN} of ${USERS.length}</span></div><p class="hint" style="padding:0 16px 4px">Going to be out another night? Set it on <button class="linkish" id="dinMine">your page</button>.</p>
+        <div class="dinin">${USERS.map(u=>{const out=isOut(u.id,k);return `<button class="dpill${out?' out':''}" data-din="${u.id}" aria-pressed="${!out}"><span class="av" style="background:${colour(u.id)}">${u.name[0]}</span>${esc(u.name)}<small>${out?'Out':'Home'}</small></button>`}).join('')}</div></section>
       ${S.me?(()=>{const mt=myOpenTasks();return `<section class="card mini-card"><div class="mh"><b>Your tasks</b><button class="more" id="toTasks">${mt.length?mt.length+' open':'All tasks'}</button></div>${mt.length?mt.slice(0,5).map(taskRow).join(''):'<p class="hint" style="padding:0 16px 8px">Nothing for you right now.</p>'}</section>`})():''}
       ${notes.length?`<section class="card mini-card"><div class="mh"><b>Noticeboard</b><button class="more" id="toNotes">All notes</button></div>${notes.map(n=>`<button class="noteline" data-note="${esc(n.id)}"><span class="pip" style="background:${colour(n.by)}"></span><span>${esc(n.text)}<small>${esc(person(n.by).name)}</small></span></button>`).join('')}</section>`:''}
       ${up.length?`<section class="card mini-card"><div class="mh"><b>Coming up</b></div>${up.slice(0,6).map(u=>`<button class="upline" data-go="${u.go}"><span class="ui">${svg(u.ic)}</span><span><b>${u.t}</b><small>${u.s}</small></span></button>`).join('')}</section>`:''}
@@ -759,7 +782,8 @@ VIEWS.home=function(v){
   const tn=$('#toNotes');if(tn)tn.onclick=()=>setTab('notice');
   v.querySelectorAll('[data-note]').forEach(b=>b.onclick=()=>editNote(b.dataset.note));
   v.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>setTab(b.dataset.go));
-  v.querySelectorAll('[data-din]').forEach(b=>b.onclick=()=>{if(needMe())return;const u=b.dataset.din;const cur=Object.assign({},S.dinnerin[k]||{});cur[u]=cur[u]==='out'?'home':'out';cur.updatedBy=S.me;cur.updatedAt=nowIso();write(db=>db.doc('dinnerin/'+k).set(cur))});
+  v.querySelectorAll('[data-din]').forEach(b=>b.onclick=()=>{if(needMe())return;const u=b.dataset.din;setDin(u,k,!isOut(u,k))});
+  const dm=$('#dinMine');if(dm)dm.onclick=goMe;
 };
 
 /* ===== Calendar ===== */
@@ -902,6 +926,48 @@ VIEWS.more=function(v){
   v.querySelectorAll('[data-to]').forEach(b=>b.onclick=()=>setTab(b.dataset.to));
 };
 
+
+/* ===== My page: everything one person updates for themselves ===== */
+VIEWS.me=function(v){
+  if(!S.me){v.innerHTML=`<div class="ph"><div><h1>My page</h1><p>Choose who you are to see your page.</p></div><button class="btn" id="mePick">Choose who you are</button></div>`;$('#mePick').onclick=pickMe;return}
+  const p=person(S.me),t=today(),usual=new Set(((S.settings.dinnerusual||{})[S.me])||[]);
+  const nights=[...Array(14)].map((_,i)=>ymd(addDays(new Date(),i)));
+  const myEv=nights.flatMap(k=>evOn(k).filter(e=>!e.holiday&&(e.who||[]).includes(S.me)||(!e.holiday&&(e.liftTo===S.me||e.liftFrom===S.me))).map(e=>({k,e}))).slice(0,12);
+  const mt=myOpenTasks();
+  const d=new Date(),kid=KIDS.some(k=>k.id===S.me);
+  const chores=kid?listOf(S.chores).filter(c=>c.active!==false&&c.who===S.me&&choreDue(c,d)):[];
+  const curCol=(S.settings.colours||{})[S.me]||'';
+  v.innerHTML=`<div class="ph mehead"><div style="display:flex;align-items:center;gap:14px"><span class="av xl" style="background:${colour(S.me)}">${esc(p.name[0])}</span><div><h1>${esc(p.name)}</h1><p>Your own updates, all in one spot.</p></div></div><button class="btn ghost" id="meSwitch">Not ${esc(p.name)}? Switch</button></div>
+  <div class="megrid">
+  <section class="card mini-card"><div class="mh"><b>Home for dinner</b><span>Next two weeks</span></div>
+    <p class="hint" style="padding:0 16px 8px">Tap Out for any night you won't be home, so whoever's cooking knows how many to cook for.</p>
+    ${nights.map(k=>{const out=isOut(S.me,k),fromUsual=!(S.dinnerin[k]||{})[S.me]&&usualOut(S.me,k),dd=fromYmd(k),m=S.meals[k]||{};
+      return `<div class="dinrow${k===t?' tonight':''}"><span class="dn"><b>${k===t?'Tonight':k===ymd(addDays(new Date(),1))?'Tomorrow':DOW[dd.getDay()]}</b><small>${nice(dd)}${m.dinner?' · '+esc(m.dinner):''}${fromUsual?' · your usual':''}</small></span>
+        <span class="seg" role="group" aria-label="${esc(niceK(k))}"><button class="chip" data-mdin="${k}" data-out="0" aria-pressed="${!out}">Home</button><button class="chip" data-mdin="${k}" data-out="1" aria-pressed="${out}">Out</button></span></div>`}).join('')}
+    <div class="usualbox"><b>Usually out for dinner on</b><p class="hint">Tick the nights you're normally out, like a regular work shift or training. Those nights start as Out; you can still change any one night above.</p>
+      <div class="chips wrap">${[1,2,3,4,5,6,0].map(n=>`<button class="chip" data-udow="${n}" aria-pressed="${usual.has(n)}">${DOW[n]}</button>`).join('')}</div></div>
+  </section>
+  <div class="mecol">
+  <section class="card mini-card"><div class="mh"><b>Your next two weeks</b><button class="more" id="meAddEv">${svg('plus')}Add</button></div>
+    ${myEv.length?myEv.map(({k,e})=>{const lift=e.liftTo===S.me||e.liftFrom===S.me;const mine=(e.who||[]).includes(S.me);return `<button class="upline" data-ev="${esc(e.id)}" data-k="${k}"><span class="ui">${svg(lift&&!mine?'car':'cal')}</span><span><b>${esc(e.title)}</b><small>${esc(niceK(k))}${e.allDay||!e.start?', all day':', '+t12(e.start)+(e.end?' to '+t12(e.end):'')}${lift&&!mine?', you\'re driving':''}${e.where?', '+esc(e.where):''}</small></span></button>`}).join(''):'<p class="hint" style="padding:0 16px 8px">Nothing in the calendar for you. Add work shifts, sport and appointments so everyone knows where you are.</p>'}
+  </section>
+  <section class="card mini-card"><div class="mh"><b>Your tasks</b><button class="more" id="meTasks">${mt.length?mt.length+' open':'All tasks'}</button></div>${mt.length?mt.slice(0,8).map(taskRow).join(''):'<p class="hint" style="padding:0 16px 8px">Nothing for you right now.</p>'}</section>
+  ${kid?`<section class="card mini-card"><div class="mh"><b>Your chores today</b><button class="more" id="meChores">All chores</button></div>${chores.length?chores.map(c=>{const key=c.id+'__'+periodKey(c,d),lg=S.log[key];return `<div class="row${lg?' done':''}" data-mchore="${esc(c.id)}" role="button" tabindex="0" aria-pressed="${!!lg}"><span class="check">${svg('check')}</span><span class="txt"><b>${esc(c.title)}</b><small>${lg?'Done':(c.freq==='weekly'?'This week':'Today')}</small></span></div>`}).join(''):'<p class="hint" style="padding:0 16px 8px">No chores today.</p>'}</section>`:''}
+  ${LUNCH_PEOPLE.includes(S.me)?`<section class="card mini-card"><div class="mh"><b>Your lunches</b><button class="more" id="meLunch">Plan lunches</button></div>${(()=>{const l=lunchOf(S.me,t),l2=lunchOf(S.me,ymd(addDays(new Date(),1)));return `<p class="hint" style="padding:0 16px 8px">Today: ${l&&l.main?esc(l.main):'nothing planned'}<br>Tomorrow: ${l2&&l2.main?esc(l2.main):'nothing planned'}</p>`})()}</section>`:''}
+  <section class="card mini-card"><div class="mh"><b>Your colour</b></div><div class="sw" style="padding:4px 16px 10px">${PALETTE.map(c=>`<button class="swatch" data-mcol="${c}" style="background:${c}" aria-label="${c}" aria-pressed="${curCol.toLowerCase()===c}"></button>`).join('')}</div></section>
+  </div></div>`;
+  $('#meSwitch').onclick=pickMe;
+  v.querySelectorAll('[data-mdin]').forEach(b=>b.onclick=()=>{const k=b.dataset.mdin,out=b.dataset.out==='1';if(out===isOut(S.me,k))return;setDin(S.me,k,out)});
+  v.querySelectorAll('[data-udow]').forEach(b=>b.onclick=()=>{const n=+b.dataset.udow,doc=Object.assign({},S.settings.dinnerusual||{}),cur=new Set(doc[S.me]||[]);cur.has(n)?cur.delete(n):cur.add(n);doc[S.me]=[...cur].sort();write(db=>db.doc('settings/dinnerusual').set(doc))});
+  bindEv();
+  $('#meAddEv').onclick=()=>editEvent(null,t);
+  $('#meTasks').onclick=()=>setTab('tasks');bindTasks(v);
+  const mc=$('#meChores');if(mc)mc.onclick=()=>setTab('chores');
+  const ml=$('#meLunch');if(ml)ml.onclick=()=>{S.lunchWho=S.me;setTab('lunch')};
+  tapRows('[data-mchore]',function(){const id=this.dataset.mchore,c=S.chores[id];if(!c)return;const key=id+'__'+periodKey(c,new Date());
+    write(db=>S.log[key]?db.doc('chorelog/'+key).delete():db.doc('chorelog/'+key).set({chore:id,who:c.who,period:periodKey(c,new Date()),doneBy:S.me,at:nowIso()}))});
+  v.querySelectorAll('[data-mcol]').forEach(b=>b.onclick=()=>{const r=Object.assign({},S.settings.colours||{},{[S.me]:b.dataset.mcol});write(db=>db.doc('settings/colours').set(r))});
+};
 
 /* ===== Tasks: give a job or reminder to one or more people, with a comment thread on each ===== */
 const taskWho=t=>Array.isArray(t.who)?t.who:(t.who?[t.who]:[]);
@@ -1226,7 +1292,7 @@ VIEWS.meals=function(v){
   <section class="card">${days.map(d=>{const k=ymd(d),m=S.meals[k]||{};const ing=(m.ingredients||[]).filter(Boolean);
     return `<button class="night${k===t?' tonight':''}" data-day="${k}"><span class="dn"><b>${DOW[d.getDay()]}</b><small>${nice(d)}</small></span>
       <span><span class="dish${m.dinner?'':' none'}">${m.dinner?esc(m.dinner):'Nothing planned'}</span>
-      ${m.dinner&&(m.cook||ing.length)?`<span class="dmeta">${m.cook?`<span class="pip" style="background:${colour(m.cook)}"></span>${esc(person(m.cook).name)} cooking`:''}${m.cook&&ing.length?'. ':''}${ing.length?ing.length+' ingredient'+(ing.length===1?'':'s'):''}</span>`:''}${m.dinner&&m.notes?`<span class="dmeta">${esc(m.notes)}</span>`:''}</span>
+      ${m.dinner&&(m.cook||ing.length)?`<span class="dmeta">${m.cook?`<span class="pip" style="background:${colour(m.cook)}"></span>${esc(person(m.cook).name)} cooking`:''}${m.cook&&ing.length?'. ':''}${ing.length?ing.length+' ingredient'+(ing.length===1?'':'s'):''}</span>`:''}${m.dinner&&m.notes?`<span class="dmeta">${esc(m.notes)}</span>`:''}${(()=>{const o=USERS.filter(u=>isOut(u.id,k));return `<span class="dmeta">${homeCount(k)} of ${USERS.length} home${o.length?', out: '+esc(andJoin(o.map(u=>u.name))):''}</span>`})()}</span>
       ${k===t?'<span class="tag">Tonight</span>':`<span style="color:var(--faint)">${svg('right','  width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"')}</span>`}</button>`}).join('')}</section>`;
   $('#toRec').onclick=()=>setTab('recipes');$('#wkPrev').onclick=()=>{S.week=addDays(S.week,-7);render()};$('#wkNext').onclick=()=>{S.week=addDays(S.week,7);render()};$('#wkNow').onclick=()=>{S.week=monday(new Date());render()};
   v.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>editMeal(b.dataset.day));
@@ -1245,6 +1311,7 @@ function editMeal(k){
     ${recs.length?`<div class="field"><span>From the recipe box</span><div class="chips">${recs.map(r=>`<button type="button" class="chip" data-mrec="${esc(r.id)}" aria-pressed="${recipe===r.id}">${esc(r.title)}</button>`).join('')}</div></div>`:''}
     <label class="field"><span>Dinner</span><input id="mDinner" value="${esc(m.dinner||'')}" placeholder="e.g. Lamb roast" autocomplete="off"></label>
     <label class="field"><span>Dinner time</span><input type="time" id="mTime" value="${esc(m.time||'18:30')}"></label>
+    <div class="field"><span>Home for dinner (${homeCount(k)} of ${USERS.length})</span><div class="dinin" style="padding:0">${USERS.map(u=>{const out=isOut(u.id,k);return `<span class="dpill${out?' out':''}"><span class="av" style="background:${colour(u.id)}">${u.name[0]}</span>${esc(u.name)}<small>${out?'Out':'Home'}</small></span>`}).join('')}</div></div>
     <div class="field"><span>Who's cooking</span><div class="chips wrap">${[{id:'',name:'Not decided'}].concat(USERS).map(p=>`<button type="button" class="chip" data-cook="${p.id}" aria-pressed="${cook===p.id}">${p.id?`<span class="pip" style="background:${colour(p.id)}"></span>`:''}${p.name}</button>`).join('')}</div></div>
     <label class="field"><span>Notes (sides and reminders, e.g. cook rice, make mash)</span><input id="mNotes" value="${esc(m.notes||'')}" placeholder="e.g. Cook rice, steam greens" autocomplete="off"></label>
     <label class="field"><span>Ingredients, one per line</span><textarea id="mIng" placeholder="Leg of lamb&#10;Potatoes&#10;Rosemary">${esc((m.ingredients||[]).join('\n'))}</textarea></label>
