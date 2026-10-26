@@ -232,6 +232,15 @@ select{width:100%;border:1px solid var(--line2);border-radius:14px;background:va
 .prepbox{background:#fdf3e4;border:1px solid #f1dcb8;border-radius:14px;padding:12px 14px;margin:0 0 14px}
 .prepbox .label{display:flex;align-items:center;gap:6px;margin:0 0 6px;color:#7a4a12}
 .prepbox p{margin:4px 0;font-size:.93rem}
+.mumbox{background:#f3eefc;border:1px solid #ddd0f5;border-radius:14px;padding:12px 14px;margin:0 0 14px}
+.mumbox .label{display:flex;align-items:center;gap:6px;margin:0 0 6px;color:#5b3a9a}
+.mumbox p{margin:4px 0;font-size:.93rem}
+.mumbox .ok{display:inline-block;font-size:.75rem;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--good-soft);color:var(--good);margin-left:4px}
+.mumbox .fine{color:var(--muted);font-size:.8rem;margin-top:8px}
+.tag.mum{background:#f3eefc;border-color:#ddd0f5;color:#5b3a9a}
+.night .prep.mum{color:#5b3a9a}
+.mumcard{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:14px;background:#f3eefc;color:#4a2f80;font-size:.9rem;font-weight:600;margin-bottom:14px}
+.mumcard .grow{min-width:0}
 .qa .label{font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:16px 0 8px}
 </style>
 
@@ -272,7 +281,7 @@ const I={
   cart:'<path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20.5" r="1.2"/><circle cx="17" cy="20.5" r="1.2"/>',
   left:'<path d="M15 18l-6-6 6-6"/>',right:'<path d="M9 18l6-6-6-6"/>',
   check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',plus:'<path d="M12 5v14M5 12h14"/>',snow:'<path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 4l3 2 3-2M9 20l3-2 3 2"/>',spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/>',
-  jar:'<path d="M8 3h8M7 6.5h10"/><path d="M7 6.5V19a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6.5"/><path d="M7 11.5h10"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
+  jar:'<path d="M8 3h8M7 6.5h10"/><path d="M7 6.5V19a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6.5"/><path d="M7 11.5h10"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>'
 };
 const svg=k=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${I[k]}</svg>`;
 
@@ -284,19 +293,49 @@ const METHODS=['Slow cooker','Oven','BBQ','Stovetop','Air fryer'];
 const PREFS=['Freezer-friendly','Salad','Low carb','High protein','Quick (under 30 min)','Kid-friendly'];
 const isFreezer=r=>(r.prefs||[]).includes('Freezer-friendly');
 const AISLES=['Fruit & veg','Meat & fish','Dairy & eggs','Bakery','Pantry','Frozen','Drinks','Household','Other'];
-/* Pantry staples: things always in the cupboard, kept once so nobody has to type them for every request. */
-const STAPLE_CATS=['Herbs & spices','Baking','Sauces & condiments','Oils & vinegars','Stock & tins','Rice, pasta & grains','Fridge & freezer','Other'];
+/* Kitchen stock: what's in the pantry, fridge and freezer (raw food; cooked meals live in the Frozen meals tab),
+   kept once so nobody has to type it for every request. Stored in the "staples" collection: {item, qty, where, cat, low}. */
+const PLACES=[['pantry','Pantry'],['fridge','Fridge'],['freezer','Freezer']];
+const PLACE_CATS={
+  pantry:['Herbs & spices','Baking','Sauces & condiments','Oils & vinegars','Stock & tins','Rice, pasta & grains','Other'],
+  fridge:['Meat & fish','Dairy & eggs','Fruit & veg','Jars & spreads','Leftovers','Other'],
+  freezer:['Beef & lamb','Chicken','Pork','Fish & seafood','Vegetables','Bread & pastry','Other']};
 const STARTERS={
-  'Herbs & spices':['Dried oregano','Dried mixed herbs','Dried thyme','Ground cumin','Ground coriander','Smoked paprika','Sweet paprika','Curry powder','Garam masala','Ground cinnamon','Ground turmeric','Chilli flakes','Garlic powder','Onion powder','Bay leaves','Chicken salt'],
-  'Baking':['Plain flour','Self-raising flour','Cornflour','White sugar','Caster sugar','Brown sugar','Icing sugar','Baking powder','Bicarb soda','Vanilla essence','Cocoa'],
-  'Sauces & condiments':['Soy sauce','Worcestershire sauce','Tomato sauce','BBQ sauce','Sweet chilli sauce','Oyster sauce','Fish sauce','Honey','Dijon mustard','Mayonnaise','Tomato paste'],
-  'Oils & vinegars':['Olive oil','Vegetable oil','Sesame oil','White vinegar','Balsamic vinegar','Apple cider vinegar'],
-  'Stock & tins':['Chicken stock','Beef stock','Vegetable stock','Tinned tomatoes','Coconut milk','Chickpeas','Kidney beans','Tinned tuna','Corn kernels'],
-  'Rice, pasta & grains':['White rice','Basmati rice','Spaghetti','Penne','Egg noodles','Rolled oats','Breadcrumbs','Couscous'],
-  'Fridge & freezer':['Butter','Milk','Eggs','Cheddar cheese','Parmesan','Crushed garlic (jar)','Crushed ginger (jar)','Frozen peas','Frozen mixed veg']
-};
-const stapleCat=s=>STAPLE_CATS.includes(s.cat)?s.cat:'Other';
-const stapleAisle=s=>stapleCat(s)==='Fridge & freezer'||stapleCat(s)==='Other'?'Other':'Pantry';
+  pantry:{'Herbs & spices':['Dried oregano','Dried mixed herbs','Dried thyme','Ground cumin','Ground coriander','Smoked paprika','Sweet paprika','Curry powder','Garam masala','Ground cinnamon','Ground turmeric','Chilli flakes','Garlic powder','Onion powder','Bay leaves','Chicken salt'],
+    'Baking':['Plain flour','Self-raising flour','Cornflour','White sugar','Caster sugar','Brown sugar','Icing sugar','Baking powder','Bicarb soda','Vanilla essence','Cocoa'],
+    'Sauces & condiments':['Soy sauce','Worcestershire sauce','Tomato sauce','BBQ sauce','Sweet chilli sauce','Oyster sauce','Fish sauce','Honey','Dijon mustard','Mayonnaise','Tomato paste'],
+    'Oils & vinegars':['Olive oil','Vegetable oil','Sesame oil','White vinegar','Balsamic vinegar','Apple cider vinegar'],
+    'Stock & tins':['Chicken stock','Beef stock','Vegetable stock','Tinned tomatoes','Coconut milk','Chickpeas','Kidney beans','Tinned tuna','Corn kernels'],
+    'Rice, pasta & grains':['White rice','Basmati rice','Spaghetti','Penne','Egg noodles','Rolled oats','Breadcrumbs','Couscous']},
+  fridge:{'Meat & fish':['Bacon','Ham','Chicken thighs','Beef mince','Sausages'],
+    'Dairy & eggs':['Butter','Milk','Eggs','Cheddar cheese','Parmesan','Natural yoghurt','Cream','Sour cream','Feta'],
+    'Fruit & veg':['Carrots','Celery','Onions','Potatoes','Broccoli','Capsicum','Lettuce','Tomatoes','Lemons'],
+    'Jars & spreads':['Crushed garlic (jar)','Crushed ginger (jar)','Curry paste','Pesto']},
+  freezer:{'Beef & lamb':['Beef mince','Diced beef','Steak','Lamb chops','Lamb shoulder'],
+    'Chicken':['Chicken thighs','Chicken breast','Chicken drumsticks','Whole chicken'],
+    'Pork':['Pork chops','Sausages','Pork mince','Bacon'],
+    'Fish & seafood':['Fish fillets','Prawns','Crumbed fish'],
+    'Vegetables':['Frozen peas','Frozen mixed veg','Frozen corn','Frozen spinach','Hash browns','Chips'],
+    'Bread & pastry':['Bread','Puff pastry','Shortcrust pastry','Wraps']}};
+/* Where an item lives and its group: its own fields, else a matching starter, else a sensible default. */
+function starterOf(item){const k=norm(item);for(const [w,cs] of Object.entries(STARTERS))for(const [c,xs] of Object.entries(cs))if(xs.some(x=>norm(x)===k))return {where:w,cat:c};return null}
+const stapleWhere=s=>PLACE_CATS[s.where]?s.where:((starterOf(s.item)||{}).where||(s.cat==='Fridge & freezer'?'fridge':'pantry'));
+const stapleCat=s=>{const w=stapleWhere(s);if(PLACE_CATS[w].includes(s.cat))return s.cat;const st=starterOf(s.item);return st&&st.where===w?st.cat:'Other'};
+const placeName=w=>(PLACES.find(p=>p[0]===w)||['','Pantry'])[1];
+const stapleAisle=s=>{const w=stapleWhere(s),c=stapleCat(s);if(w==='pantry')return 'Pantry';if(w==='freezer')return /Vegetables|Bread/.test(c)?'Frozen':'Meat & fish';return c==='Meat & fish'?'Meat & fish':c==='Dairy & eggs'?'Dairy & eggs':c==='Fruit & veg'?'Fruit & veg':'Other'};
+
+/* Maria (Mum) has advanced MSA: limited chewing and swallowing, and she can't eat much or often.
+   Her needs live in settings/mum so they can change if her speech pathologist changes them. */
+const TEXTURES={
+  '4':['Level 4 pureed','Smooth with no lumps, holds its shape on a spoon, not sticky; no chewing at all. Blend her portion with sauce or gravy until completely smooth.'],
+  '5':['Level 5 minced and moist','Soft, moist pieces no bigger than 4 mm that mash easily with a fork or tongue, held together in a thick smooth sauce, with no separate thin liquid. Mince or finely chop meat and veg after cooking and mix with gravy or sauce. Fork test: pieces fit between fork prongs and squash with light pressure.'],
+  '6':['Level 6 soft and bite-sized','Soft, tender, moist pieces no bigger than 1.5 cm that squash easily with a fork; little chewing needed.']};
+const DRINKS={thin:'thin drinks are fine',mild:'drinks and thin liquids thickened to mildly thick (IDDSI Level 2)',moderate:'drinks and thin liquids thickened to moderately thick (IDDSI Level 3)'};
+const MUM_DEFAULT={name:'Maria',level:'5',drinks:'thin',notes:''};
+const mumCfg=()=>Object.assign({},MUM_DEFAULT,S.settings&&S.settings.mum||{});
+const mumLabel=m=>(TEXTURES[m.level]||TEXTURES['5'])[0];
+function mumPromptText(m){m=m||MUM_DEFAULT;const t=TEXTURES[m.level]||TEXTURES['5'];
+  return `${m.name} (Mum) has advanced MSA, so chewing and swallowing are very limited. Her speech pathologist's food texture is IDDSI ${t[0]}: ${t[1]} Drinks: ${DRINKS[m.drinks]||DRINKS.thin}. Never mixed textures for her (no lumps floating in thin broth), nothing hard, dry, crumbly, crunchy, stringy, fibrous or chewy, and no skins, husks, seeds, pips, crusts, nuts, sweetcorn kernels, peas left whole, or rice that scatters. She eats only small amounts and not often, so every mouthful has to count: her serve should be rich in protein and energy, fortified (e.g. butter, cream, grated cheese, full-cream milk or milk powder, egg yolk, olive oil stirred through).${m.notes?' Also: '+m.notes:''}`}
 
 /* The same instructions are used by the scheduled task that answers requests sent from the home-screen app. */
 function recipePrompt(r){
@@ -306,34 +345,38 @@ function recipePrompt(r){
 WHAT THEY HAVE (pantry, fridge and freezer, in their words):
 ${r.pantry||'(nothing listed)'}
 
-PANTRY STAPLES ALWAYS ON HAND (with how much they have, where known):
+IN THE KITCHEN (pantry, fridge and freezer stock, with how much they have where known; freezer items are raw/uncooked):
 ${r.staples||'(none listed)'}
 
 HOW THEY WANT TO COOK: ${r.methods&&r.methods.length?r.methods.join(', '):'any method'}
 PREFERENCES: ${r.prefs&&r.prefs.length?r.prefs.join(', '):'none'}
 OTHER NOTES: ${r.notes||'none'}
 
+MUM: ${mumPromptText(r.mum)}
+
 RULES
 - ${b>1?`BATCH COOKING: each recipe is cooked once in a big batch that makes ${total} serves (${b} family meals of ${SERVES}): ${SERVES} are eaten that night and the rest go in the freezer. ALL quantities must be for the full ${total} serves, and the steps should say how to split it.`:`Each recipe serves ${SERVES} people (the quantities must be for ${SERVES}).`}${fz?`
 - FREEZER-FRIENDLY: only suggest dishes that freeze and reheat well (stews, curries, braises, bolognese, soups, pies, bakes, meatballs, marinated raw meat). Avoid things that go watery or rubbery when frozen (salad leaves, fried or crumbed food meant to be crisp, creamy sauces that split, cooked pasta in soup). Every option must include the "freezer" object.`:''}
 - Build each recipe mainly around what they have. Keep the extra things to buy short and ordinary (an Australian supermarket like Coles or Woolworths).
 - Assume they always have: salt, pepper, cooking oil, water. Don't list those.
-- Pantry staples count as things they have: use them freely and mark them "have": true, but never need more than the amount listed (if a recipe needs more than they have, mark it "have": false so it goes on the shopping list). Anything under RUNNING LOW is "have": false if the recipe needs it.
+- Kitchen stock counts as things they have (use up fridge food and raw meat from the freezer first): use it freely and mark them "have": true, but never need more than the amount listed (if a recipe needs more than they have, mark it "have": false so it goes on the shopping list). Anything under RUNNING LOW is "have": false if the recipe needs it.
 - If cooking methods are given, every recipe must use one of them. Respect every preference (e.g. low carb means no rice, pasta, bread or potato as the base; Kid-friendly means mild, no chilli heat).
 - Use Australian names and metric units (capsicum, coriander, spring onion, mince, g, kg, ml, tbsp).
+- Lean into slow-cooked, braised, soft and moist dishes that suit Mum with little or no change (at least 4 of the options). For every option, include the "mum" object: whether it's suitable for her as served, and if not, a small, safe tweak to her portion so she eats the same meal (set her serve aside before a crunchy topping goes on, cook her veg longer, mince her portion to her texture and stir through extra sauce, swap rice or pasta for mash). Never a separate meal unless there's no safe tweak.
+- Nutrition matters: meals should be nutritionally strong for everyone (good protein, plenty of veg, whole foods), and Mum's serve should be the most nutrient-dense, high-protein, high-energy part of it.
 - Make the options genuinely different from each other.
 - Steps: short, practical, 4-8 steps, with times and temperatures (fan-forced °C).
 
 Reply with ONLY this JSON, nothing else:
-{"options":[{"title":"...","why":"one short sentence on why it suits what they asked","method":"one of: Slow cooker, Oven, BBQ, Stovetop, Air fryer","time":"e.g. 35 min or 6 hrs on low","tags":["e.g. High protein","Low carb"],"uses":["items from their list this uses"],"ingredients":[{"item":"Chicken thighs","qty":"1.5 kg","have":true,"aisle":"Meat & fish"}],"steps":["..."],"makes":${total}${fz?`,"freezer":{"portion":"how to cool, split and pack it, e.g. Cool, split into ${b>1?b-1:1} family-size containers (7 serves each), label and date","keeps":"e.g. Up to 3 months","reheat":"how to thaw and reheat, e.g. Thaw overnight in the fridge, then reheat covered in a 180°C oven for 30 min or on the stove until piping hot"}`:''}}]}
-"have" is true when the item is on their list or in their staples (in a big enough amount), false when they need to buy it. "aisle" is one of: ${AISLES.join(', ')}.`;
+{"options":[{"title":"...","why":"one short sentence on why it suits what they asked","method":"one of: Slow cooker, Oven, BBQ, Stovetop, Air fryer","time":"e.g. 35 min or 6 hrs on low","tags":["e.g. High protein","Low carb"],"uses":["items from their list this uses"],"ingredients":[{"item":"Chicken thighs","qty":"1.5 kg","have":true,"aisle":"Meat & fish"}],"steps":["..."],"mum":{"ready":true or false (true only if her serve needs nothing more than mincing to her texture),"how":"exact steps for her portion","boost":"how to fortify her serve for protein and energy","short":"one short line for the family, e.g. Mince Maria's serve with extra gravy, add butter to her mash"},"makes":${total}${fz?`,"freezer":{"portion":"how to cool, split and pack it, e.g. Cool, split into ${b>1?b-1:1} family-size containers (7 serves each), label and date","keeps":"e.g. Up to 3 months","reheat":"how to thaw and reheat, e.g. Thaw overnight in the fridge, then reheat covered in a 180°C oven for 30 min or on the stove until piping hot"}`:''}}]}
+"have" is true when the item is on their list or in their kitchen stock (in a big enough amount), false when they need to buy it. "aisle" is one of: ${AISLES.join(', ')}.`;
 }
 
 /* ---------- state ---------- */
 const S={tab:store.get('mp-tab')||'ideas',me:store.get('mp-me')||'',week:monday(new Date()),
-  requests:{},plan:{},shopsend:{},freezer:{},staples:{},drafts:{},batches:+(store.get('mp-batches')||2),methods:new Set(JSON.parse(store.get('mp-methods')||'[]')),prefs:new Set(JSON.parse(store.get('mp-prefs')||'[]')),
+  requests:{},plan:{},shopsend:{},freezer:{},staples:{},drafts:{},settings:{},place:store.get('mp-place')||'pantry',batches:+(store.get('mp-batches')||2),methods:new Set(JSON.parse(store.get('mp-methods')||'[]')),prefs:new Set(JSON.parse(store.get('mp-prefs')||'[]')),
   db:null,sample:null,ready:false,thinking:{}};
-const TABS=[['ideas','Ideas','idea'],['pantry','Pantry','jar'],['week','This week','week'],['freezer','Freezer','snow'],['buy','To buy','cart']];
+const TABS=[['ideas','Ideas','idea'],['pantry','Kitchen','jar'],['week','This week','week'],['freezer','Frozen meals','snow'],['buy','To buy','cart']];
 const weekKey=()=>ymd(S.week);
 const planFor=k=>S.plan[k]||{week:k,nights:{},skip:[],sent:[]};
 const list=o=>Object.entries(o||{}).map(([id,v])=>Object.assign({id},v));
@@ -347,7 +390,7 @@ const list=o=>Object.entries(o||{}).map(([id,v])=>Object.assign({id},v));
   const seen={};let pend=false;
   const soon=()=>{if(pend)return;pend=true;setTimeout(()=>{pend=false;render()},0)};
   const sub=name=>db.collection(name).onSnapshot(s=>{const o={};s.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});const j=JSON.stringify(o);if(seen[name]===j)return;seen[name]=j;S[name]=o;S.ready=true;soon()},()=>{});
-  sub('requests');sub('plan');sub('shopsend');sub('freezer');sub('staples');sub('drafts');
+  sub('requests');sub('plan');sub('shopsend');sub('freezer');sub('staples');sub('drafts');sub('settings');
   try{S.sample=await claude.use('sample')}catch(e){S.sample=null}
   render();
   if(!S.me)pickMe();
@@ -388,10 +431,11 @@ function viewIdeas(v){
   const latest=reqs.slice(0,2),older=reqs.slice(2,12);
   v.innerHTML=`<h1>What's for dinner?</h1><p class="lede">Tell Claude what you've got and how you'd like to cook it. You'll get recipe ideas for ${SERVES}, then pick nights for them.</p>
   <section class="card">
-    <label class="label" for="pan">What fresh food have you got? (meat, veg, leftovers)</label>
+    <label class="label" for="pan">Anything else you've got? (fresh veg, leftovers, things to use up)</label>
     <textarea id="pan" placeholder="e.g. chicken thighs, half a pumpkin, 2 capsicums, feta, leftover roast lamb">${esc(draft)}</textarea>
     <p class="hint">Type it or tap the microphone on your keyboard and say it.</p>
     ${staplesSum()}
+    ${mumCard()}
     <span class="label">How do you want to cook?</span>
     <div class="chips" role="group" aria-label="Cooking method">${METHODS.map(m=>`<button type="button" class="chip" data-m="${esc(m)}" aria-pressed="${S.methods.has(m)}">${esc(m)}</button>`).join('')}</div>
     <span class="label">Anything else you're after?</span>
@@ -409,6 +453,7 @@ function viewIdeas(v){
   ${!reqs.length&&S.ready?'<div class="emptybox"><b>No ideas yet</b>Fill in what you have above and tap Get recipe ideas.</div>':''}`;
   $('#pan').oninput=e=>store.set('mp-pantry',e.target.value);
   $('#goPantry').onclick=()=>goTab('pantry');
+  $('#mumEdit').onclick=editMum;
   $('#notes').oninput=e=>store.set('mp-notes',e.target.value);
   v.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const m=b.dataset.m;S.methods.has(m)?S.methods.delete(m):S.methods.add(m);b.setAttribute('aria-pressed',S.methods.has(m));store.set('mp-methods',JSON.stringify([...S.methods]))});
   v.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{const m=b.dataset.p;S.prefs.has(m)?S.prefs.delete(m):S.prefs.add(m);b.setAttribute('aria-pressed',S.prefs.has(m));store.set('mp-prefs',JSON.stringify([...S.prefs]));if(m==='Freezer-friendly'){$('#batchRow').hidden=!S.prefs.has(m);servesNote()}});
@@ -416,9 +461,20 @@ function viewIdeas(v){
   $('#ask').onclick=ask;
   bindOpts(v);
 }
+function mumCard(){const m=mumCfg();return `<div class="mumcard" style="margin-top:10px">${svg('heart')}<span class="grow">Every recipe is checked for ${esc(m.name)}: ${esc(mumLabel(m))}, ${esc(DRINKS[m.drinks]||DRINKS.thin)}, with extra protein and energy in her serve.</span><button class="link" id="mumEdit">Edit</button></div>`}
+function editMum(){
+  if(needMe())return;const m=mumCfg();
+  openSheet(`<h2>${esc(m.name)}'s needs</h2><p class="sub">Used for every recipe idea and weekly plan. Set these to match what her speech pathologist recommends.</p>
+   <label class="label" for="mL">Food texture (IDDSI)</label><select id="mL">${Object.entries(TEXTURES).map(([k,t])=>`<option value="${k}"${k===m.level?' selected':''}>${esc(t[0])}</option>`).join('')}</select>
+   <label class="label" for="mD">Drinks</label><select id="mD">${Object.entries(DRINKS).map(([k,t])=>`<option value="${k}"${k===m.drinks?' selected':''}>${esc(t.replace(/^./,c=>c.toUpperCase()))}</option>`).join('')}</select>
+   <label class="label" for="mN">Anything else? (optional)</label><input id="mN" value="${esc(m.notes)}" placeholder="e.g. loves custard, no fish, tires quickly so small bowls" autocomplete="off">
+   <div class="actions"><span class="grow"></span><button class="btn" id="mGo">Save</button></div>`);
+  $('#mGo').onclick=async()=>{const d=Object.assign({},m,{level:$('#mL').value,drinks:$('#mD').value,notes:$('#mN').value.trim().slice(0,300),by:S.me,at:nowIso()});
+    if(await write(db=>db.doc('settings/mum').set(d))){closeSheet();toast('Saved. New ideas will follow this.')}};
+}
 function staplesSum(){const all=staplesList(),low=all.filter(s=>s.low).length;
-  return all.length?`<div class="staplesum">${svg('jar')}<span class="grow">Claude also knows your ${all.length} pantry staple${all.length===1?'':'s'}${low?` (${low} running low)`:''}, so no need to type them.</span><button class="link" id="goPantry">Edit</button></div>`
-   :`<div class="staplesum none">${svg('jar')}<span class="grow">Add your herbs, spices, flour and other staples once and Claude will always know what you have.</span><button class="link" id="goPantry">Add</button></div>`}
+  return all.length?`<div class="staplesum">${svg('jar')}<span class="grow">Claude also knows the ${all.length} thing${all.length===1?'':'s'} in your pantry, fridge and freezer${low?` (${low} running low)`:''}, so no need to type them.</span><button class="link" id="goPantry">Edit</button></div>`
+   :`<div class="staplesum none">${svg('jar')}<span class="grow">Add what's in your pantry, fridge and freezer once and Claude will always know what you have.</span><button class="link" id="goPantry">Add</button></div>`}
 function servesNote(){const e=$('.serves span');if(e)e.textContent=S.prefs.has('Freezer-friendly')&&S.batches>1?`Recipes make ${S.batches*SERVES} serves (${S.batches} meals of ${SERVES}).`:`Recipes are for ${SERVES} people.`}
 function plannedTitles(){const t=new Set();for(const p of Object.values(S.plan))for(const r of Object.values(p.nights||{}))if(r&&r.title)t.add(r.title);return t}
 function reqBlock(r){
@@ -434,7 +490,7 @@ function reqBlock(r){
 }
 function optCard(rid_,i,o,planned){
   const ing=o.ingredients||[],have=ing.filter(x=>x.have).length,buy=ing.filter(x=>!x.have).length;
-  return `<article class="opt"><div class="tags">${o.method?`<span class="tag m">${esc(o.method)}</span>`:''}${o.time?`<span class="tag">${esc(o.time)}</span>`:''}${(o.tags||[]).slice(0,3).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}${o.freezer?'<span class="tag fz">Freezes well</span>':''}${+o.batches>1?`<span class="tag">Makes ${o.makes||o.batches*SERVES}</span>`:''}${planned?'<span class="tag planned">On the plan</span>':''}</div>
+  return `<article class="opt"><div class="tags">${o.method?`<span class="tag m">${esc(o.method)}</span>`:''}${o.time?`<span class="tag">${esc(o.time)}</span>`:''}${(o.tags||[]).slice(0,3).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}${o.mum?`<span class="tag mum">${o.mum.ready?'Suits '+esc(mumCfg().name):'Easy tweak for '+esc(mumCfg().name)}</span>`:''}${o.freezer?'<span class="tag fz">Freezes well</span>':''}${+o.batches>1?`<span class="tag">Makes ${o.makes||o.batches*SERVES}</span>`:''}${planned?'<span class="tag planned">On the plan</span>':''}</div>
    <h3>${esc(o.title)}</h3>${o.why?`<p>${esc(o.why)}</p>`:''}
    <div class="counts"><span class="have">${have} from your pantry</span><span class="buy">${buy} to buy</span></div>
    <div class="acts"><button class="btn sm" data-add="${esc(rid_)}" data-i="${i}">${svg('plus')}Add to a night</button><button class="btn sm ghost" data-see="${esc(rid_)}" data-i="${i}">See recipe</button></div></article>`;
@@ -448,7 +504,7 @@ async function ask(){
   if(needMe())return;
   const pantry=$('#pan').value.trim(),notes=$('#notes').value.trim();
   if(!pantry&&!S.methods.size&&!S.prefs.size&&!notes&&!staplesList().length){toast('Tell Claude what you have, or how you want to cook');$('#pan').focus();return}
-  const r={by:S.me,at:nowIso(),pantry:pantry.slice(0,3000),methods:[...S.methods],prefs:[...S.prefs],notes:notes.slice(0,500),staples:staplesText(),serves:SERVES,batches:S.prefs.has('Freezer-friendly')?S.batches:1,count:6,state:S.sample?'thinking':'queued'};
+  const r={by:S.me,at:nowIso(),pantry:pantry.slice(0,3000),methods:[...S.methods],prefs:[...S.prefs],notes:notes.slice(0,500),staples:staplesText(),mum:mumCfg(),serves:SERVES,batches:S.prefs.has('Freezer-friendly')?S.batches:1,count:6,state:S.sample?'thinking':'queued'};
   const id=rid();
   if(!await write(db=>db.doc('requests/'+id).set(r)))return;
   if(S.sample)generate(id,r);else toast('Sent. Ideas will be here within the hour.');
@@ -459,6 +515,7 @@ function clean(o,b){b=Math.max(1,Math.min(3,+b||1));
   const s=(x,n)=>String(x==null?'':x).slice(0,n);
   return {title:s(o.title,90),why:s(o.why,220),method:s(o.method,30),time:s(o.time,40),tags:(o.tags||[]).slice(0,5).map(t=>s(t,30)),uses:(o.uses||[]).slice(0,20).map(t=>s(t,60)),
     ingredients:(o.ingredients||[]).slice(0,30).map(x=>({item:s(x.item,80),qty:s(x.qty,40),have:!!x.have,aisle:AISLES.includes(x.aisle)?x.aisle:'Other'})),steps:(o.steps||[]).slice(0,12).map(t=>s(t,400)),serves:SERVES,batches:b,makes:SERVES*b,
+    mum:o.mum&&(o.mum.how||o.mum.short)?{ready:!!o.mum.ready,how:s(o.mum.how,500),boost:s(o.mum.boost,300),short:s(o.mum.short,140)}:null,
     freezer:o.freezer&&(o.freezer.portion||o.freezer.reheat)?{portion:s(o.freezer.portion,300),keeps:s(o.freezer.keeps,60),reheat:s(o.freezer.reheat,400)}:null};
 }
 async function generate(id,r){
@@ -489,6 +546,12 @@ function prepFor(r){
 }
 function prepBlock(r){const p=prepFor(r);if(!p.nightBefore&&!p.morning&&!p.afternoon)return'';
   return `<div class="prepbox"><span class="label">${svg('clock')}Prep reminders</span>${p.nightBefore?`<p><b>Night before:</b> ${esc(p.nightBefore)}</p>`:''}${p.morning?`<p><b>Morning:</b> ${esc(p.morning)}</p>`:''}${p.afternoon?`<p><b>Afternoon:</b> ${esc(p.afternoon)}</p>`:''}</div>`}
+function mumBlock(o){const m=mumCfg();
+  if(o.fromFreezer)return '';
+  if(!o.mum)return `<div class="mumbox"><span class="label">${svg('heart')}For ${esc(m.name)}</span><p>No notes for ${esc(m.name)} on this one yet (it was suggested before her needs were added). Make her serve ${esc(mumLabel(m).replace(/^Level \d /,''))} before serving, or tap Ask again on the Ideas tab.</p></div>`;
+  return `<div class="mumbox"><span class="label">${svg('heart')}For ${esc(m.name)} · ${esc(mumLabel(m))}${o.mum.ready?'<span class="ok">Suits her</span>':''}</span>
+   ${o.mum.how?`<p><b>${o.mum.ready?'Her serve':'Change for her'}:</b> ${esc(o.mum.how)}</p>`:''}${o.mum.boost?`<p><b>Nutrition boost:</b> ${esc(o.mum.boost)}</p>`:''}
+   <p class="fine">Check the texture with a fork before serving. Her speech pathologist's advice always comes first.</p></div>`}
 function freezerBlock(f){if(!f)return'';return `<div class="fzbox"><span class="label">${svg('snow')}Freezer</span>
    ${f.portion?`<p><b>Freeze and portion:</b> ${esc(f.portion)}</p>`:''}${f.keeps?`<p><b>Keeps:</b> ${esc(f.keeps)}</p>`:''}${f.reheat?`<p><b>Thaw and reheat:</b> ${esc(f.reheat)}</p>`:''}</div>`}
 function showRecipe(o,opt){
@@ -496,13 +559,13 @@ function showRecipe(o,opt){
   const nightDoc=opt.night?(planFor(ymd(monday(fromYmd(opt.night)))).nights||{})[opt.night]:null;
   if(o.fromFreezer){
     openSheet(`<h2>${esc(o.title)}</h2><p class="sub">From the freezer${o.frozenAt?' · frozen '+nice(new Date(o.frozenAt)):''}</p>
-     ${prepBlock(o)}${o.freezer&&o.freezer.reheat?`<div class="fzbox"><span class="label">${svg('snow')}Thaw and reheat</span><p>${esc(o.freezer.reheat)}</p></div>`:'<p>Thaw overnight in the fridge, then reheat until piping hot.</p>'}
+     ${prepBlock(o)}${o.mum&&o.mum.short?`<div class="mumbox"><span class="label">${svg('heart')}For ${esc(mumCfg().name)}</span><p>${esc(o.mum.short)}</p></div>`:''}${o.freezer&&o.freezer.reheat?`<div class="fzbox"><span class="label">${svg('snow')}Thaw and reheat</span><p>${esc(o.freezer.reheat)}</p></div>`:'<p>Thaw overnight in the fridge, then reheat until piping hot.</p>'}
      ${o.notes?`<p>${esc(o.notes)}</p>`:''}
      <div class="actions">${opt.keep?`<button class="btn" id="rKeep">${svg('check')}Keep for ${esc(DOWL[fromYmd(opt.keep).getDay()])}</button><button class="link danger" id="rDrop">Not this one</button>`:''}${opt.night?`<button class="btn ghost" id="rMove">Move to another night</button><span class="grow"></span><button class="link danger" id="rDel">Take off ${esc(DOWL[fromYmd(opt.night).getDay()])} (back in the freezer)</button>`:''}</div>`);
   }else{
   openSheet(`<h2>${esc(o.title)}</h2><p class="sub">${[o.method,o.time,b>1?`Makes ${o.makes||b*SERVES} (eat ${SERVES}, freeze ${(b-1)*SERVES})`:'Serves '+(o.serves||SERVES)].filter(Boolean).map(esc).join(' · ')}</p>
    ${o.why?`<p style="margin:0 0 14px">${esc(o.why)}</p>`:''}
-   ${prepBlock(o)}
+   ${mumBlock(o)}${prepBlock(o)}
    <span class="label">Ingredients</span>
    <ul class="ings">${ing.map(x=>`<li><span class="k ${x.have?'h':'b'}">${x.have?'Have':'Buy'}</span><span>${esc(x.item)}</span><span class="qq">${esc(x.qty)}</span></li>`).join('')}</ul>
    <span class="label">Method</span>
@@ -542,11 +605,11 @@ async function adjustFreezer(id,delta,o){
   });
 }
 const keepsUntil=f=>{const m=String((f.freezer||{}).keeps||'').match(/(\d+)\s*(month|week)/i);if(!m||!f.frozenAt)return null;const d=new Date(f.frozenAt);if(/week/i.test(m[2]))d.setDate(d.getDate()+7*m[1]);else d.setMonth(d.getMonth()+ +m[1]);return d};
-function frozenRecipe(id){const f=S.freezer[id];return {title:f.title,method:'From the freezer',time:'',tags:[],ingredients:[],steps:[],freezer:f.freezer||null,notes:f.notes||'',fromFreezer:id,frozenAt:f.frozenAt}}
+function frozenRecipe(id){const f=S.freezer[id];return {mum:f.recipe&&f.recipe.mum||null,title:f.title,method:'From the freezer',time:'',tags:[],ingredients:[],steps:[],freezer:f.freezer||null,notes:f.notes||'',fromFreezer:id,frozenAt:f.frozenAt}}
 function viewFreezer(v){
   const items=list(S.freezer).sort((a,b)=>(a.frozenAt||'').localeCompare(b.frozenAt||''));
   const total=items.reduce((a,f)=>a+(+f.portions||0),0),now=new Date();
-  v.innerHTML=`<h1>In the freezer</h1><p class="lede">${total?`${total} family meal${total===1?'':'s'} ready to go, oldest first.`:'Nothing in the freezer yet.'} When you cook a big batch, open it on This week and tap Cooked it.</p>
+  v.innerHTML=`<h1>Frozen meals</h1><p class="lede">${total?`${total} family meal${total===1?'':'s'} ready to go, oldest first.`:'Nothing in the freezer yet.'} When you cook a big batch, open it on This week and tap Cooked it.</p>
   ${items.length?`<section class="card flush">${items.map(f=>{const u=keepsUntil(f),late=u&&u<now,soon=u&&!late&&(u-now)<14*864e5;return `<div class="fz">
     <div class="w"><b>${esc(f.title)}</b><small>Frozen ${f.frozenAt?nice(new Date(f.frozenAt)):''}${u?` · <span class="${late?'late':soon?'soon':''}">${late?'past best':'best by'} ${nice(u)}</span>`:''}</small>
     <div class="row" style="gap:8px;margin-top:8px"><button class="btn sm" data-fzn="${esc(f.id)}">${svg('week')}Put on a night</button><button class="btn sm ghost" data-fzs="${esc(f.id)}">Reheat</button></div></div>
@@ -594,42 +657,51 @@ async function setNight(dk,o,from){
 }
 
 /* ---------- Pantry staples ---------- */
-function staplesList(){return list(S.staples).filter(s=>s.item).sort((a,b)=>STAPLE_CATS.indexOf(stapleCat(a))-STAPLE_CATS.indexOf(stapleCat(b))||String(a.item).localeCompare(String(b.item)))}
+function staplesList(){const o=s=>{const w=stapleWhere(s);return PLACES.findIndex(p=>p[0]===w)*20+PLACE_CATS[w].indexOf(stapleCat(s))};return list(S.staples).filter(s=>s.item).sort((a,b)=>o(a)-o(b)||String(a.item).localeCompare(String(b.item)))}
 /* What goes into each request, e.g. "Plain flour (2 kg), Ground cumin" then the running-low line. */
-function staplesText(){const all=staplesList(),f=s=>s.item+(s.qty?' ('+s.qty+')':''),ok=all.filter(s=>!s.low).map(f),low=all.filter(s=>s.low).map(f);
-  return (ok.join(', ')+(low.length?(ok.length?'\n':'')+'RUNNING LOW (don\'t rely on these): '+low.join(', '):'')).slice(0,4000)}
-const stData=s=>({item:s.item,qty:s.qty||'',cat:stapleCat(s),low:!!s.low,by:s.by||S.me,at:s.at||nowIso()});
+function staplesText(){const all=staplesList(),f=s=>s.item+(s.qty?' ('+s.qty+')':'');
+  const lines=PLACES.map(([w,n])=>[n,all.filter(s=>!s.low&&stapleWhere(s)===w).map(f)]).filter(x=>x[1].length).map(([n,xs])=>(n==='Freezer'?'FREEZER (raw)':n.toUpperCase())+': '+xs.join(', '));
+  const low=all.filter(s=>s.low).map(f);if(low.length)lines.push('RUNNING LOW (don\'t rely on these): '+low.join(', '));
+  return lines.join('\n').slice(0,4000)}
+const stData=s=>({item:s.item,qty:s.qty||'',where:stapleWhere(s),cat:stapleCat(s),low:!!s.low,by:s.by||S.me,at:s.at||nowIso()});
 const stRow=s=>`<div class="st"><span class="nm"><b>${esc(s.item)}</b>${s.low?'<small>Running low</small>':''}</span><button class="amt${s.qty?'':' none'}" data-sq="${esc(s.id)}" aria-label="How much ${esc(s.item)}">${s.qty?esc(s.qty):'How much?'}</button><button class="lowb" data-sl="${esc(s.id)}" aria-pressed="${!!s.low}">Low</button><button class="x" data-sx="${esc(s.id)}" aria-label="Remove ${esc(s.item)}">${svg('x')}</button></div>`;
-async function addStaple(item,qty,cat){
+async function addStaple(item,qty,where,cat){
   item=String(item||'').trim().slice(0,60);qty=String(qty||'').trim().slice(0,40);if(!item)return false;
-  const same=staplesList().find(s=>norm(s.item)===norm(item));
-  if(same){if(!qty){toast(same.item+' is already in your staples');return false}
+  where=PLACE_CATS[where]?where:'pantry';
+  const same=staplesList().find(s=>norm(s.item)===norm(item)&&stapleWhere(s)===where);
+  if(same){if(!qty){toast(same.item+' is already in the '+placeName(where).toLowerCase());return false}
     return write(db=>db.doc('staples/'+same.id).set(Object.assign(stData(same),{qty,low:false,by:S.me,at:nowIso()})))}
-  return write(db=>db.doc('staples/'+rid()).set({item,qty,cat:STAPLE_CATS.includes(cat)?cat:'Other',low:false,by:S.me,at:nowIso()}));
+  if(!PLACE_CATS[where].includes(cat)){const st=starterOf(item);cat=st&&st.where===where?st.cat:'Other'}
+  return write(db=>db.doc('staples/'+rid()).set({item,qty,where,cat,low:false,by:S.me,at:nowIso()}));
 }
 function viewPantry(v){
-  const all=staplesList(),have=new Set(all.map(s=>norm(s.item))),low=all.filter(s=>s.low).length;
-  const groups=STAPLE_CATS.map(c=>[c,all.filter(s=>stapleCat(s)===c)]).filter(g=>g[1].length);
-  const qa=STAPLE_CATS.map(c=>[c,(STARTERS[c]||[]).filter(x=>!have.has(norm(x)))]).filter(g=>g[1].length);
-  const cat=STAPLE_CATS.includes(S.stCat)?S.stCat:'Herbs & spices';
-  v.innerHTML=`<h1>Pantry staples</h1><p class="lede">What you always keep in the cupboard. Claude counts these as things you have every time it suggests recipes, so on the Ideas tab you only type the fresh food. Tap <b>Low</b> on anything running out and it goes on the To buy list.</p>
+  const place=PLACE_CATS[S.place]?S.place:(S.place='pantry');
+  const all=staplesList(),here=all.filter(s=>stapleWhere(s)===place),have=new Set(here.map(s=>norm(s.item))),low=here.filter(s=>s.low).length;
+  const cats=PLACE_CATS[place],groups=cats.map(c=>[c,here.filter(s=>stapleCat(s)===c)]).filter(g=>g[1].length);
+  const qa=cats.map(c=>[c,((STARTERS[place]||{})[c]||[]).filter(x=>!have.has(norm(x)))]).filter(g=>g[1].length);
+  const cat=cats.includes(S.stCat)?S.stCat:cats[0],count=w=>all.filter(s=>stapleWhere(s)===w).length;
+  const blurb={pantry:'Herbs, spices, flour, sauces, tins, rice and pasta.',fridge:'Meat, dairy, veg and anything that needs using up.',freezer:'Raw meat and frozen food. Cooked meals you\'ve frozen live in the Frozen meals tab.'}[place];
+  const qhint={pantry:'e.g. 2 kg, 1 jar, half a bottle',fridge:'e.g. 1 kg, 2 L, half a block',freezer:'e.g. 2 x 500 g, 1.5 kg, 3 packs'}[place];
+  v.innerHTML=`<h1>What's in the kitchen</h1><p class="lede">Claude counts all of this as things you have every time it suggests recipes or plans the week, and uses up the fridge and freezer first. Tap <b>Low</b> on anything running out and it goes on the shopping list.</p>
+  <div class="chips" role="tablist" aria-label="Where" style="margin-bottom:14px">${PLACES.map(([w,n])=>`<button type="button" class="chip" role="tab" data-pl="${w}" aria-pressed="${w===place}">${n}${count(w)?` · ${count(w)}`:''}</button>`).join('')}</div>
   <section class="card">
-    <span class="label">Add a staple</span>
-    <div class="addrow"><input id="stI" placeholder="e.g. Smoked paprika" autocomplete="off" enterkeyhint="next"><input id="stQ" placeholder="How much" autocomplete="off" enterkeyhint="done"></div>
-    <div class="row" style="margin-top:8px"><select id="stC" aria-label="Type of staple">${STAPLE_CATS.map(c=>`<option${c===cat?' selected':''}>${esc(c)}</option>`).join('')}</select><button class="btn" id="stAdd">${svg('plus')}Add</button></div>
-    <p class="hint">How much can be anything that helps: 2 kg, 1 jar, half a bottle, nearly empty.</p>
+    <span class="label">Add to the ${placeName(place).toLowerCase()}</span>
+    <div class="addrow"><input id="stI" placeholder="${{pantry:'e.g. Smoked paprika',fridge:'e.g. Chicken thighs',freezer:'e.g. Beef mince'}[place]}" autocomplete="off" enterkeyhint="next"><input id="stQ" placeholder="How much" autocomplete="off" enterkeyhint="done"></div>
+    <div class="row" style="margin-top:8px"><select id="stC" aria-label="Type">${cats.map(c=>`<option${c===cat?' selected':''}>${esc(c)}</option>`).join('')}</select><button class="btn" id="stAdd">${svg('plus')}Add</button></div>
+    <p class="hint">${esc(blurb)} How much: ${esc(qhint)}.</p>
   </section>
-  ${groups.length?`<p class="lede" style="margin:4px 2px 10px">${all.length} staple${all.length===1?'':'s'}${low?` · ${low} running low`:''}</p><section class="card flush">${groups.map(([c,its])=>`<div class="aisle">${esc(c)}</div>${its.map(stRow).join('')}`).join('')}</section>`
-   :'<div class="card emptybox"><b>No staples yet</b>Tap the common ones below to add them, or type your own above.</div>'}
-  ${qa.length?`<section class="card qa"><h2>Quick add</h2><p class="hint" style="margin:-4px 0 0">Tap anything you keep in stock. Add how much after, if you like.</p>
+  ${groups.length?`<p class="lede" style="margin:4px 2px 10px">${here.length} item${here.length===1?'':'s'} in the ${placeName(place).toLowerCase()}${low?` · ${low} running low`:''}</p><section class="card flush">${groups.map(([c,its])=>`<div class="aisle">${esc(c)}</div>${its.map(stRow).join('')}`).join('')}</section>`
+   :`<div class="card emptybox"><b>Nothing in the ${placeName(place).toLowerCase()} yet</b>Tap the common ones below to add them, or type your own above.</div>`}
+  ${qa.length?`<section class="card qa"><h2>Quick add</h2><p class="hint" style="margin:-4px 0 0">Tap anything you've got. Add how much after, if you like.</p>
    ${qa.map(([c,xs])=>`<span class="label">${esc(c)}</span><div class="chips">${xs.map(x=>`<button type="button" class="chip add" data-qa="${esc(x)}" data-c="${esc(c)}">${svg('plus')}${esc(x)}</button>`).join('')}</div>`).join('')}</section>`:''}`;
+  v.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>{S.place=b.dataset.pl;S.stCat='';store.set('mp-place',S.place);render()});
   const go=async()=>{if(needMe())return;const i=$('#stI').value.trim();if(!i){toast('What is it?');$('#stI').focus();return}
-    if(await addStaple(i,$('#stQ').value,$('#stC').value)){toast(i+' added');$('#stI').value='';$('#stQ').value='';$('#stI').focus()}};
+    if(await addStaple(i,$('#stQ').value,place,$('#stC').value)){toast(i+' added to the '+placeName(place).toLowerCase());$('#stI').value='';$('#stQ').value='';$('#stI').focus()}};
   $('#stAdd').onclick=go;
   $('#stI').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('#stQ').focus()}};
   $('#stQ').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();go()}};
   $('#stC').onchange=e=>{S.stCat=e.target.value};
-  v.querySelectorAll('[data-qa]').forEach(b=>b.onclick=async()=>{if(needMe())return;b.disabled=true;if(await addStaple(b.dataset.qa,'',b.dataset.c))toast(b.dataset.qa+' added');else b.disabled=false});
+  v.querySelectorAll('[data-qa]').forEach(b=>b.onclick=async()=>{if(needMe())return;b.disabled=true;if(await addStaple(b.dataset.qa,'',place,b.dataset.c))toast(b.dataset.qa+' added');else b.disabled=false});
   v.querySelectorAll('[data-sl]').forEach(b=>b.onclick=()=>{if(needMe())return;const s=S.staples[b.dataset.sl];if(!s)return;
     write(db=>db.doc('staples/'+b.dataset.sl).set(Object.assign(stData(s),{low:!s.low,by:S.me,at:nowIso()})))});
   v.querySelectorAll('[data-sx]').forEach(b=>b.onclick=async()=>{if(needMe())return;const id=b.dataset.sx,s=S.staples[id];if(!s)return;
@@ -638,14 +710,17 @@ function viewPantry(v){
 }
 function editStaple(id){
   if(needMe())return;const s=S.staples[id];if(!s)return;
-  openSheet(`<h2>${esc(s.item)}</h2><p class="sub">${esc(stapleCat(s))}</p>
+  const w0=stapleWhere(s);
+  openSheet(`<h2>${esc(s.item)}</h2><p class="sub">${esc(placeName(w0))} · ${esc(stapleCat(s))}</p>
    <label class="label" for="eQ">How much have you got?</label><input id="eQ" value="${esc(s.qty||'')}" placeholder="e.g. 2 kg, 1 jar, half a bottle" autocomplete="off">
    <label class="label" for="eN">Name</label><input id="eN" value="${esc(s.item)}" autocomplete="off">
-   <label class="label" for="eC">Type</label><select id="eC">${STAPLE_CATS.map(c=>`<option${c===stapleCat(s)?' selected':''}>${esc(c)}</option>`).join('')}</select>
+   <label class="label" for="eW">Where</label><select id="eW">${PLACES.map(([w,n])=>`<option value="${w}"${w===w0?' selected':''}>${n}</option>`).join('')}</select>
+   <label class="label" for="eC">Type</label><select id="eC">${PLACE_CATS[w0].map(c=>`<option${c===stapleCat(s)?' selected':''}>${esc(c)}</option>`).join('')}</select>
    <div class="actions"><button class="link danger" id="eDel">Remove</button><span class="grow"></span><button class="btn" id="eGo">Save</button></div>`);
   setTimeout(()=>{const q=$('#eQ');if(q)q.focus()},50);
+  $('#eW').onchange=e=>{const w=e.target.value;$('#eC').innerHTML=PLACE_CATS[w].map(c=>`<option>${esc(c)}</option>`).join('')};
   const save=async()=>{const n=$('#eN').value.trim().slice(0,60);if(!n){toast('It needs a name');return}
-    if(await write(db=>db.doc('staples/'+id).set(Object.assign(stData(s),{item:n,qty:$('#eQ').value.trim().slice(0,40),cat:$('#eC').value,by:S.me,at:nowIso()})))){closeSheet();toast('Saved')}};
+    if(await write(db=>db.doc('staples/'+id).set(Object.assign(stData(s),{item:n,qty:$('#eQ').value.trim().slice(0,40),where:$('#eW').value,cat:$('#eC').value,by:S.me,at:nowIso()})))){closeSheet();toast('Saved')}};
   $('#eGo').onclick=save;$('#eQ').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();save()}};
   $('#eDel').onclick=async()=>{if(await write(db=>db.doc('staples/'+id).delete())){closeSheet();toast(s.item+' removed')}};
 }
@@ -689,7 +764,7 @@ function prepLines(d){
   const out=[],p=prepFor(r),np=prepFor(nr);
   if(p.morning)out.push(p.morning);if(p.afternoon)out.push(p.afternoon);
   if(np.nightBefore)out.push('Tonight: '+np.nightBefore.replace(/^./,c=>c.toLowerCase())+' for tomorrow');
-  return out.map(t=>`<span class="prep">${svg(/freezer|thaw/i.test(t)?'snow':'clock')}${esc(t)}</span>`).join('');
+  return out.map(t=>`<span class="prep">${svg(/freezer|thaw/i.test(t)?'snow':'clock')}${esc(t)}</span>`).join('')+(r&&r.mum&&r.mum.short?`<span class="prep mum">${svg('heart')}${esc(r.mum.short)}</span>`:'');
 }
 function dayCtx(dr,dk){const c=dr&&dr.days&&dr.days[dk];if(!c)return'';
   const bits=[c.busy,c.weather,c.out&&c.out.length?'Out: '+c.out.map(id=>person(id).name).join(', '):''].filter(Boolean);
@@ -734,8 +809,8 @@ function toBuy(){
       const it=m[key]||(m[key]={key,item:x.item,aisle:x.aisle||'Other',qtys:[],meals:[]});
       if(x.qty)it.qtys.push(x.qty);const lab=DOW[fromYmd(dk).getDay()]+' '+r.title;if(!it.meals.includes(lab))it.meals.push(lab)}}
   for(const s of staplesList()){if(!s.low)continue;const key=norm(s.item);
-    if(m[key]){m[key].meals.push('running low in the pantry');m[key].staple=s.id;continue}
-    m[key]={key,item:s.item,aisle:stapleAisle(s),qtys:[],meals:['Running low in the pantry'],staple:s.id}}
+    if(m[key]){m[key].meals.push('running low in the '+placeName(stapleWhere(s)).toLowerCase());m[key].staple=s.id;continue}
+    m[key]={key,item:s.item,aisle:stapleAisle(s),qtys:[],meals:['Running low in the '+placeName(stapleWhere(s)).toLowerCase()],staple:s.id}}
   return Object.values(m).map(i=>Object.assign(i,{qty:sumQty(i.qtys),on:!skip.has(i.key),sent:sent.has(i.key)}));
 }
 /* "1" + "2" -> "3"; "400 ml" + "400 ml" -> "800 ml"; anything else is listed as given. */
@@ -748,7 +823,7 @@ function viewBuy(v){
   const sends=list(S.shopsend).filter(s=>s.week===k).sort((a,b)=>(b.at||'').localeCompare(a.at||''));
   const waiting=sends.find(s=>s.state==='queued'),last=sends.find(s=>s.state==='done');
   const groups=AISLES.map(a=>[a,items.filter(i=>i.aisle===a)]).filter(g=>g[1].length);
-  v.innerHTML=`<h1>To buy</h1><p class="lede">Everything the week's dinners need that you don't already have, plus pantry staples marked Low. It all goes onto the Family Hub shopping list by itself about 2 hours after a dinner is planned, so untick anything you've already got before then (or tap Send now).</p>
+  v.innerHTML=`<h1>To buy</h1><p class="lede">Everything the week's dinners need that you don't already have, plus kitchen items marked Low. It all goes onto the Family Hub shopping list by itself about 2 hours after a dinner is planned, so untick anything you've already got before then (or tap Send now).</p>
   <div class="wk"><button class="round" id="bPrev" aria-label="Previous week">${svg('left')}</button><b>${nice(days[0])} to ${nice(days[6])}</b><button class="round" id="bNext" aria-label="Next week">${svg('right')}</button></div>
   ${waiting?`<div class="note wait">${waiting.items.length} item${waiting.items.length===1?'':'s'} on the way to the Family Hub shopping list. ${S.sample?'They\'ll be there within the hour.':'They\'ll be there within the hour.'}</div>`:last?`<div class="note">${last.added!=null?last.added:last.items.length} item${(last.added!=null?last.added:last.items.length)===1?'':'s'} added to the Family Hub Supermarket list${last.doneAt?' '+DOW[new Date(last.doneAt).getDay()]+' '+nice(new Date(last.doneAt)):''}.</div>`:''}
   ${items.length?`<section class="card flush">${groups.map(([a,its])=>`<div class="aisle">${esc(a)}</div>${its.map(i=>`<button class="item${i.sent?' sent':''}" data-it="${esc(i.key)}" aria-pressed="${i.on}" ${i.sent?'disabled':''}><span class="box">${i.on?svg('check'):''}</span><span class="txt"><b>${esc(i.item)}</b><small>${i.sent?'On the Family Hub list · ':''}${esc(i.meals.join(', '))}</small></span><span class="q">${esc(i.qty)}</span></button>`).join('')}`).join('')}</section>
