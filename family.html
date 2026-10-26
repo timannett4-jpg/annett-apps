@@ -338,6 +338,18 @@ nav.tabs button svg{width:22px;height:22px}
 
 
 .sky .wx{margin:8px 0 0;font-weight:600;opacity:.92;position:relative;font-size:.95rem}
+.bamt{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;padding-right:8px}
+.row .check{cursor:pointer}
+.bphotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.bphotos:empty{display:none}
+.bph{position:relative;margin:0;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--sunk);aspect-ratio:3/4}
+.bph a{display:block;width:100%;height:100%}
+.bph img{width:100%;height:100%;object-fit:cover;display:block}
+.bpdf{display:grid!important;place-items:center;align-content:center;gap:4px;color:var(--accent-deep);font-weight:800;font-size:.85rem}
+.bpdf svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.8}
+.bphx{position:absolute;top:4px;right:4px;width:28px;height:28px;border-radius:50%;background:rgba(20,18,50,.7);color:#fff;display:grid;place-items:center}
+.bphx svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.4;fill:none;stroke-linecap:round}
+.bpick{justify-self:start;cursor:pointer}
 .av.xl{width:56px;height:56px;font-size:1.4rem}
 .megrid{display:grid;gap:20px;align-items:start}
 .mecol{display:grid;gap:20px}
@@ -499,6 +511,7 @@ const I={
  pen:'<path d="M5 19l1-4L16 5l3 3L9 18z"/>',
  left:'<path d="M15 6l-6 6 6 6"/>', right:'<path d="M9 6l6 6-6 6"/>',
  check:'<path d="M6 12.5l4 4L18 8"/>',
+ bill:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
  user:'<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.8 4-5.5 7.5-5.5s6.3 1.7 7.5 5.5"/>'
 };
 const svg=(k,extra='')=>`<svg viewBox="0 0 24 24"${extra}>${I[k]}</svg>`;
@@ -534,16 +547,17 @@ function pick(sel,attr,fn){document.querySelectorAll(sel).forEach(b=>b.onclick=(
 
 /* ---------- state ---------- */
 const S={me:store.get('fh-me')||'',tab:store.get('fh-tab2')||'home',aisle:store.get('fh-aisle')||'Other',list:store.get('fh-list')||'super',calWho:'',editUsuals:false,
-  events:{},shop:{},meals:{},chores:{},log:{},regulars:{},dinnerin:{},notes:{},school:{},birthdays:{},gifts:{},homejobs:{},settings:{},recipes:{},pantry:{},lunches:{},tasks:{},tcomments:{},weather:{},mealideas:{},
+  events:{},shop:{},meals:{},chores:{},log:{},regulars:{},dinnerin:{},notes:{},school:{},birthdays:{},gifts:{},homejobs:{},settings:{},recipes:{},pantry:{},lunches:{},tasks:{},tcomments:{},weather:{},mealideas:{},bills:{},
   week:monday(new Date()),calWeek:monday(new Date()),ready:false,db:null};
 const PAGES=[['home','Today','home'],['cal','Calendar','cal'],['shop','Shopping','shop'],['meals','Dinners','meal'],['chores','Chores','chore']];
-const EXTRA=[['me','My page','user'],['tasks','Tasks','tick'],['notice','Noticeboard','note'],['school','School','school'],['recipes','Recipes','book'],['pantry','Pantry & freezer','box'],['lunch','Lunches','lunch'],['bdays','Birthdays & gifts','gift'],['hjobs','Home jobs','tool'],['colours','Colours','palette']];
+const EXTRA=[['me','My page','user'],['tasks','Tasks','tick'],['bills','Bills','bill'],['notice','Noticeboard','note'],['school','School','school'],['recipes','Recipes','book'],['pantry','Pantry & freezer','box'],['lunch','Lunches','lunch'],['bdays','Birthdays & gifts','gift'],['hjobs','Home jobs','tool'],['colours','Colours','palette']];
 const PHONE=[...PAGES,['more','More','more']];
+const extras=()=>EXTRA.filter(x=>x[0]!=='bills'||isParent());
 function paintNav(){
   const open=Object.values(S.shop).filter(i=>!i.done).length;
-  const cnt=k=>k==='tasks'?myOpenTasks().length:k==='shop'&&open?open:k==='school'?schoolDue().length:k==='hjobs'?jobsDue().length:0;
+  const cnt=k=>k==='bills'?billsDue().length:k==='tasks'?myOpenTasks().length:k==='shop'&&open?open:k==='school'?schoolDue().length:k==='hjobs'?jobsDue().length:0;
   const b=(k,n,ic,cls)=>{const c=cnt(k);return `<button data-tab="${k}" aria-current="${S.tab===k||(k==='more'&&EXTRA.some(x=>x[0]===S.tab))}">${svg(ic)}${cls?`<span>${n}</span>`:n}${c?(cls?`<span class="badge">${c}</span>`:`<span class="count">${c}</span>`):''}</button>`};
-  $('#sideNav').innerHTML=PAGES.map(p=>b(...p)).join('')+'<div class="side-h">Family</div>'+EXTRA.map(p=>b(...p)).join('');
+  $('#sideNav').innerHTML=PAGES.map(p=>b(...p)).join('')+'<div class="side-h">Family</div>'+extras().map(p=>b(...p)).join('');
   $('#tabs').innerHTML=PHONE.map(p=>b(...p,1)).join('');
   document.querySelectorAll('#sideNav [data-tab],#tabs [data-tab]').forEach(x=>x.onclick=()=>setTab(x.dataset.tab));
 }
@@ -553,18 +567,18 @@ function setTab(t){S.tab=t;store.set('fh-tab2',t);render();scrollTo(0,0)}
 function paintColours(){const c=S.settings.colours||{},r=document.documentElement.style;for(const p of FAMILY){if(c[p.id]&&/^#[0-9a-f]{6}$/i.test(c[p.id]))r.setProperty('--'+p.id,c[p.id]);else r.removeProperty('--'+p.id)}}
 
 /* ---------- quick add ---------- */
-const ADDS=[['appt','Appointment','cal','For anyone in the family'],['shop','Shopping','shop','Add to a list'],['dinner','Dinner','meal','Plan a night'],['task','Task','tick','Give someone a job'],['shift','Work shifts','cal',"Add a week's roster"],['note','Note','note','Pin to the noticeboard'],['chore','Chore','chore','A job for the kids']];
-function adds(){return ADDS.filter(a=>a[0]!=='chore'||isParent())}
+const ADDS=[['appt','Appointment','cal','For anyone in the family'],['shop','Shopping','shop','Add to a list'],['dinner','Dinner','meal','Plan a night'],['task','Task','tick','Give someone a job'],['shift','Work shifts','cal',"Add a week's roster"],['note','Note','note','Pin to the noticeboard'],['bill','Bill','bill','A bill to pay'],['chore','Chore','chore','A job for the kids']];
+function adds(){return ADDS.filter(a=>(a[0]!=='chore'&&a[0]!=='bill')||isParent())}
 function paintTop(){
   const d=new Date();$('#topWhen').textContent=DOWL[d.getDay()]+' '+d.getDate()+' '+MONL[d.getMonth()];
-  $('#qaDesk').innerHTML=adds().map(a=>`<button class="btn${a[0]==='appt'?'':' ghost'}" data-add="${a[0]}">${svg('plus')}${a[1]}</button>`).join('');
+  $('#qaDesk').innerHTML=adds().filter(a=>a[0]!=='bill').map(a=>`<button class="btn${a[0]==='appt'?'':' ghost'}" data-add="${a[0]}">${svg('plus')}${a[1]}</button>`).join('');
   document.querySelectorAll('#qaDesk [data-add]').forEach(b=>b.onclick=()=>doAdd(b.dataset.add));
   const p=person(S.me);
   for(const [av,nm] of [['#sideAv','#sideName'],['#phoneAv',null]]){const a=$(av);a.textContent=p.id?p.name[0]:'?';a.style.background=p.id?colour(p.id):'var(--faint)';if(nm)$(nm).textContent=p.id?p.name:'Choose who you are'}
 }
 $('#qaPhone').onclick=()=>{openSheet(`<h2>Add</h2><div class="addmenu">${adds().map(a=>`<button data-add="${a[0]}"><span class="ico">${svg(a[2])}</span>${a[1]}<small>${a[3]}</small></button>`).join('')}</div>`);
   document.querySelectorAll('#panel [data-add]').forEach(b=>b.onclick=()=>doAdd(b.dataset.add))};
-function doAdd(k){if(needMe())return;if(k==='appt')editEvent(null);else if(k==='dinner')editMeal(nextFreeNight());else if(k==='chore')editChore(null);else if(k==='note')editNote(null);else if(k==='task')editTask(null);else if(k==='shift')editShifts();else addShopSheet()}
+function doAdd(k){if(needMe())return;if(k==='appt')editEvent(null);else if(k==='dinner')editMeal(nextFreeNight());else if(k==='chore')editChore(null);else if(k==='note')editNote(null);else if(k==='task')editTask(null);else if(k==='shift')editShifts();else if(k==='bill')editBill(null);else addShopSheet()}
 function nextFreeNight(){for(let i=0;i<14;i++){const k=ymd(addDays(new Date(),i));if(!(S.meals[k]||{}).dinner)return k}return today()}
 
 /* ---------- who's using this device ---------- */
@@ -592,7 +606,7 @@ async function write(fn){if(!S.db){toast('Not connected yet. Try again in a mome
   const sub=(name,key)=>db.collection(name).onSnapshot(s=>{const o={};s.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});
     const j=JSON.stringify(o);const first=!(key in seen);if(!first&&seen[key]===j)return;seen[key]=j;S[key]=o;S.ready=true;soon()},()=>{});
   sub('events','events');sub('shopping','shop');sub('meals','meals');sub('chores','chores');sub('chorelog','log');
-  sub('regulars','regulars');sub('dinnerin','dinnerin');sub('notes','notes');sub('school','school');sub('birthdays','birthdays');sub('gifts','gifts');sub('homejobs','homejobs');sub('settings','settings');sub('recipes','recipes');sub('pantry','pantry');sub('lunches','lunches');sub('tasks','tasks');sub('weather','weather');sub('mealideas','mealideas');sub('tcomments','tcomments');
+  sub('regulars','regulars');sub('dinnerin','dinnerin');sub('notes','notes');sub('school','school');sub('birthdays','birthdays');sub('gifts','gifts');sub('homejobs','homejobs');sub('settings','settings');sub('recipes','recipes');sub('pantry','pantry');sub('lunches','lunches');sub('tasks','tasks');sub('weather','weather');sub('mealideas','mealideas');sub('tcomments','tcomments');sub('bills','bills');
 })();
 
 /* ---------- render ---------- */
@@ -751,6 +765,7 @@ VIEWS.home=function(v){
   // coming up
   const up=[...schoolDue().map(s=>({k:s.due,t:`${esc(s.title)}${s.amount?' ($'+esc(s.amount)+')':''}`,s:`${esc(person(s.who).name)}, due ${inDays(daysBetween(k,s.due))}`,ic:'school',go:'school'})),
     ...bdaysSoon(14).map(b=>({k:b.next,t:`${esc(b.name)}'s birthday`,s:inDays(daysBetween(k,b.next)).replace(/^./,c=>c.toUpperCase()),ic:'gift',go:'bdays'})),
+    ...(isParent()?billsOpen().filter(b=>b.due&&daysBetween(k,b.due)<=14):[]).map(b=>({k:b.due,t:`${esc(b.title)}${b.amount?' '+money(b.amount):''}`,s:daysBetween(k,b.due)<0?'Bill overdue':'Bill due '+inDays(daysBetween(k,b.due)),ic:'bill',go:'bills'})),
     ...jobsDue().map(j=>({k:j.due,t:esc(j.title),s:daysBetween(k,j.due)<0?'Overdue':'Due '+inDays(daysBetween(k,j.due)),ic:'tool',go:'hjobs'}))].sort((a,b)=>a.k.localeCompare(b.k));
   const notes=liveNotes().slice(0,3);
   v.innerHTML=`<section class="sky sky-${sky.k}" style="background:${sky.bg}"><span class="orb ${sky.orb}"></span>${sky.k==='night'?'<span class="stars"></span>':''}
@@ -922,7 +937,7 @@ function editItem(id){
 
 /* ===== More (phone) ===== */
 VIEWS.more=function(v){
-  v.innerHTML=`<div class="ph"><div><h1>More</h1></div></div><div class="moregrid">${EXTRA.map(([k,n,ic])=>{const c=k==='tasks'?myOpenTasks().length:k==='school'?schoolDue().length:k==='hjobs'?jobsDue().length:k==='notice'?liveNotes().length:0;return `<button class="moretile" data-to="${k}"><span class="ico">${svg(ic)}</span><b>${n}</b>${c?`<span class="mc">${c}</span>`:''}</button>`}).join('')}</div>`;
+  v.innerHTML=`<div class="ph"><div><h1>More</h1></div></div><div class="moregrid">${extras().map(([k,n,ic])=>{const c=k==='bills'?billsDue().length:k==='tasks'?myOpenTasks().length:k==='school'?schoolDue().length:k==='hjobs'?jobsDue().length:k==='notice'?liveNotes().length:0;return `<button class="moretile" data-to="${k}"><span class="ico">${svg(ic)}</span><b>${n}</b>${c?`<span class="mc">${c}</span>`:''}</button>`}).join('')}</div>`;
   v.querySelectorAll('[data-to]').forEach(b=>b.onclick=()=>setTab(b.dataset.to));
 };
 
@@ -953,10 +968,12 @@ VIEWS.me=function(v){
   </section>
   <section class="card mini-card"><div class="mh"><b>Your tasks</b><button class="more" id="meTasks">${mt.length?mt.length+' open':'All tasks'}</button></div>${mt.length?mt.slice(0,8).map(taskRow).join(''):'<p class="hint" style="padding:0 16px 8px">Nothing for you right now.</p>'}</section>
   ${kid?`<section class="card mini-card"><div class="mh"><b>Your chores today</b><button class="more" id="meChores">All chores</button></div>${chores.length?chores.map(c=>{const key=c.id+'__'+periodKey(c,d),lg=S.log[key];return `<div class="row${lg?' done':''}" data-mchore="${esc(c.id)}" role="button" tabindex="0" aria-pressed="${!!lg}"><span class="check">${svg('check')}</span><span class="txt"><b>${esc(c.title)}</b><small>${lg?'Done':(c.freq==='weekly'?'This week':'Today')}</small></span></div>`}).join(''):'<p class="hint" style="padding:0 16px 8px">No chores today.</p>'}</section>`:''}
+  ${isParent()?(()=>{const bs=billsOpen().filter(b=>!b.due||daysBetween(t,b.due)<=30);return `<section class="card mini-card"><div class="mh"><b>Bills to pay</b><button class="more" id="meBills">${billsOpen().length?'All bills':'Add a bill'}</button></div>${bs.length?bs.slice(0,5).map(b=>`<button class="upline" data-bill="${esc(b.id)}"><span class="ui">${svg('bill')}</span><span><b>${esc(b.title)}${b.amount?' '+money(b.amount):''}</b><small>${billWhen(b)}</small></span></button>`).join(''):'<p class="hint" style="padding:0 16px 8px">Nothing due in the next month.</p>'}</section>`})():''}
   ${LUNCH_PEOPLE.includes(S.me)?`<section class="card mini-card"><div class="mh"><b>Your lunches</b><button class="more" id="meLunch">Plan lunches</button></div>${(()=>{const l=lunchOf(S.me,t),l2=lunchOf(S.me,ymd(addDays(new Date(),1)));return `<p class="hint" style="padding:0 16px 8px">Today: ${l&&l.main?esc(l.main):'nothing planned'}<br>Tomorrow: ${l2&&l2.main?esc(l2.main):'nothing planned'}</p>`})()}</section>`:''}
   <section class="card mini-card"><div class="mh"><b>Your colour</b></div><div class="sw" style="padding:4px 16px 10px">${PALETTE.map(c=>`<button class="swatch" data-mcol="${c}" style="background:${c}" aria-label="${c}" aria-pressed="${curCol.toLowerCase()===c}"></button>`).join('')}</div></section>
   </div></div>`;
   $('#meSwitch').onclick=pickMe;
+  const mb=$('#meBills');if(mb)mb.onclick=()=>setTab('bills');v.querySelectorAll('[data-bill]').forEach(b=>b.onclick=()=>showBill(b.dataset.bill));
   v.querySelectorAll('[data-mdin]').forEach(b=>b.onclick=()=>{const k=b.dataset.mdin,out=b.dataset.out==='1';if(out===isOut(S.me,k))return;setDin(S.me,k,out)});
   v.querySelectorAll('[data-udow]').forEach(b=>b.onclick=()=>{const n=+b.dataset.udow,doc=Object.assign({},S.settings.dinnerusual||{}),cur=new Set(doc[S.me]||[]);cur.has(n)?cur.delete(n):cur.add(n);doc[S.me]=[...cur].sort();write(db=>db.doc('settings/dinnerusual').set(doc))});
   bindEv();
@@ -1024,6 +1041,82 @@ function editTask(id){
     const r=Object.assign({},t,{title:x.slice(0,140),who:[...who],due:$('#tkD').value,notes:$('#tkN').value.trim().slice(0,1000),by:t.by||S.me,at:t.at||nowIso(),updatedBy:S.me,updatedAt:nowIso()});if(!id){r.done=false}
     const nid=id||rid();if(await write(db=>db.doc('tasks/'+nid).set(r))){closeSheet();toast(id?'Saved':'Task added for '+andJoin([...who].map(w=>w===S.me?'you':person(w).name)))}};
   const x=$('#tkX');if(x)x.onclick=async()=>{const cs=commentsFor(id);if(await write(async db=>{await db.doc('tasks/'+id).delete();for(const c of cs)await db.doc('tcomments/'+c.id).delete()}))closeSheet()};
+}
+
+/* ===== Bills: big bills to remember (Tim and Laura only), with a photo or PDF of each bill ===== */
+const BILL_KINDS=['Council rates','Car rego','Land tax','Fine','Insurance','Utilities','School fees','Other'];
+const REPEATS=[['none','Just once'],['monthly','Every month'],['quarterly','Every 3 months'],['yearly','Every year']];
+const billsOpen=()=>listOf(S.bills).filter(b=>!b.paid).sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999'));
+const billsDue=()=>isParent()?billsOpen().filter(b=>b.due&&daysBetween(today(),b.due)<=7):[];
+const money=a=>{const n=+a;return a===''||a==null||isNaN(n)?'':'$'+n.toLocaleString('en-AU',{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2})};
+const billWhen=b=>{if(b.paid)return 'Paid'+(b.paidAt?' '+niceK(ymd(new Date(b.paidAt))):'')+(b.paidBy?' by '+esc(person(b.paidBy).name):'');if(!b.due)return 'No due date';const n=daysBetween(today(),b.due);return n<0?`<span class="late">Overdue since ${niceK(b.due)}</span>`:n<=7?`<span class="soon">Due ${inDays(n)}</span>`:'Due '+niceK(b.due)};
+const blobUrl=id=>'_blob/'+id;
+function addMonths(k,n){const d=fromYmd(k),day=d.getDate();d.setDate(1);d.setMonth(d.getMonth()+n);d.setDate(Math.min(day,new Date(d.getFullYear(),d.getMonth()+1,0).getDate()));return ymd(d)}
+const nextDue=(k,rep)=>rep==='monthly'?addMonths(k,1):rep==='quarterly'?addMonths(k,3):rep==='yearly'?addMonths(k,12):'';
+let ASSETS=null;(async()=>{try{ASSETS=window.claude?await window.claude.use('assets'):null}catch(e){ASSETS=null}})();
+/* Phone photos are shrunk before saving so a bill photo stays small but readable. */
+async function shrinkPhoto(f){if(!/^image\/(jpeg|png|webp|heic|heif)$/i.test(f.type||''))return f;
+  try{const bmp=await createImageBitmap(f);const sc=Math.min(1,2000/Math.max(bmp.width,bmp.height));const c=document.createElement('canvas');c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.85));return b&&b.size<f.size?b:f}catch(e){return f}}
+const photoTiles=(ps,rm)=>(ps||[]).map((p,i)=>`<figure class="bph">${/pdf/.test(p.type||'')?`<a class="bpdf" href="${blobUrl(p.id)}" target="_blank" rel="noopener">${svg('note')}<span>PDF</span></a>`:`<a href="${blobUrl(p.id)}" target="_blank" rel="noopener"><img src="${blobUrl(p.id)}" alt="Photo of the bill" loading="lazy"></a>`}${rm?`<button type="button" class="bphx" data-rmph="${i}" aria-label="Remove">${svg('x')}</button>`:''}</figure>`).join('');
+VIEWS.bills=function(v){
+  if(!isParent()){v.innerHTML=`<div class="ph"><div><h1>Bills</h1><p>Bills are kept for Tim and Laura.</p></div></div>`;return}
+  const t=today(),open=billsOpen();
+  const over=open.filter(b=>b.due&&b.due<t),soon=open.filter(b=>!b.due||(b.due>=t&&daysBetween(t,b.due)<=30)),later=open.filter(b=>b.due&&daysBetween(t,b.due)>30);
+  const paid=listOf(S.bills).filter(b=>b.paid).sort((a,b)=>(b.paidAt||'').localeCompare(a.paidAt||'')).slice(0,20);
+  const total=a=>a.reduce((s,b)=>s+(+b.amount||0),0);
+  const row=b=>`<div class="row${b.paid?' done':''}" data-bill="${esc(b.id)}" role="button" tabindex="0"><button class="check" data-bpay="${esc(b.id)}" aria-label="${b.paid?'Mark not paid':'Mark paid'}">${svg('check')}</button>
+    <span class="txt"><b>${esc(b.title)}</b><small>${[esc(b.kind||''),billWhen(b),(b.photos||[]).length?(b.photos.length===1?'1 photo':b.photos.length+' photos'):'',b.rep&&b.rep!=='none'?esc((REPEATS.find(r=>r[0]===b.rep)||['',''])[1].toLowerCase()):''].filter(Boolean).join(' · ')}</small></span>${b.amount?`<span class="bamt">${money(b.amount)}</span>`:''}</div>`;
+  const group=(label,list)=>list.length?`<section class="card"><div class="glabel">${label}<span>${list.length}${total(list)?' · '+money(total(list)):''}</span></div>${list.map(row).join('')}</section>`:'';
+  v.innerHTML=`<div class="ph"><div><h1>Bills</h1><p>Rates, rego, fines and other big bills. Snap a photo of each so the payment details are all here. Tick a bill when it's paid.</p></div><button class="btn" id="newBill">${svg('plus')}New bill</button></div>
+  ${open.length?group('Overdue',over)+group('Due in the next month',soon)+group('Later',later):`<section class="card" style="padding:18px"><div class="empty"><b>No bills to pay</b>Add one when it arrives, like council rates, car rego or a parking fine.</div></section>`}
+  ${paid.length?`<section class="card"><div class="glabel">Paid<span>${paid.length}</span></div>${paid.map(row).join('')}</section>`:''}`;
+  $('#newBill').onclick=()=>editBill(null);
+  tapRows('[data-bill]',function(e){if(e.target.closest('[data-bpay]'))return;showBill(this.dataset.bill)});
+  v.querySelectorAll('[data-bpay]').forEach(b=>b.onclick=e=>{e.stopPropagation();togglePaid(b.dataset.bpay)});
+};
+async function togglePaid(id){
+  if(needMe())return;const b=S.bills[id];if(!b)return;
+  if(b.paid){if(await write(db=>db.doc('bills/'+id).set(Object.assign({},b,{paid:false,paidAt:'',paidBy:''}))))toast(b.title+' marked not paid');return}
+  const r=Object.assign({},b,{paid:true,paidAt:nowIso(),paidBy:S.me});let nk='';
+  if(b.rep&&b.rep!=='none'&&b.due&&!b.nextId){nk=nextDue(b.due,b.rep);r.nextId=rid()}
+  const ok=await write(async db=>{await db.doc('bills/'+id).set(r);if(nk)await db.doc('bills/'+r.nextId).set({title:b.title,kind:b.kind||'',amount:b.amount||'',due:nk,rep:b.rep,pay:b.pay||'',notes:b.notes||'',photos:[],paid:false,by:S.me,at:nowIso()})});
+  if(ok){closeSheet();toast(nk?`Paid. Next ${b.title} added for ${niceK(nk)}`:'Paid: '+b.title)}
+}
+function showBill(id){
+  const b=S.bills[id];if(!b)return;
+  openSheet(`<h2>${esc(b.title)}</h2><p class="sub">${[esc(b.kind||''),b.amount?money(b.amount):'',billWhen(b)].filter(Boolean).join(' · ')}</p>
+   ${b.pay?`<div class="field"><span>How to pay</span><p class="tnotes">${esc(b.pay)}</p></div>`:''}
+   ${b.notes?`<div class="field"><span>Notes</span><p class="tnotes">${esc(b.notes)}</p></div>`:''}
+   ${(b.photos||[]).length?`<div class="field"><span>The bill (tap to open full size)</span><div class="bphotos">${photoTiles(b.photos)}</div></div>`:''}
+   ${b.rep&&b.rep!=='none'?`<p class="hint">Repeats ${esc((REPEATS.find(r=>r[0]===b.rep)||['',''])[1].toLowerCase())}. Ticking it paid adds the next one.</p>`:''}
+   <div class="actions"><button type="button" class="btn${b.paid?' ghost':''}" id="bPaid">${b.paid?'Mark not paid':'Mark paid'}</button><span class="grow"></span><button type="button" class="link" id="bEdit">Edit</button></div>`);
+  $('#bPaid').onclick=()=>togglePaid(id);$('#bEdit').onclick=()=>editBill(id);
+}
+function editBill(id){
+  if(needMe())return;if(!isParent()){toast('Bills are kept for Tim and Laura');return}
+  const b=id?S.bills[id]:{title:'',kind:'',amount:'',due:'',rep:'none',pay:'',notes:'',photos:[]};
+  let kind=b.kind||'',rep=b.rep||'none';const photos=(b.photos||[]).slice();let busy=0;
+  openSheet(`<h2>${id?'Edit bill':'New bill'}</h2><form class="form" id="biF">
+   <div class="field"><span>Photo or PDF of the bill</span><div class="bphotos" id="bPh"></div>
+     ${ASSETS?`<label class="btn ghost bpick">${svg('plus')}Add photo or PDF<input type="file" id="bFile" accept="image/*,application/pdf" multiple hidden></label><span class="hint" id="bUp"></span>`:'<p class="hint">Adding photos isn\'t available on this device. Add them from the Family Hub app on your phone.</p>'}</div>
+   <label class="field"><span>What is it</span><input id="biT" value="${esc(b.title)}" placeholder="e.g. Council rates, 3rd instalment" autocomplete="off" required></label>
+   <div class="field"><span>Type</span><div class="chips wrap">${BILL_KINDS.map(x=>`<button type="button" class="chip" data-bk="${x}" aria-pressed="${kind===x}">${x}</button>`).join('')}</div></div>
+   <div class="two"><label class="field"><span>Amount $</span><input id="biA" value="${esc(b.amount||'')}" inputmode="decimal" placeholder="e.g. 612.40" autocomplete="off"></label><label class="field"><span>Due date</span><input type="date" id="biD" value="${esc(b.due||'')}"></label></div>
+   <div class="field"><span>Repeats</span><div class="chips wrap">${REPEATS.map(([k,n])=>`<button type="button" class="chip" data-br="${k}" aria-pressed="${rep===k}">${n}</button>`).join('')}</div></div>
+   <label class="field"><span>How to pay (BPAY biller code and reference, account details, website)</span><textarea id="biP" placeholder="e.g. BPAY biller 12345, ref 9876 5432 1">${esc(b.pay||'')}</textarea></label>
+   <label class="field"><span>Notes (optional)</span><input id="biN" value="${esc(b.notes||'')}" placeholder="e.g. Can pay in instalments" autocomplete="off"></label>
+   <div class="actions">${id?'<button type="button" class="link danger" id="biX">Delete</button>':''}<span class="grow"></span><button class="btn" id="biS">Save</button></div></form>`);
+  const drawPh=()=>{$('#bPh').innerHTML=photoTiles(photos,true);document.querySelectorAll('[data-rmph]').forEach(x=>x.onclick=()=>{photos.splice(+x.dataset.rmph,1);drawPh()})};drawPh();
+  pick('[data-bk]','data-bk',x=>kind=x);pick('[data-br]','data-br',x=>rep=x);
+  const fi=$('#bFile');if(fi)fi.onchange=async()=>{const fs=[...fi.files];fi.value='';if(!fs.length)return;busy++;$('#bUp').textContent='Saving '+(fs.length===1?'the photo':fs.length+' files')+'…';
+    let bad=0;for(const f of fs){try{const blob=await shrinkPhoto(f);const up=await ASSETS.upload(blob);photos.push({id:up.id,type:up.contentType||blob.type||f.type})}catch(e){bad++}}
+    busy--;$('#bUp').textContent=bad?"One or more files didn't save. Try again.":'';drawPh()};
+  $('#biF').onsubmit=async e=>{e.preventDefault();if(busy){toast('Wait for the photo to finish saving');return}const t=$('#biT').value.trim();if(!t)return;
+    const r=Object.assign({},b,{title:t.slice(0,100),kind,amount:$('#biA').value.replace(/[^0-9.]/g,'').slice(0,10),due:$('#biD').value,rep,pay:$('#biP').value.trim().slice(0,1000),notes:$('#biN').value.trim().slice(0,300),photos:photos.slice(0,10),by:b.by||S.me,at:b.at||nowIso(),updatedBy:S.me,updatedAt:nowIso()});
+    if(!id)r.paid=false;
+    if(await write(db=>db.doc('bills/'+(id||rid())).set(r))){closeSheet();toast(id?'Saved':'Bill added')}};
+  const x=$('#biX');if(x)x.onclick=async()=>{if(await write(db=>db.doc('bills/'+id).delete())){closeSheet();toast('Bill deleted')}};
 }
 
 /* ===== Noticeboard ===== */
