@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Meals">
+<link rel="manifest" href="mealplan.webmanifest">
+<link rel="icon" type="image/png" href="mealplan-icon-192.png">
+<link rel="apple-touch-icon" href="mealplan-icon-180.png">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<script>window.ANNETT_APP="mealplan";
+/* A photo or document not yet copied to Drive hides itself instead of showing broken. */
+addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&/_blob\//.test(t.src)){var f=t.closest('figure,.shot');(f||t).style.display='none';}},true);</script>
+<script src="claude-shim.js"></script>
+</head>
+<body>
+<title>Annett Meal Planner</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap">
+<style>
+/* Annett Meal Planner. Tell it what's in the pantry and how you want to cook; Claude suggests recipes for 7,
+   you drop them onto nights of the week, and the missing ingredients go to the Family Hub shopping list.
+   Deep olive and saffron so it doesn't look like the Family Hub or the BDM. Always light. */
+:root{color-scheme:light;
+  --bg:#f5f3ec; --surface:#fff; --sunk:#faf8f2; --line:#e7e2d4; --line2:#d8d1bd;
+  --ink:#1f2a1f; --muted:#5f6a5c; --faint:#9aa394;
+  --deep:#21412f; --deep2:#2d5640; --deep-ink:#f3f1e6;
+  --accent:#f0a830; --accent-ink:#21412f; --accent-soft:#fdf0d6; --accent-deep:#b9761a;
+  --good:#2f8a4f; --good-soft:#e3f2e7; --buy:#c2552d; --buy-soft:#fbe7df;
+  --font:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Fraunces",Georgia,serif; --r:18px;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;touch-action:manipulation;background:none;border:0;padding:0}
+:focus-visible{outline:2px solid var(--accent-deep);outline-offset:2px;border-radius:8px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* header */
+.top{position:sticky;top:0;z-index:8;background:var(--deep);color:var(--deep-ink);padding-top:env(safe-area-inset-top,0px)}
+.topin{max-width:860px;margin:0 auto;height:62px;display:flex;align-items:center;gap:12px;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+.mark{width:38px;height:38px;border-radius:12px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none}
+.mark svg{width:22px;height:22px}
+.brand{flex:1;min-width:0}
+.brand b{display:block;font-family:var(--serif);font-weight:700;font-size:1.2rem;letter-spacing:.01em;line-height:1.1}
+.brand small{color:#b9c8b6;font-size:.8rem}
+.me{display:flex;align-items:center;gap:8px;border-radius:999px;padding:4px 10px 4px 4px;background:var(--deep2);font-weight:600;font-size:.9rem}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:.85rem;flex:none}
+.segs{max-width:860px;margin:0 auto;display:none;gap:6px;padding:0 16px 12px}
+.segs button{padding:9px 16px;border-radius:999px;color:#cfdacb;font-weight:700}
+.segs button[aria-current="true"]{background:var(--accent);color:var(--accent-ink)}
+@media (min-width:760px){.segs{display:flex}nav.tabs{display:none!important}}
+
+main{max-width:860px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right,0px)) calc(110px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+@media (min-width:760px){main{padding-bottom:48px}}
+h1{font-family:var(--serif);font-weight:700;font-size:1.7rem;line-height:1.15;margin:4px 0 4px}
+.lede{color:var(--muted);margin:0 0 16px}
+h2{font-size:1.05rem;margin:0 0 10px;font-weight:800}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.label{display:block;font-weight:700;font-size:.92rem;margin:14px 0 8px}
+.label:first-child{margin-top:0}
+.hint{color:var(--muted);font-size:.85rem;margin:6px 0 0}
+textarea,input[type=text],input:not([type]){width:100%;border:1px solid var(--line2);border-radius:14px;background:var(--sunk);padding:12px 14px;min-height:46px}
+textarea{min-height:104px;resize:vertical}
+textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:0;background:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line2);background:var(--surface);font-weight:600;font-size:.92rem}
+.chip[aria-pressed="true"]{background:var(--deep);border-color:var(--deep);color:var(--deep-ink)}
+.chip .pip{width:9px;height:9px;border-radius:50%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:14px;background:var(--accent);color:var(--accent-ink);font-weight:800;min-height:48px;padding:0 20px;white-space:nowrap}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line2);font-weight:700}
+.btn.dark{background:var(--deep);color:var(--deep-ink)}
+.btn.sm{min-height:38px;padding:0 14px;font-size:.9rem;border-radius:12px}
+.btn.wide{width:100%}
+.link{color:var(--deep2);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.link.danger{color:var(--buy)}
+.row{display:flex;align-items:center;gap:10px}
+.grow{flex:1}
+.serves{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;flex-wrap:wrap}
+.serves span{color:var(--muted);font-size:.9rem}
+
+/* requests and options */
+.req{margin-bottom:18px}
+.reqh{display:flex;align-items:flex-start;gap:10px;margin:0 2px 10px}
+.reqh .t{flex:1;min-width:0}
+.reqh b{display:block;font-size:.95rem}
+.reqh small{color:var(--muted);font-size:.84rem;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:14px;background:var(--accent-soft);color:#6b4a10;font-weight:600;font-size:.92rem;margin-bottom:10px}
+.status.err{background:var(--buy-soft);color:#7a2f15}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:sp 0.9s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+.opts{display:grid;gap:10px}
+@media (min-width:760px){.opts{grid-template-columns:1fr 1fr}}
+.opt{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;text-align:left;display:flex;flex-direction:column;gap:8px}
+.opt h3{font-family:var(--serif);font-weight:700;font-size:1.12rem;margin:0;line-height:1.2}
+.opt p{margin:0;color:var(--muted);font-size:.9rem}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--sunk);border:1px solid var(--line);color:var(--muted)}
+.tag.m{background:var(--deep);border-color:var(--deep);color:var(--deep-ink)}
+.tag.planned{background:var(--good-soft);border-color:#bfe0c8;color:var(--good)}
+.counts{display:flex;gap:14px;font-size:.85rem;font-weight:700}
+.counts .have{color:var(--good)}.counts .buy{color:var(--buy)}
+.opt .acts{display:flex;gap:8px;margin-top:2px}
+.older{margin-top:8px}
+.older summary{cursor:pointer;color:var(--muted);font-weight:700;padding:8px 2px}
+
+/* week */
+.wk{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.wk b{flex:1;text-align:center;font-weight:700}
+.round{width:42px;height:42px;border-radius:12px;border:1px solid var(--line2);background:var(--surface);display:grid;place-items:center}
+.night{display:flex;align-items:center;gap:14px;padding:14px 16px;border-top:1px solid var(--line);width:100%;text-align:left}
+.night:first-child{border-top:0}
+.night .d{width:46px;flex:none;text-align:center}
+.night .d b{display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.night .d span{display:block;font-family:var(--serif);font-size:1.35rem;font-weight:700;line-height:1.1}
+.night.today .d span{color:var(--accent-deep)}
+.night .w{flex:1;min-width:0}
+.night .w b{display:block;font-weight:700}
+.night .w small{color:var(--muted);font-size:.84rem}
+.night .w .empty{color:var(--faint);font-weight:600}
+.card.flush{padding:0;overflow:hidden}
+
+/* to buy */
+.aisle{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;padding:14px 16px 6px}
+.item{display:flex;align-items:center;gap:12px;padding:10px 16px;border-top:1px solid var(--line);width:100%;text-align:left}
+.item .box{width:24px;height:24px;border-radius:7px;border:2px solid var(--line2);display:grid;place-items:center;flex:none}
+.item[aria-pressed="true"] .box{background:var(--deep);border-color:var(--deep);color:#fff}
+.item[aria-pressed="false"] .txt b{text-decoration:line-through;color:var(--faint)}
+.item .txt{flex:1;min-width:0}
+.item .txt b{font-weight:600;display:block}
+.item .txt small{color:var(--muted);font-size:.8rem}
+.item .q{color:var(--muted);font-size:.88rem;font-weight:600;text-align:right}
+.item.sent .box{border-style:dashed}
+.sendbar{position:sticky;bottom:calc(76px + env(safe-area-inset-bottom,0px));margin-top:14px}
+@media (min-width:760px){.sendbar{bottom:16px}}
+.note{padding:12px 16px;border-radius:14px;background:var(--good-soft);color:#1f5a33;font-weight:600;font-size:.9rem;margin-bottom:12px}
+.note.wait{background:var(--accent-soft);color:#6b4a10}
+
+.emptybox{text-align:center;padding:26px 18px;color:var(--muted)}
+.emptybox b{display:block;color:var(--ink);font-size:1.05rem;margin-bottom:4px}
+
+/* bottom tabs */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--surface);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 8px;font-size:.74rem;font-weight:700;color:var(--muted);position:relative}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button[aria-current="true"]{color:var(--deep)}
+nav.tabs button[aria-current="true"]::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--accent)}
+nav.tabs .n{position:absolute;top:4px;left:calc(50% + 8px);background:var(--accent);color:var(--accent-ink);border-radius:999px;font-size:.68rem;padding:0 6px;font-weight:800}
+
+/* sheet */
+#sheet{position:fixed;inset:0;z-index:20;background:rgba(20,30,20,.45);display:flex;align-items:flex-end;justify-content:center}
+#sheet[hidden]{display:none}
+#panel{background:var(--surface);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom,0px))}
+@media (min-width:760px){#sheet{align-items:center}#panel{border-radius:22px;max-height:86vh}}
+#panel h2{font-family:var(--serif);font-size:1.45rem;margin:0 0 6px;line-height:1.2}
+#panel .sub{color:var(--muted);margin:0 0 14px}
+.ings{list-style:none;padding:0;margin:0 0 14px}
+.ings li{display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:.95rem}
+.ings li:first-child{border-top:0}
+.ings .k{font-size:.72rem;font-weight:800;padding:2px 8px;border-radius:999px;height:fit-content;flex:none}
+.ings .k.h{background:var(--good-soft);color:var(--good)}
+.ings .k.b{background:var(--buy-soft);color:var(--buy)}
+.ings .qq{color:var(--muted);margin-left:auto;text-align:right;flex:none;max-width:45%}
+ol.steps{padding-left:20px;margin:0 0 16px}
+ol.steps li{margin:0 0 8px}
+.pick{display:grid;gap:8px;margin:6px 0 14px}
+.pick button{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line2);border-radius:14px;text-align:left}
+.pick button b{width:92px;flex:none}
+.pick button span{color:var(--muted);font-size:.88rem;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pick button.on{border-color:var(--accent);background:var(--accent-soft)}
+.people{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.person{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px;border:1px solid var(--line2);border-radius:16px;font-weight:700}
+.person .av{width:44px;height:44px;font-size:1.1rem}
+.actions{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));background:var(--deep);color:var(--deep-ink);padding:12px 18px;border-radius:14px;font-weight:600;z-index:30;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+#toast[hidden]{display:none}
+</style>
+
+<header class="top">
+  <div class="topin">
+    <span class="mark" aria-hidden="true"><svg class="i" viewBox="0 0 24 24"><path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M8 7c0-1.5 1-2 1-3.5M12 7c0-1.5 1-2 1-3.5M16 7c0-1.5 1-2 1-3.5"/></svg></span>
+    <div class="brand"><b>Meal Planner</b><small>Annett family · dinners for 7</small></div>
+    <button class="me" id="meBtn" aria-label="Change who's using this device"><span class="av" id="meAv">?</span><span id="meName">Who are you?</span></button>
+  </div>
+  <div class="segs" id="segs" role="tablist" aria-label="Sections"></div>
+</header>
+<main id="view" aria-live="polite"></main>
+<nav class="tabs" id="tabs" aria-label="Sections"></nav>
+<div id="sheet" hidden><div id="panel" role="dialog" aria-modal="true"></div></div>
+<div id="toast" hidden role="status"></div>
+
+<script>
+/* ---------- basics ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const fromYmd=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const today=()=>ymd(new Date());
+const monday=d=>{const x=new Date(d);x.setDate(x.getDate()-(x.getDay()+6)%7);x.setHours(0,0,0,0);return x};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],DOWL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const nice=d=>d.getDate()+' '+MON[d.getMonth()];
+const rid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const nowIso=()=>new Date().toISOString();
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const andJoin=a=>a.length<2?(a[0]||''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
+function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
+const I={
+  idea:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
+  week:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  cart:'<path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20.5" r="1.2"/><circle cx="17" cy="20.5" r="1.2"/>',
+  left:'<path d="M15 18l-6-6 6-6"/>',right:'<path d="M9 18l6-6-6-6"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',plus:'<path d="M12 5v14M5 12h14"/>',spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/>'
+};
+const svg=k=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${I[k]}</svg>`;
+
+/* ---------- family ---------- */
+const PEOPLE=[['tim','Tim','#3f6fb0'],['laura','Laura','#c4487a'],['sienna','Sienna','#7b55c7'],['erika','Erika','#2f9a5a'],['archer','Archer','#d9771f'],['kris','Kris','#0e8f9a']];
+const person=id=>{const p=PEOPLE.find(x=>x[0]===id);return p?{id:p[0],name:p[1],colour:p[2]}:{id:'',name:'Someone',colour:'#9aa394'}};
+const SERVES=7;
+const METHODS=['Slow cooker','Oven','BBQ','Stovetop','Air fryer'];
+const PREFS=['Salad','Low carb','High protein','Quick (under 30 min)','Kid-friendly'];
+const AISLES=['Fruit & veg','Meat & fish','Dairy & eggs','Bakery','Pantry','Frozen','Drinks','Household','Other'];
+
+/* The same instructions are used by the scheduled task that answers requests sent from the home-screen app. */
+function recipePrompt(r){
+  return `You are helping the Annett family in Bendigo, Victoria, Australia plan dinners. Suggest ${r.count||6} different dinner recipes.
+
+WHAT THEY HAVE (pantry, fridge and freezer, in their words):
+${r.pantry||'(nothing listed)'}
+
+HOW THEY WANT TO COOK: ${r.methods&&r.methods.length?r.methods.join(', '):'any method'}
+PREFERENCES: ${r.prefs&&r.prefs.length?r.prefs.join(', '):'none'}
+OTHER NOTES: ${r.notes||'none'}
+
+RULES
+- Each recipe serves ${SERVES} people (the quantities must be for ${SERVES}).
+- Build each recipe mainly around what they have. Keep the extra things to buy short and ordinary (an Australian supermarket like Coles or Woolworths).
+- Assume they always have: salt, pepper, cooking oil, water. Don't list those.
+- If cooking methods are given, every recipe must use one of them. Respect every preference (e.g. low carb means no rice, pasta, bread or potato as the base; Kid-friendly means mild, no chilli heat).
+- Use Australian names and metric units (capsicum, coriander, spring onion, mince, g, kg, ml, tbsp).
+- Make the options genuinely different from each other.
+- Steps: short, practical, 4-8 steps, with times and temperatures (fan-forced °C).
+
+Reply with ONLY this JSON, nothing else:
+{"options":[{"title":"...","why":"one short sentence on why it suits what they asked","method":"one of: Slow cooker, Oven, BBQ, Stovetop, Air fryer","time":"e.g. 35 min or 6 hrs on low","tags":["e.g. High protein","Low carb"],"uses":["items from their list this uses"],"ingredients":[{"item":"Chicken thighs","qty":"1.5 kg","have":true,"aisle":"Meat & fish"}],"steps":["..."]}]}
+"have" is true when the item is on their list, false when they need to buy it. "aisle" is one of: ${AISLES.join(', ')}.`;
+}
+
+/* ---------- state ---------- */
+const S={tab:store.get('mp-tab')||'ideas',me:store.get('mp-me')||'',week:monday(new Date()),
+  requests:{},plan:{},shopsend:{},methods:new Set(JSON.parse(store.get('mp-methods')||'[]')),prefs:new Set(JSON.parse(store.get('mp-prefs')||'[]')),
+  db:null,sample:null,ready:false,thinking:{}};
+const TABS=[['ideas','Ideas','idea'],['week','This week','week'],['buy','To buy','cart']];
+const weekKey=()=>ymd(S.week);
+const planFor=k=>S.plan[k]||{week:k,nights:{},skip:[],sent:[]};
+const list=o=>Object.entries(o||{}).map(([id,v])=>Object.assign({id},v));
+
+/* ---------- start ---------- */
+(async function init(){
+  paintMe();paintTabs();render();
+  let db=null;try{db=await claude.use('db')}catch(e){}
+  if(!db){S.ready=true;render();return}
+  S.db=db;
+  const seen={};let pend=false;
+  const soon=()=>{if(pend)return;pend=true;setTimeout(()=>{pend=false;render()},0)};
+  const sub=name=>db.collection(name).onSnapshot(s=>{const o={};s.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});const j=JSON.stringify(o);if(seen[name]===j)return;seen[name]=j;S[name]=o;S.ready=true;soon()},()=>{});
+  sub('requests');sub('plan');sub('shopsend');
+  try{S.sample=await claude.use('sample')}catch(e){S.sample=null}
+  render();
+  if(!S.me)pickMe();
+})();
+async function write(fn){if(!S.db){toast('Not connected yet. Try again in a moment.');return false}try{await fn(S.db);return true}catch(e){console.error(e);toast('That didn\'t save. Try again.');return false}}
+
+/* ---------- shell ---------- */
+function paintMe(){const p=person(S.me);$('#meAv').textContent=p.id?p.name[0]:'?';$('#meAv').style.background=p.colour;$('#meName').textContent=p.id?p.name:'Who are you?'}
+function paintTabs(){
+  const n=k=>k==='buy'?toBuy().filter(i=>i.on&&!i.sent).length:0;
+  $('#tabs').innerHTML=TABS.map(([k,t,ic])=>`<button data-tab="${k}" aria-current="${S.tab===k}">${svg(ic)}${t}${n(k)?`<span class="n">${n(k)}</span>`:''}</button>`).join('');
+  $('#segs').innerHTML=TABS.map(([k,t])=>`<button data-tab="${k}" aria-current="${S.tab===k}" role="tab">${t}</button>`).join('');
+  document.querySelectorAll('#tabs [data-tab],#segs [data-tab]').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;store.set('mp-tab',S.tab);render();scrollTo(0,0)});
+}
+$('#meBtn').onclick=pickMe;
+function pickMe(){
+  openSheet(`<h2>Who's using this device?</h2><p class="sub">So everyone can see who planned what.</p>
+  <div class="people">${PEOPLE.map(([id,n,c])=>`<button class="person" data-me="${id}"><span class="av" style="background:${c}">${n[0]}</span>${n}</button>`).join('')}</div>`);
+  document.querySelectorAll('[data-me]').forEach(b=>b.onclick=()=>{S.me=b.dataset.me;store.set('mp-me',S.me);paintMe();closeSheet();render()});
+}
+function needMe(){if(!S.me){pickMe();return true}return false}
+function openSheet(h){$('#panel').innerHTML=h;$('#sheet').hidden=false;$('#panel').scrollTop=0}
+function closeSheet(){$('#sheet').hidden=true}
+$('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet')closeSheet()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+
+function render(){
+  paintTabs();
+  const v=$('#view');
+  if(S.tab==='week')viewWeek(v);else if(S.tab==='buy')viewBuy(v);else viewIdeas(v);
+}
+
+/* ---------- Ideas ---------- */
+function viewIdeas(v){
+  const draft=store.get('mp-pantry')||'',notes=store.get('mp-notes')||'';
+  const reqs=list(S.requests).sort((a,b)=>(b.at||'').localeCompare(a.at||''));
+  const latest=reqs.slice(0,2),older=reqs.slice(2,12);
+  v.innerHTML=`<h1>What's for dinner?</h1><p class="lede">Tell Claude what you've got and how you'd like to cook it. You'll get recipe ideas for ${SERVES}, then pick nights for them.</p>
+  <section class="card">
+    <label class="label" for="pan">What's in the pantry, fridge and freezer?</label>
+    <textarea id="pan" placeholder="e.g. chicken thighs, rice, half a pumpkin, 2 capsicums, tin of coconut milk, frozen peas, feta">${esc(draft)}</textarea>
+    <p class="hint">Type it or tap the microphone on your keyboard and say it.</p>
+    <span class="label">How do you want to cook?</span>
+    <div class="chips" role="group" aria-label="Cooking method">${METHODS.map(m=>`<button type="button" class="chip" data-m="${esc(m)}" aria-pressed="${S.methods.has(m)}">${esc(m)}</button>`).join('')}</div>
+    <span class="label">Anything else you're after?</span>
+    <div class="chips" role="group" aria-label="Preferences">${PREFS.map(m=>`<button type="button" class="chip" data-p="${esc(m)}" aria-pressed="${S.prefs.has(m)}">${esc(m)}</button>`).join('')}</div>
+    <label class="label" for="notes">Notes (optional)</label>
+    <input id="notes" value="${esc(notes)}" placeholder="e.g. use the mince first, no mushrooms, something for Sunday night" autocomplete="off">
+    <div class="serves"><span>Recipes are for ${SERVES} people.</span><button class="btn" id="ask">${svg('spark')}Get recipe ideas</button></div>
+    ${S.sample?'':'<p class="hint" style="margin-top:10px">From this app, Claude answers within the hour and you\'ll get a notification. Opened inside the Claude app, ideas come straight away.</p>'}
+  </section>
+  ${latest.map(reqBlock).join('')}
+  ${older.length?`<details class="older"><summary>Earlier ideas (${older.length})</summary>${older.map(reqBlock).join('')}</details>`:''}
+  ${!reqs.length&&S.ready?'<div class="emptybox"><b>No ideas yet</b>Fill in what you have above and tap Get recipe ideas.</div>':''}`;
+  $('#pan').oninput=e=>store.set('mp-pantry',e.target.value);
+  $('#notes').oninput=e=>store.set('mp-notes',e.target.value);
+  v.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const m=b.dataset.m;S.methods.has(m)?S.methods.delete(m):S.methods.add(m);b.setAttribute('aria-pressed',S.methods.has(m));store.set('mp-methods',JSON.stringify([...S.methods]))});
+  v.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{const m=b.dataset.p;S.prefs.has(m)?S.prefs.delete(m):S.prefs.add(m);b.setAttribute('aria-pressed',S.prefs.has(m));store.set('mp-prefs',JSON.stringify([...S.prefs]))});
+  $('#ask').onclick=ask;
+  bindOpts(v);
+}
+function plannedTitles(){const t=new Set();for(const p of Object.values(S.plan))for(const r of Object.values(p.nights||{}))if(r&&r.title)t.add(r.title);return t}
+function reqBlock(r){
+  const who=person(r.by),when=r.at?new Date(r.at):null;
+  const what=[r.methods&&r.methods.length?r.methods.join(', '):'',r.prefs&&r.prefs.length?r.prefs.join(', '):''].filter(Boolean).join(' · ');
+  const head=`<div class="reqh"><span class="av" style="background:${who.colour}">${esc(who.name[0])}</span><div class="t"><b>${esc(who.name)} asked${when?' '+DOW[when.getDay()]+' '+nice(when):''}${what?': '+esc(what):''}</b><small>${esc(r.pantry||'')}</small></div>${r.state==='done'||r.state==='error'?`<button class="link" data-redo="${esc(r.id)}">Ask again</button>`:''}</div>`;
+  let body='';
+  if(S.thinking[r.id]||r.state==='thinking')body=`<div class="status"><span class="spin"></span>Claude is coming up with ideas. This takes about 30 seconds.</div>`;
+  else if(r.state==='queued')body=`<div class="status"><span class="spin"></span>Sent to Claude. Ideas will be here within the hour and you'll get a notification.</div>`;
+  else if(r.state==='error')body=`<div class="status err">Claude couldn't come up with ideas for this one${r.error?': '+esc(r.error):''}. Tap Ask again.</div>`;
+  else{const pl=plannedTitles();body=`<div class="opts">${(r.options||[]).map((o,i)=>optCard(r.id,i,o,pl.has(o.title))).join('')}</div>`}
+  return `<section class="req">${head}${body}</section>`;
+}
+function optCard(rid_,i,o,planned){
+  const ing=o.ingredients||[],have=ing.filter(x=>x.have).length,buy=ing.filter(x=>!x.have).length;
+  return `<article class="opt"><div class="tags">${o.method?`<span class="tag m">${esc(o.method)}</span>`:''}${o.time?`<span class="tag">${esc(o.time)}</span>`:''}${(o.tags||[]).slice(0,3).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}${planned?'<span class="tag planned">On the plan</span>':''}</div>
+   <h3>${esc(o.title)}</h3>${o.why?`<p>${esc(o.why)}</p>`:''}
+   <div class="counts"><span class="have">${have} from your pantry</span><span class="buy">${buy} to buy</span></div>
+   <div class="acts"><button class="btn sm" data-add="${esc(rid_)}" data-i="${i}">${svg('plus')}Add to a night</button><button class="btn sm ghost" data-see="${esc(rid_)}" data-i="${i}">See recipe</button></div></article>`;
+}
+function bindOpts(v){
+  v.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{const o=(S.requests[b.dataset.add].options||[])[+b.dataset.i];if(o)pickNight(o)});
+  v.querySelectorAll('[data-see]').forEach(b=>b.onclick=()=>{const o=(S.requests[b.dataset.see].options||[])[+b.dataset.i];if(o)showRecipe(o,{add:true})});
+  v.querySelectorAll('[data-redo]').forEach(b=>b.onclick=()=>redo(b.dataset.redo));
+}
+async function ask(){
+  if(needMe())return;
+  const pantry=$('#pan').value.trim(),notes=$('#notes').value.trim();
+  if(!pantry&&!S.methods.size&&!S.prefs.size&&!notes){toast('Tell Claude what you have, or how you want to cook');$('#pan').focus();return}
+  const r={by:S.me,at:nowIso(),pantry:pantry.slice(0,3000),methods:[...S.methods],prefs:[...S.prefs],notes:notes.slice(0,500),serves:SERVES,count:6,state:S.sample?'thinking':'queued'};
+  const id=rid();
+  if(!await write(db=>db.doc('requests/'+id).set(r)))return;
+  if(S.sample)generate(id,r);else toast('Sent. Ideas will be here within the hour.');
+}
+function redo(id){const r=S.requests[id];if(!r)return;$('#pan').value=r.pantry||'';store.set('mp-pantry',r.pantry||'');$('#notes').value=r.notes||'';store.set('mp-notes',r.notes||'');
+  S.methods=new Set(r.methods||[]);S.prefs=new Set(r.prefs||[]);store.set('mp-methods',JSON.stringify([...S.methods]));store.set('mp-prefs',JSON.stringify([...S.prefs]));render();scrollTo({top:0,behavior:'smooth'});toast('Change anything you like, then tap Get recipe ideas')}
+function clean(o){
+  const s=(x,n)=>String(x==null?'':x).slice(0,n);
+  return {title:s(o.title,90),why:s(o.why,220),method:s(o.method,30),time:s(o.time,40),tags:(o.tags||[]).slice(0,5).map(t=>s(t,30)),uses:(o.uses||[]).slice(0,20).map(t=>s(t,60)),
+    ingredients:(o.ingredients||[]).slice(0,30).map(x=>({item:s(x.item,80),qty:s(x.qty,40),have:!!x.have,aisle:AISLES.includes(x.aisle)?x.aisle:'Other'})),steps:(o.steps||[]).slice(0,12).map(t=>s(t,400)),serves:SERVES};
+}
+async function generate(id,r){
+  S.thinking[id]=true;render();
+  try{
+    const out=await S.sample.json(recipePrompt(r),{cache:false});
+    const opts=(out&&out.options||[]).filter(o=>o&&o.title).map(clean);
+    if(!opts.length)throw {code:'empty'};
+    await S.db.doc('requests/'+id).set(Object.assign({},r,{state:'done',options:opts,doneAt:nowIso(),via:'claude'}));
+  }catch(e){
+    // Couldn't answer here: hand it to the scheduled task instead of losing it.
+    await S.db.doc('requests/'+id).set(Object.assign({},r,{state:'queued'})).catch(()=>{});
+    toast(e&&e.code==='not_granted'?'Claude wasn\'t allowed here, so it\'s been sent. Ideas within the hour.':'Claude is busy, so it\'s been sent. Ideas within the hour.');
+  }finally{delete S.thinking[id];render()}
+}
+
+/* ---------- recipe sheet and night picker ---------- */
+function showRecipe(o,opt){
+  opt=opt||{};const ing=o.ingredients||[];
+  openSheet(`<h2>${esc(o.title)}</h2><p class="sub">${[o.method,o.time,'Serves '+(o.serves||SERVES)].filter(Boolean).map(esc).join(' · ')}</p>
+   ${o.why?`<p style="margin:0 0 14px">${esc(o.why)}</p>`:''}
+   <span class="label">Ingredients</span>
+   <ul class="ings">${ing.map(x=>`<li><span class="k ${x.have?'h':'b'}">${x.have?'Have':'Buy'}</span><span>${esc(x.item)}</span><span class="qq">${esc(x.qty)}</span></li>`).join('')}</ul>
+   <span class="label">Method</span>
+   <ol class="steps">${(o.steps||[]).map(t=>`<li>${esc(t)}</li>`).join('')}</ol>
+   <div class="actions">${opt.add?`<button class="btn" id="rAdd">${svg('plus')}Add to a night</button>`:''}${opt.night?`<button class="btn ghost" id="rMove">Move to another night</button><span class="grow"></span><button class="link danger" id="rDel">Take off ${esc(DOWL[fromYmd(opt.night).getDay()])}</button>`:''}</div>`);
+  if(opt.add)$('#rAdd').onclick=()=>pickNight(o);
+  if(opt.night){$('#rMove').onclick=()=>pickNight(o,opt.night);$('#rDel').onclick=()=>setNight(opt.night,null).then(ok=>{if(ok){closeSheet();toast('Taken off the plan')}})}
+}
+function pickNight(o,from){
+  if(needMe())return;
+  let wk=from?monday(fromYmd(from)):new Date(S.week);
+  const draw=()=>{
+    const k=ymd(wk),p=planFor(k),days=[...Array(7)].map((_,i)=>addDays(wk,i));
+    openSheet(`<h2>Which night?</h2><p class="sub">${esc(o.title)}</p>
+     <div class="wk"><button class="round" id="pPrev" aria-label="Previous week">${svg('left')}</button><b>${nice(days[0])} to ${nice(days[6])}</b><button class="round" id="pNext" aria-label="Next week">${svg('right')}</button></div>
+     <div class="pick">${days.map(d=>{const dk=ymd(d),cur=(p.nights||{})[dk];return `<button data-on="${dk}" class="${dk===from?'on':''}"><b>${DOWL[d.getDay()]}</b><span>${cur?esc(cur.title):'Free'}</span></button>`}).join('')}</div>`);
+    $('#pPrev').onclick=()=>{wk=addDays(wk,-7);draw()};$('#pNext').onclick=()=>{wk=addDays(wk,7);draw()};
+    document.querySelectorAll('[data-on]').forEach(b=>b.onclick=async()=>{const dk=b.dataset.on;
+      if(await setNight(dk,o,from)){closeSheet();S.week=monday(fromYmd(dk));toast(o.title+' is on '+DOWL[fromYmd(dk).getDay()])}});
+  };
+  draw();
+}
+/* One write per week doc. Moving within a week clears the old night in the same write. */
+async function setNight(dk,o,from){
+  const k=ymd(monday(fromYmd(dk)));
+  const ok=await write(async db=>{
+    const fk=from?ymd(monday(fromYmd(from))):null;
+    if(fk&&fk!==k){const fp=planFor(fk),fn=Object.assign({},fp.nights);delete fn[from];await db.doc('plan/'+fk).set(Object.assign({},fp,{week:fk,nights:fn,updatedBy:S.me,updatedAt:nowIso()}))}
+    const p=planFor(k),n=Object.assign({},p.nights);if(fk===k&&from)delete n[from];
+    if(o)n[dk]=Object.assign({},o,{by:S.me,at:nowIso()});else delete n[dk];
+    await db.doc('plan/'+k).set(Object.assign({skip:[],sent:[]},p,{week:k,nights:n,updatedBy:S.me,updatedAt:nowIso()}));
+  });
+  return ok;
+}
+
+/* ---------- This week ---------- */
+function viewWeek(v){
+  const k=weekKey(),p=planFor(k),days=[...Array(7)].map((_,i)=>addDays(S.week,i)),t=today();
+  const n=Object.keys(p.nights||{}).length;
+  v.innerHTML=`<h1>This week's dinners</h1><p class="lede">${n?`${n} of 7 nights planned.`:'Nothing planned yet.'} Tap a night to see the recipe, or pick ideas from the Ideas tab.</p>
+  <div class="wk"><button class="round" id="wPrev" aria-label="Previous week">${svg('left')}</button><b>${nice(days[0])} to ${nice(days[6])}</b><button class="round" id="wNext" aria-label="Next week">${svg('right')}</button></div>
+  <section class="card flush">${days.map(d=>{const dk=ymd(d),r=(p.nights||{})[dk];return `<button class="night${dk===t?' today':''}" data-n="${dk}"><span class="d"><b>${DOW[d.getDay()]}</b><span>${d.getDate()}</span></span><span class="w">${r?`<b>${esc(r.title)}</b><small>${[r.method,r.time].filter(Boolean).map(esc).join(' · ')}${r.by?' · added by '+esc(person(r.by).name):''}</small>`:'<span class="empty">Nothing yet</span>'}</span>${svg('right')}</button>`}).join('')}</section>
+  ${n?`<button class="btn dark wide" id="toBuy">${svg('cart')}See what to buy</button>`:''}`;
+  $('#wPrev').onclick=()=>{S.week=addDays(S.week,-7);render()};$('#wNext').onclick=()=>{S.week=addDays(S.week,7);render()};
+  const tb=$('#toBuy');if(tb)tb.onclick=()=>{S.tab='buy';store.set('mp-tab','buy');render();scrollTo(0,0)};
+  v.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{const dk=b.dataset.n,r=(p.nights||{})[dk];
+    if(r)showRecipe(r,{night:dk});else{S.tab='ideas';store.set('mp-tab','ideas');render();scrollTo(0,0);toast('Pick an idea, then choose '+DOWL[fromYmd(dk).getDay()])}});
+}
+
+/* ---------- To buy ---------- */
+const norm=s=>String(s||'').toLowerCase().replace(/\s+/g,' ').trim().replace(/(es|s)$/,'');
+function toBuy(){
+  const k=weekKey(),p=planFor(k),skip=new Set(p.skip||[]),sent=new Set(p.sent||[]),m={};
+  for(const [dk,r] of Object.entries(p.nights||{}).sort()){if(!r)continue;
+    for(const x of r.ingredients||[]){if(x.have||!x.item)continue;const key=norm(x.item);
+      const it=m[key]||(m[key]={key,item:x.item,aisle:x.aisle||'Other',qtys:[],meals:[]});
+      if(x.qty)it.qtys.push(x.qty);const lab=DOW[fromYmd(dk).getDay()]+' '+r.title;if(!it.meals.includes(lab))it.meals.push(lab)}}
+  return Object.values(m).map(i=>Object.assign(i,{qty:sumQty(i.qtys),on:!skip.has(i.key),sent:sent.has(i.key)}));
+}
+/* "1" + "2" -> "3"; "400 ml" + "400 ml" -> "800 ml"; anything else is listed as given. */
+function sumQty(q){if(!q.length)return'';const p=q.map(x=>String(x).trim().match(/^(\d+(?:\.\d+)?)\s*([a-zA-Z]*)$/));
+  if(p.every(Boolean)&&new Set(p.map(m=>m[2].toLowerCase())).size===1){const t=p.reduce((a,m)=>a+parseFloat(m[1]),0);return (Math.round(t*100)/100)+(p[0][2]?' '+p[0][2]:'')}
+  return q.join(' + ')}
+function viewBuy(v){
+  const k=weekKey(),p=planFor(k),items=toBuy(),days=[...Array(7)].map((_,i)=>addDays(S.week,i));
+  const todo=items.filter(i=>i.on&&!i.sent);
+  const sends=list(S.shopsend).filter(s=>s.week===k).sort((a,b)=>(b.at||'').localeCompare(a.at||''));
+  const waiting=sends.find(s=>s.state==='queued'),last=sends.find(s=>s.state==='done');
+  const groups=AISLES.map(a=>[a,items.filter(i=>i.aisle===a)]).filter(g=>g[1].length);
+  v.innerHTML=`<h1>To buy</h1><p class="lede">Everything the week's dinners need that you don't already have. Untick anything you've got, then send the rest to the Family Hub shopping list.</p>
+  <div class="wk"><button class="round" id="bPrev" aria-label="Previous week">${svg('left')}</button><b>${nice(days[0])} to ${nice(days[6])}</b><button class="round" id="bNext" aria-label="Next week">${svg('right')}</button></div>
+  ${waiting?`<div class="note wait">${waiting.items.length} item${waiting.items.length===1?'':'s'} on the way to the Family Hub shopping list. ${S.sample?'They\'ll be there within the hour.':'They\'ll be there within the hour.'}</div>`:last?`<div class="note">${last.added!=null?last.added:last.items.length} item${(last.added!=null?last.added:last.items.length)===1?'':'s'} added to the Family Hub Supermarket list${last.doneAt?' '+DOW[new Date(last.doneAt).getDay()]+' '+nice(new Date(last.doneAt)):''}.</div>`:''}
+  ${items.length?`<section class="card flush">${groups.map(([a,its])=>`<div class="aisle">${esc(a)}</div>${its.map(i=>`<button class="item${i.sent?' sent':''}" data-it="${esc(i.key)}" aria-pressed="${i.on}" ${i.sent?'disabled':''}><span class="box">${i.on?svg('check'):''}</span><span class="txt"><b>${esc(i.item)}</b><small>${i.sent?'On the Family Hub list · ':''}${esc(i.meals.join(', '))}</small></span><span class="q">${esc(i.qty)}</span></button>`).join('')}`).join('')}</section>
+   <div class="sendbar"><button class="btn wide" id="send" ${todo.length?'':'disabled'}>${svg('cart')}${todo.length?`Add ${todo.length} item${todo.length===1?'':'s'} to Family Hub shopping`:'Nothing new to send'}</button></div>`
+   :`<div class="card emptybox"><b>Nothing to buy yet</b>${Object.keys(p.nights||{}).length?'Everything this week uses what you have.':'Put some recipes on this week first.'}</div>`}`;
+  $('#bPrev').onclick=()=>{S.week=addDays(S.week,-7);render()};$('#bNext').onclick=()=>{S.week=addDays(S.week,7);render()};
+  v.querySelectorAll('[data-it]').forEach(b=>b.onclick=()=>{if(needMe())return;const key=b.dataset.it,pp=planFor(k),s=new Set(pp.skip||[]);s.has(key)?s.delete(key):s.add(key);
+    write(db=>db.doc('plan/'+k).set(Object.assign({sent:[]},pp,{week:k,skip:[...s],updatedBy:S.me,updatedAt:nowIso()})))});
+  const sb=$('#send');if(sb)sb.onclick=async()=>{if(needMe()||!todo.length)return;sb.disabled=true;
+    const payload=todo.map(i=>({text:i.item,qty:i.qty.slice(0,40),aisle:i.aisle,note:('For '+i.meals.join(', ')).slice(0,120)}));
+    const pp=planFor(k);
+    const ok=await write(async db=>{await db.doc('shopsend/'+rid()).set({week:k,items:payload,by:S.me,at:nowIso(),state:'queued'});
+      await db.doc('plan/'+k).set(Object.assign({skip:[]},pp,{week:k,sent:[...new Set([...(pp.sent||[]),...todo.map(i=>i.key)])],updatedBy:S.me,updatedAt:nowIso()}))});
+    if(ok)toast('Sent. They\'ll be on the Family Hub list within the hour.');else sb.disabled=false};
+}
+</script>
+
+</body>
+</html>
