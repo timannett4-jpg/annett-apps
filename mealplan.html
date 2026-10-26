@@ -21,19 +21,19 @@ addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&/_b
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <style>
 /* Annett Meal Planner. Tell it what's in the pantry and how you want to cook; Claude suggests recipes for 7,
    you drop them onto nights of the week, and the missing ingredients go to the Family Hub shopping list.
-   Deep olive and saffron so it doesn't look like the Family Hub or the BDM. Always light. */
+   Same look as the Family Hub (dark indigo with a coral accent) so the two apps feel like one family. Always light. */
 :root{color-scheme:light;
-  --bg:#f5f3ec; --surface:#fff; --sunk:#faf8f2; --line:#e7e2d4; --line2:#d8d1bd;
-  --ink:#1f2a1f; --muted:#5f6a5c; --faint:#9aa394;
-  --deep:#21412f; --deep2:#2d5640; --deep-ink:#f3f1e6;
-  --accent:#f0a830; --accent-ink:#21412f; --accent-soft:#fdf0d6; --accent-deep:#b9761a;
+  --bg:#f2f1f7; --surface:#fff; --sunk:#f7f6fb; --line:#e5e3ef; --line2:#d6d3e4;
+  --ink:#1c1a3a; --muted:#66637e; --faint:#9e9bb3;
+  --deep:#24215a; --deep2:#312d72; --deep-ink:#efeefb; --deep-muted:#a5a1d6;
+  --accent:#ff6b5a; --accent-ink:#24215a; --accent-soft:#ffe8e4; --accent-deep:#d4402f;
   --good:#2f8a4f; --good-soft:#e3f2e7; --buy:#c2552d; --buy-soft:#fbe7df;
   --font:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --serif:"Fraunces",Georgia,serif; --r:18px;
+  --serif:var(--font); --r:16px;
 }
 *{box-sizing:border-box}
 html,body{min-height:100%}
@@ -45,23 +45,23 @@ button{cursor:pointer;touch-action:manipulation;background:none;border:0;padding
 svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
 /* header */
-.top{position:sticky;top:0;z-index:8;background:var(--deep);color:var(--deep-ink);padding-top:env(safe-area-inset-top,0px)}
+.top{position:sticky;top:0;z-index:8;background:var(--deep);color:var(--deep-ink);border-bottom:3px solid var(--accent);padding-top:env(safe-area-inset-top,0px)}
 .topin{max-width:860px;margin:0 auto;height:62px;display:flex;align-items:center;gap:12px;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
 .mark{width:38px;height:38px;border-radius:12px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none}
 .mark svg{width:22px;height:22px}
 .brand{flex:1;min-width:0}
-.brand b{display:block;font-family:var(--serif);font-weight:700;font-size:1.2rem;letter-spacing:.01em;line-height:1.1}
-.brand small{color:#b9c8b6;font-size:.8rem}
+.brand b{display:block;font-weight:800;font-size:1.08rem;line-height:1.15}
+.brand small{color:var(--deep-muted);font-size:.8rem}
 .me{display:flex;align-items:center;gap:8px;border-radius:999px;padding:4px 10px 4px 4px;background:var(--deep2);font-weight:600;font-size:.9rem}
 .av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:.85rem;flex:none}
 .segs{max-width:860px;margin:0 auto;display:none;gap:6px;padding:0 16px 12px}
-.segs button{padding:9px 16px;border-radius:999px;color:#cfdacb;font-weight:700}
+.segs button{padding:9px 16px;border-radius:999px;color:var(--deep-muted);font-weight:700}
 .segs button[aria-current="true"]{background:var(--accent);color:var(--accent-ink)}
 @media (min-width:760px){.segs{display:flex}nav.tabs{display:none!important}}
 
 main{max-width:860px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right,0px)) calc(110px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 @media (min-width:760px){main{padding-bottom:48px}}
-h1{font-family:var(--serif);font-weight:700;font-size:1.7rem;line-height:1.15;margin:4px 0 4px}
+h1{font-weight:800;font-size:clamp(1.6rem,6vw,2.1rem);letter-spacing:-.02em;line-height:1.1;margin:4px 0 6px}
 .lede{color:var(--muted);margin:0 0 16px}
 h2{font-size:1.05rem;margin:0 0 10px;font-weight:800}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
@@ -72,8 +72,8 @@ textarea,input[type=text],input:not([type]){width:100%;border:1px solid var(--li
 textarea{min-height:104px;resize:vertical}
 textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:0;background:#fff}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line2);background:var(--surface);font-weight:600;font-size:.92rem}
-.chip[aria-pressed="true"]{background:var(--deep);border-color:var(--deep);color:var(--deep-ink)}
+.chip{color:var(--muted);display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line2);background:var(--surface);font-weight:600;font-size:.92rem}
+.chip[aria-pressed="true"]{background:var(--deep);border-color:var(--deep);color:#fff}
 .chip .pip{width:9px;height:9px;border-radius:50%}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:14px;background:var(--accent);color:var(--accent-ink);font-weight:800;min-height:48px;padding:0 20px;white-space:nowrap}
 .btn:disabled{opacity:.55;cursor:default}
@@ -94,14 +94,14 @@ textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:0;back
 .reqh .t{flex:1;min-width:0}
 .reqh b{display:block;font-size:.95rem}
 .reqh small{color:var(--muted);font-size:.84rem;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.status{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:14px;background:var(--accent-soft);color:#6b4a10;font-weight:600;font-size:.92rem;margin-bottom:10px}
+.status{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:14px;background:var(--accent-soft);color:#8a2a1c;font-weight:600;font-size:.92rem;margin-bottom:10px}
 .status.err{background:var(--buy-soft);color:#7a2f15}
 .spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:sp 0.9s linear infinite;flex:none}
 @keyframes sp{to{transform:rotate(360deg)}}
 .opts{display:grid;gap:10px}
 @media (min-width:760px){.opts{grid-template-columns:1fr 1fr}}
 .opt{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;text-align:left;display:flex;flex-direction:column;gap:8px}
-.opt h3{font-family:var(--serif);font-weight:700;font-size:1.12rem;margin:0;line-height:1.2}
+.opt h3{font-weight:800;font-size:1.12rem;margin:0;line-height:1.2}
 .opt p{margin:0;color:var(--muted);font-size:.9rem}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
 .tag{font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--sunk);border:1px solid var(--line);color:var(--muted)}
@@ -121,7 +121,7 @@ textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:0;back
 .night:first-child{border-top:0}
 .night .d{width:46px;flex:none;text-align:center}
 .night .d b{display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-.night .d span{display:block;font-family:var(--serif);font-size:1.35rem;font-weight:700;line-height:1.1}
+.night .d span{display:block;font-size:1.35rem;font-weight:700;line-height:1.1}
 .night.today .d span{color:var(--accent-deep)}
 .night .w{flex:1;min-width:0}
 .night .w b{display:block;font-weight:700}
@@ -133,7 +133,7 @@ textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:0;back
 .aisle{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;padding:14px 16px 6px}
 .item{display:flex;align-items:center;gap:12px;padding:10px 16px;border-top:1px solid var(--line);width:100%;text-align:left}
 .item .box{width:24px;height:24px;border-radius:7px;border:2px solid var(--line2);display:grid;place-items:center;flex:none}
-.item[aria-pressed="true"] .box{background:var(--deep);border-color:var(--deep);color:#fff}
+.item[aria-pressed="true"] .box{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .item[aria-pressed="false"] .txt b{text-decoration:line-through;color:var(--faint)}
 .item .txt{flex:1;min-width:0}
 .item .txt b{font-weight:600;display:block}
@@ -143,7 +143,7 @@ textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:0;back
 .sendbar{position:sticky;bottom:calc(76px + env(safe-area-inset-bottom,0px));margin-top:14px}
 @media (min-width:760px){.sendbar{bottom:16px}}
 .note{padding:12px 16px;border-radius:14px;background:var(--good-soft);color:#1f5a33;font-weight:600;font-size:.9rem;margin-bottom:12px}
-.note.wait{background:var(--accent-soft);color:#6b4a10}
+.note.wait{background:var(--accent-soft);color:#8a2a1c}
 
 .emptybox{text-align:center;padding:26px 18px;color:var(--muted)}
 .emptybox b{display:block;color:var(--ink);font-size:1.05rem;margin-bottom:4px}
@@ -157,11 +157,11 @@ nav.tabs button[aria-current="true"]::before{content:"";position:absolute;top:0;
 nav.tabs .n{position:absolute;top:4px;left:calc(50% + 8px);background:var(--accent);color:var(--accent-ink);border-radius:999px;font-size:.68rem;padding:0 6px;font-weight:800}
 
 /* sheet */
-#sheet{position:fixed;inset:0;z-index:20;background:rgba(20,30,20,.45);display:flex;align-items:flex-end;justify-content:center}
+#sheet{position:fixed;inset:0;z-index:20;background:rgba(28,26,58,.45);display:flex;align-items:flex-end;justify-content:center}
 #sheet[hidden]{display:none}
 #panel{background:var(--surface);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom,0px))}
 @media (min-width:760px){#sheet{align-items:center}#panel{border-radius:22px;max-height:86vh}}
-#panel h2{font-family:var(--serif);font-size:1.45rem;margin:0 0 6px;line-height:1.2}
+#panel h2{font-size:1.45rem;margin:0 0 6px;line-height:1.2}
 #panel .sub{color:var(--muted);margin:0 0 14px}
 .ings{list-style:none;padding:0;margin:0 0 14px}
 .ings li{display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:.95rem}
@@ -196,7 +196,7 @@ ol.steps li{margin:0 0 8px}
 .fz .late{color:var(--buy);font-weight:700}.fz .soon{color:var(--accent-deep);font-weight:700}
 .fz .cnt{display:flex;flex-direction:column;align-items:center;gap:6px}
 .fz .cnt span{font-size:.75rem;color:var(--muted);text-align:center;line-height:1.1}
-.fz .cnt span b{display:block;font-family:var(--serif);font-size:1.4rem;color:var(--ink)}
+.fz .cnt span b{display:block;font-size:1.4rem;color:var(--ink)}
 .fz .round{width:36px;height:36px;font-size:1.2rem;font-weight:700}
 #fzOwn{margin-top:4px}
 </style>
@@ -449,7 +449,7 @@ function freezeSheet(o,n,night){
   if(needMe())return;
   openSheet(`<h2>Into the freezer</h2><p class="sub">${esc(o.title)}</p>
    <span class="label">How many family meals (${SERVES} serves each)?</span>
-   <div class="row" style="gap:14px"><button class="round" id="fzMinus" aria-label="One less">−</button><b id="fzN" style="font-size:1.6rem;font-family:var(--serif);min-width:30px;text-align:center">${n}</b><button class="round" id="fzPlus" aria-label="One more">+</button></div>
+   <div class="row" style="gap:14px"><button class="round" id="fzMinus" aria-label="One less">−</button><b id="fzN" style="font-size:1.6rem;min-width:30px;text-align:center">${n}</b><button class="round" id="fzPlus" aria-label="One more">+</button></div>
    ${o.freezer&&o.freezer.portion?`<p class="hint" style="margin-top:12px">${esc(o.freezer.portion)}</p>`:''}
    <div class="actions"><span class="grow"></span><button class="btn" id="fzGo">${svg('snow')}Add to freezer</button></div>`);
   $('#fzMinus').onclick=()=>{n=Math.max(1,n-1);$('#fzN').textContent=n};$('#fzPlus').onclick=()=>{n=Math.min(20,n+1);$('#fzN').textContent=n};

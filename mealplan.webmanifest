@@ -5,8 +5,8 @@
   "start_url": "./mealplan.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#21412f",
-  "theme_color": "#21412f",
+  "background_color": "#24215a",
+  "theme_color": "#24215a",
   "icons": [
     {
       "src": "mealplan-icon-192.png",
