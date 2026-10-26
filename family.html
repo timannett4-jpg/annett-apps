@@ -17,7 +17,6 @@ addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&/_b
 <script src="claude-shim.js"></script>
 </head>
 <body>
-
 <title>Annett Family Hub</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -407,6 +406,13 @@ nav.tabs button[aria-current="true"]::before{content:"";position:absolute;top:0;
 .addmenu .ico svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tab) + 18px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--side);color:#fff;padding:11px 18px;border-radius:12px;font-weight:600;font-size:.92rem;max-width:calc(100% - 40px)}
 @media (min-width:900px){#toast{bottom:28px}}
+.shifts{display:flex;flex-direction:column;gap:8px;margin:4px 0 8px}
+.shrow{border:1px solid var(--line);border-radius:14px;padding:8px 10px}
+.shrow .shd{display:none;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--muted)}
+.shrow.on .shd{display:flex}.shrow.on{background:var(--surface);border-color:var(--accent)}
+.shd input[type=time]{width:auto;min-width:0;padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:#fff;font:inherit;color:var(--ink)}.shd label{display:flex;align-items:center;gap:6px}
+.shd select{padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit}
+.shwk{font-size:14px}.workstrip .mh{display:flex;justify-content:space-between;align-items:center}
 </style>
 
 <div class="app">
@@ -530,7 +536,7 @@ function setTab(t){S.tab=t;store.set('fh-tab2',t);render();scrollTo(0,0)}
 function paintColours(){const c=S.settings.colours||{},r=document.documentElement.style;for(const p of FAMILY){if(c[p.id]&&/^#[0-9a-f]{6}$/i.test(c[p.id]))r.setProperty('--'+p.id,c[p.id]);else r.removeProperty('--'+p.id)}}
 
 /* ---------- quick add ---------- */
-const ADDS=[['appt','Appointment','cal','For anyone in the family'],['shop','Shopping','shop','Add to a list'],['dinner','Dinner','meal','Plan a night'],['task','Task','tick','Give someone a job'],['note','Note','note','Pin to the noticeboard'],['chore','Chore','chore','A job for the kids']];
+const ADDS=[['appt','Appointment','cal','For anyone in the family'],['shop','Shopping','shop','Add to a list'],['dinner','Dinner','meal','Plan a night'],['task','Task','tick','Give someone a job'],['shift','Work shifts','cal',"Add a week's roster"],['note','Note','note','Pin to the noticeboard'],['chore','Chore','chore','A job for the kids']];
 function adds(){return ADDS.filter(a=>a[0]!=='chore'||isParent())}
 function paintTop(){
   const d=new Date();$('#topWhen').textContent=DOWL[d.getDay()]+' '+d.getDate()+' '+MONL[d.getMonth()];
@@ -541,7 +547,7 @@ function paintTop(){
 }
 $('#qaPhone').onclick=()=>{openSheet(`<h2>Add</h2><div class="addmenu">${adds().map(a=>`<button data-add="${a[0]}"><span class="ico">${svg(a[2])}</span>${a[1]}<small>${a[3]}</small></button>`).join('')}</div>`);
   document.querySelectorAll('#panel [data-add]').forEach(b=>b.onclick=()=>doAdd(b.dataset.add))};
-function doAdd(k){if(needMe())return;if(k==='appt')editEvent(null);else if(k==='dinner')editMeal(nextFreeNight());else if(k==='chore')editChore(null);else if(k==='note')editNote(null);else if(k==='task')editTask(null);else addShopSheet()}
+function doAdd(k){if(needMe())return;if(k==='appt')editEvent(null);else if(k==='dinner')editMeal(nextFreeNight());else if(k==='chore')editChore(null);else if(k==='note')editNote(null);else if(k==='task')editTask(null);else if(k==='shift')editShifts();else addShopSheet()}
 function nextFreeNight(){for(let i=0;i<14;i++){const k=ymd(addDays(new Date(),i));if(!(S.meals[k]||{}).dinner)return k}return today()}
 
 /* ---------- who's using this device ---------- */
@@ -764,15 +770,59 @@ VIEWS.cal=function(v){
   const workers={};for(const e of work)for(const w of (e.who||[]))(workers[w]=workers[w]||[]).push(e);
   v.innerHTML=`<div class="ph"><div><h1>Calendar</h1><p>${nice(days[0])} to ${nice(days[6])}</p></div>
     <div class="wk"><button class="round" id="cPrev" aria-label="Previous week">${svg('left')}</button><button class="btn ghost" id="cToday">This week</button><button class="round" id="cNext" aria-label="Next week">${svg('right')}</button></div></div>
-  <section class="card workstrip"><div class="mh"><b>Working this week</b></div>${Object.keys(workers).length?Object.entries(workers).map(([w,es])=>`<div class="wline"><span class="who"><span class="pip" style="background:${colour(w)}"></span>${esc(person(w).name)}</span><span>${es.map(e=>`${DOW[fromYmd(e.date).getDay()]} ${e.allDay||!e.start?'all day':t12(e.start)+(e.end?'–'+t12(e.end):'')}`).join(', ')}</span></div>`).join(''):'<p class="emptyrow" style="padding:0 18px 14px">No work shifts added this week. Add one with the type set to Work.</p>'}</section>
+  <section class="card workstrip"><div class="mh"><b>Working this week</b><button class="link" id="addShifts">+ Add shifts</button></div>${Object.keys(workers).length?Object.entries(workers).map(([w,es])=>`<div class="wline"><span class="who"><span class="pip" style="background:${colour(w)}"></span>${esc(person(w).name)}</span><span>${es.map(e=>`${DOW[fromYmd(e.date).getDay()]} ${e.allDay||!e.start?'all day':t12(e.start)+(e.end?'–'+t12(e.end):'')}`).join(', ')}</span></div>`).join(''):'<p class="emptyrow" style="padding:0 18px 14px">No work shifts this week. Tap Add shifts to put in a roster.</p>'}</section>
   <div class="chips" role="group" aria-label="Show"><button class="chip" data-cw="" aria-pressed="${!S.calWho}">Everyone</button>${FAMILY.map(p=>`<button class="chip" data-cw="${p.id}" aria-pressed="${S.calWho===p.id}"><span class="pip" style="background:${colour(p.id)}"></span>${p.name}</button>`).join('')}</div>
   <section class="card">${days.map(d=>{const k=ymd(d),evs=evOn(k).filter(filt),cl=clashes(k);
     return `<div class="dayblock"><div class="dh"><b>${DOWL[d.getDay()]}</b><span>${nice(d)}</span>${k===t?'<em>Today</em>':''}</div>${evs.length?evs.map(e=>evRow(e,k,cl)).join(''):''}<button class="none" data-addon="${k}">${evs.length?'+ Add':'Nothing on. Tap to add.'}</button></div>`}).join('')}</section>`;
-  bindEv();
+  bindEv();$('#addShifts').onclick=()=>{if(!needMe())editShifts(null,S.calWeek)};
   document.querySelectorAll('[data-addon]').forEach(b=>b.onclick=()=>editEvent(null,b.dataset.addon));
   document.querySelectorAll('[data-cw]').forEach(b=>b.onclick=()=>{S.calWho=b.dataset.cw;render()});
   $('#cPrev').onclick=()=>{S.calWeek=addDays(S.calWeek,-7);render()};$('#cNext').onclick=()=>{S.calWeek=addDays(S.calWeek,7);render()};$('#cToday').onclick=()=>{S.calWeek=monday(new Date());render()};
 };
+
+
+/* ===== Work shifts: put in a whole week's roster in one go ===== */
+const SHIFT_PEOPLE=['sienna','archer'];
+function editShifts(who0,wk0){
+  if(needMe())return;
+  let who=who0||(SHIFT_PEOPLE.includes(S.me)?S.me:SHIFT_PEOPLE[0]);
+  let wk=wk0||monday(new Date());
+  const lsGet=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}},lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+  const drvOpts=cur=>[['','No lift'],['?','Needs a driver']].concat(DRIVERS.filter(d=>d!==who).map(d=>[d,person(d).name])).map(([v,n])=>`<option value="${v}"${v===cur?' selected':''}>${n}</option>`).join('');
+  const draw=()=>{
+    const pref=lsGet('fh-shift-'+who,{place:'',start:'16:00',end:'21:00',to:'',from:''});
+    const keys=[...Array(7)].map((_,i)=>ymd(addDays(wk,i)));
+    const have={};for(const e of evList())if(e.type==='work'&&!e.rep&&(e.who||[]).length===1&&e.who[0]===who&&keys.includes(e.date))have[e.date]=e;
+    const place=Object.values(have)[0]?.where||pref.place;
+    openSheet(`<h2>Work shifts</h2><p class="sub">Tick the days on the roster and set the times. Untick a day to remove that shift.</p>
+    <form class="form" id="shF">
+     <div class="field"><span>Who's working</span><div class="chips">${SHIFT_PEOPLE.map(p=>`<button type="button" class="chip" data-shw="${p}" aria-pressed="${p===who}"><span class="pip" style="background:${colour(p)}"></span>${person(p).name}</button>`).join('')}</div></div>
+     <label class="field"><span>Where (optional)</span><input id="shP" value="${esc(place)}" placeholder="e.g. Coles Eaglehawk" autocomplete="off"></label>
+     <div class="field"><span>Week</span><div class="wk"><button type="button" class="round" id="shPrev" aria-label="Previous week">${svg('left')}</button><b class="shwk">${nice(wk)} to ${nice(addDays(wk,6))}</b><button type="button" class="round" id="shNext" aria-label="Next week">${svg('right')}</button></div></div>
+     <div class="shifts">${keys.map(k=>{const e=have[k],on=!!e,d=fromYmd(k);return `<div class="shrow${on?' on':''}" data-k="${k}">
+       <button type="button" class="chip shday" aria-pressed="${on}">${DOW[d.getDay()]} ${d.getDate()}</button>
+       <div class="shd"><input type="time" class="shs" value="${esc(e?e.start:pref.start)}" aria-label="Start"><span>to</span><input type="time" class="she" value="${esc(e?e.end:pref.end)}" aria-label="Finish">
+       <label>Lift there <select class="sht">${drvOpts(e?e.liftTo||'':pref.to)}</select></label><label>Lift home <select class="shf">${drvOpts(e?e.liftFrom||'':pref.from)}</select></label></div></div>`}).join('')}</div>
+     <div class="actions"><span class="grow"></span><button class="btn">Save shifts</button></div></form>`);
+    document.querySelectorAll('[data-shw]').forEach(b=>b.onclick=()=>{who=b.dataset.shw;draw()});
+    $('#shPrev').onclick=()=>{wk=addDays(wk,-7);draw()};$('#shNext').onclick=()=>{wk=addDays(wk,7);draw()};
+    document.querySelectorAll('.shrow .shday').forEach(b=>b.onclick=()=>{const r=b.closest('.shrow'),on=!r.classList.contains('on');r.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
+    $('#shF').onsubmit=async ev=>{ev.preventDefault();
+      const pl=$('#shP').value.trim().slice(0,80);const rows=[...document.querySelectorAll('.shrow')];let n=0,del=0,bad=false;
+      const ops=[];
+      for(const r of rows){const k=r.dataset.k,e=have[k],on=r.classList.contains('on');
+        if(!on){if(e){ops.push(db=>db.doc('events/'+e.id).delete());del++}continue}
+        const st=r.querySelector('.shs').value,en=r.querySelector('.she').value;if(!st||!en){bad=true;continue}
+        const rec=Object.assign({},e||{},{title:pl?'Work at '+pl:'Work',date:k,start:st,end:en,allDay:false,who:[who],type:'work',where:pl,notes:e?e.notes||'':'',liftTo:r.querySelector('.sht').value,liftFrom:r.querySelector('.shf').value,updatedBy:S.me,updatedAt:nowIso()});
+        if(!e){rec.addedBy=S.me;rec.addedAt=nowIso()}
+        const id=e?e.id:rid();ops.push(db=>db.doc('events/'+id).set(rec));n++;
+        lsSet('fh-shift-'+who,{place:pl,start:st,end:en,to:rec.liftTo,from:rec.liftFrom})}
+      if(bad){toast('Add a start and finish time for each ticked day');return}
+      if(!ops.length){closeSheet();return}
+      if(await write(async db=>{for(const f of ops)await f(db)})){closeSheet();toast(`${person(who).name}: ${n} shift${n===1?'':'s'} saved${del?', '+del+' removed':''}`)}};
+  };
+  draw();
+}
 
 /* ===== Shopping: four lists, quantities and notes, one-tap usuals ===== */
 async function addShop(t,list,aisle,qty){return write(db=>db.collection('shopping').doc(rid()).set({text:t.slice(0,120),list,aisle:list==='super'?aisle:'Other',qty:(qty||'').slice(0,20),note:'',addedBy:S.me,addedAt:nowIso(),done:false,doneBy:'',doneAt:''}))}
@@ -1254,7 +1304,6 @@ function editChore(id){
 render();
 if(!S.me)setTimeout(pickMe,400);
 </script>
-
 
 </body>
 </html>
