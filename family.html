@@ -17,7 +17,6 @@ addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&/_b
 <script src="claude-shim.js"></script>
 </head>
 <body>
-
 <title>Annett Family Hub</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -338,36 +337,6 @@ nav.tabs button svg{width:22px;height:22px}
 
 
 .sky .wx{margin:8px 0 0;font-weight:600;opacity:.92;position:relative;font-size:.95rem}
-.bamt{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;padding-right:8px}
-.row .check{cursor:pointer}
-.bphotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
-.bphotos:empty{display:none}
-.bph{position:relative;margin:0;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--sunk);aspect-ratio:3/4}
-.bph a{display:block;width:100%;height:100%}
-.bph img{width:100%;height:100%;object-fit:cover;display:block}
-.bpdf{display:grid!important;place-items:center;align-content:center;gap:4px;color:var(--accent-deep);font-weight:800;font-size:.85rem}
-.bpdf svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.8}
-.bphx{position:absolute;top:4px;right:4px;width:28px;height:28px;border-radius:50%;background:rgba(20,18,50,.7);color:#fff;display:grid;place-items:center}
-.bphx svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.4;fill:none;stroke-linecap:round}
-.bpick{justify-self:start;cursor:pointer}
-.phnote{display:none}
-.bph.nophoto a{display:none}
-.bph.nophoto .phnote{display:grid;place-items:center;height:100%;padding:8px;text-align:center;font-size:.78rem;color:var(--muted)}
-.av.xl{width:56px;height:56px;font-size:1.4rem}
-.megrid{display:grid;gap:20px;align-items:start}
-.mecol{display:grid;gap:20px}
-@media (min-width:900px){.megrid{grid-template-columns:1.1fr 1fr}}
-.dinrow{display:flex;align-items:center;gap:12px;padding:8px 16px;border-top:1px solid var(--line)}
-.dinrow.tonight{background:var(--accent-soft)}
-.dinrow .dn{flex:1;min-width:0;display:grid}
-.dinrow .dn b{font-weight:800}
-.dinrow .dn small{color:var(--muted);font-size:.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.seg{display:flex;gap:4px;flex:none}
-.seg .chip{min-height:36px;padding:6px 12px}
-.usualbox{border-top:1px solid var(--line);padding:12px 16px 10px;display:grid;gap:8px}
-.usualbox b{font-weight:800}
-.linkish{color:var(--accent-deep);font-weight:700;text-decoration:underline;padding:0}
-.more svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;vertical-align:-2px}
 .ideas .idea{display:grid;gap:2px;text-align:left;width:100%;padding:10px 18px;border-top:1px solid var(--line)}
 .ideas .idea b{font-weight:700}.ideas .idea small{color:var(--muted)}
 /* ---------- tasks ---------- */
@@ -444,6 +413,24 @@ nav.tabs button[aria-current="true"]::before{content:"";position:absolute;top:0;
 .shd input[type=time]{width:auto;min-width:0;padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:#fff;font:inherit;color:var(--ink)}.shd label{display:flex;align-items:center;gap:6px}
 .shd select{padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit}
 .shwk{font-size:14px}.workstrip .mh{display:flex;justify-content:space-between;align-items:center}
+.atts{display:flex;flex-wrap:wrap;gap:8px}
+.atts:empty{display:none}
+.att{position:relative;width:76px;height:76px;border-radius:12px;overflow:hidden;background:var(--sunk);border:1px solid var(--line)}
+.attview{width:100%;height:100%;display:block}
+.attview img{width:100%;height:100%;object-fit:cover;display:block}
+.attdoc{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:.66rem;font-weight:600;color:var(--muted);padding:4px;text-align:center;word-break:break-all;width:100%;height:100%}
+.attdoc svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.attx{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:rgba(28,26,58,.75);color:#fff;display:grid;place-items:center}
+.attx svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round}
+.attspin{position:absolute;inset:0;margin:auto;width:22px;height:22px;border-radius:50%;border:2.5px solid var(--accent);border-right-color:transparent;animation:attsp .9s linear infinite}
+@keyframes attsp{to{transform:rotate(360deg)}}
+.attadd{justify-self:start;margin-top:4px;cursor:pointer}
+.attadd svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.clipn{display:inline-flex;align-items:center;gap:3px}
+.clipn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.attfull{position:fixed;inset:0;z-index:100;background:rgba(10,10,25,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(16px + env(safe-area-inset-top,0px)) 12px calc(16px + env(safe-area-inset-bottom,0px));gap:14px}
+.attfull img{max-width:100%;max-height:calc(100% - 70px);object-fit:contain;border-radius:8px;background:#fff}
+.attbar{display:flex;gap:10px}
 </style>
 
 <div class="app">
@@ -458,7 +445,7 @@ nav.tabs button[aria-current="true"]::before{content:"";position:absolute;top:0;
       <div class="when" id="topWhen"></div>
       <div class="qa" id="qaDesk"></div>
       <button class="btn qa-phone" id="qaPhone" aria-label="Add something"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add</button>
-      <button class="me-phone" id="mePhone" aria-label="My page"><span class="av" id="phoneAv">?</span></button>
+      <button class="me-phone" id="mePhone" aria-label="Change who is using this device"><span class="av" id="phoneAv">?</span></button>
     </div></header>
     <main id="view"></main>
   </div>
@@ -478,7 +465,7 @@ const DRIVERS=['tim','laura','kris','sienna'];
 const person=id=>FAMILY.find(p=>p.id===id)||{id:'',name:'Someone'};
 const colour=id=>person(id).id?`var(--${id})`:'var(--faint)';
 const AISLES=['Fruit & veg','Meat & fish','Dairy & eggs','Bakery','Pantry','Frozen','Drinks','Household','Other'];
-const LISTS=[['super','Supermarket'],['costco','Costco'],['hardware','Bunnings'],['chemist','Chemist'],['kmart','Kmart / Target']];
+const LISTS=[['super','Supermarket'],['hardware','Bunnings'],['chemist','Chemist'],['kmart','Kmart / Target']];
 const listName=k=>(LISTS.find(l=>l[0]===k)||LISTS[0])[1];
 const TYPES=[['appointment','Appointment'],['work','Work'],['sport','Sport'],['school','School'],['social','Social'],['other','Other']];
 const typeName=t=>(TYPES.find(x=>x[0]===t)||TYPES[5])[1];
@@ -510,12 +497,10 @@ const I={
  chat:'<path d="M4 5h16v11H9l-5 4z"/>',
  tick:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7H4V5h11"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
- x:'<path d="M7 7l10 10M17 7L7 17"/>',
+ x:'<path d="M7 7l10 10M17 7L7 17"/>',clip:'<path d="M20.5 11.5l-8.4 8.4a5 5 0 0 1-7.1-7.1l8.8-8.8a3.3 3.3 0 0 1 4.7 4.7l-8.8 8.8a1.7 1.7 0 0 1-2.4-2.4l8-8"/>',
  pen:'<path d="M5 19l1-4L16 5l3 3L9 18z"/>',
  left:'<path d="M15 6l-6 6 6 6"/>', right:'<path d="M9 6l6 6-6 6"/>',
- check:'<path d="M6 12.5l4 4L18 8"/>',
- bill:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
- user:'<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.8 4-5.5 7.5-5.5s6.3 1.7 7.5 5.5"/>'
+ check:'<path d="M6 12.5l4 4L18 8"/>'
 };
 const svg=(k,extra='')=>`<svg viewBox="0 0 24 24"${extra}>${I[k]}</svg>`;
 
@@ -550,17 +535,16 @@ function pick(sel,attr,fn){document.querySelectorAll(sel).forEach(b=>b.onclick=(
 
 /* ---------- state ---------- */
 const S={me:store.get('fh-me')||'',tab:store.get('fh-tab2')||'home',aisle:store.get('fh-aisle')||'Other',list:store.get('fh-list')||'super',calWho:'',editUsuals:false,
-  events:{},shop:{},meals:{},chores:{},log:{},regulars:{},dinnerin:{},notes:{},school:{},birthdays:{},gifts:{},homejobs:{},settings:{},recipes:{},pantry:{},lunches:{},tasks:{},tcomments:{},weather:{},mealideas:{},bills:{},
+  events:{},shop:{},meals:{},chores:{},log:{},regulars:{},dinnerin:{},notes:{},school:{},birthdays:{},gifts:{},homejobs:{},settings:{},recipes:{},pantry:{},lunches:{},tasks:{},tcomments:{},weather:{},mealideas:{},
   week:monday(new Date()),calWeek:monday(new Date()),ready:false,db:null};
 const PAGES=[['home','Today','home'],['cal','Calendar','cal'],['shop','Shopping','shop'],['meals','Dinners','meal'],['chores','Chores','chore']];
-const EXTRA=[['me','My page','user'],['tasks','Tasks','tick'],['bills','Bills','bill'],['notice','Noticeboard','note'],['school','School','school'],['recipes','Recipes','book'],['pantry','Pantry & freezer','box'],['lunch','Lunches','lunch'],['bdays','Birthdays & gifts','gift'],['hjobs','Home jobs','tool'],['colours','Colours','palette']];
+const EXTRA=[['tasks','Tasks','tick'],['notice','Noticeboard','note'],['school','School','school'],['recipes','Recipes','book'],['pantry','Pantry & freezer','box'],['lunch','Lunches','lunch'],['bdays','Birthdays & gifts','gift'],['hjobs','Home jobs','tool'],['colours','Colours','palette']];
 const PHONE=[...PAGES,['more','More','more']];
-const extras=()=>EXTRA.filter(x=>x[0]!=='bills'||isParent());
 function paintNav(){
   const open=Object.values(S.shop).filter(i=>!i.done).length;
-  const cnt=k=>k==='bills'?billsDue().length:k==='tasks'?myOpenTasks().length:k==='shop'&&open?open:k==='school'?schoolDue().length:k==='hjobs'?jobsDue().length:0;
+  const cnt=k=>k==='tasks'?myOpenTasks().length:k==='shop'&&open?open:k==='school'?schoolDue().length:k==='hjobs'?jobsDue().length:0;
   const b=(k,n,ic,cls)=>{const c=cnt(k);return `<button data-tab="${k}" aria-current="${S.tab===k||(k==='more'&&EXTRA.some(x=>x[0]===S.tab))}">${svg(ic)}${cls?`<span>${n}</span>`:n}${c?(cls?`<span class="badge">${c}</span>`:`<span class="count">${c}</span>`):''}</button>`};
-  $('#sideNav').innerHTML=PAGES.map(p=>b(...p)).join('')+'<div class="side-h">Family</div>'+extras().map(p=>b(...p)).join('');
+  $('#sideNav').innerHTML=PAGES.map(p=>b(...p)).join('')+'<div class="side-h">Family</div>'+EXTRA.map(p=>b(...p)).join('');
   $('#tabs').innerHTML=PHONE.map(p=>b(...p,1)).join('');
   document.querySelectorAll('#sideNav [data-tab],#tabs [data-tab]').forEach(x=>x.onclick=()=>setTab(x.dataset.tab));
 }
@@ -570,18 +554,18 @@ function setTab(t){S.tab=t;store.set('fh-tab2',t);render();scrollTo(0,0)}
 function paintColours(){const c=S.settings.colours||{},r=document.documentElement.style;for(const p of FAMILY){if(c[p.id]&&/^#[0-9a-f]{6}$/i.test(c[p.id]))r.setProperty('--'+p.id,c[p.id]);else r.removeProperty('--'+p.id)}}
 
 /* ---------- quick add ---------- */
-const ADDS=[['appt','Appointment','cal','For anyone in the family'],['shop','Shopping','shop','Add to a list'],['dinner','Dinner','meal','Plan a night'],['task','Task','tick','Give someone a job'],['shift','Work shifts','cal',"Add a week's roster"],['note','Note','note','Pin to the noticeboard'],['bill','Bill','bill','A bill to pay'],['chore','Chore','chore','A job for the kids']];
-function adds(){return ADDS.filter(a=>(a[0]!=='chore'&&a[0]!=='bill')||isParent())}
+const ADDS=[['appt','Appointment','cal','For anyone in the family'],['shop','Shopping','shop','Add to a list'],['dinner','Dinner','meal','Plan a night'],['task','Task','tick','Give someone a job'],['shift','Work shifts','cal',"Add a week's roster"],['note','Note','note','Pin to the noticeboard'],['chore','Chore','chore','A job for the kids']];
+function adds(){return ADDS.filter(a=>a[0]!=='chore'||isParent())}
 function paintTop(){
   const d=new Date();$('#topWhen').textContent=DOWL[d.getDay()]+' '+d.getDate()+' '+MONL[d.getMonth()];
-  $('#qaDesk').innerHTML=adds().filter(a=>a[0]!=='bill').map(a=>`<button class="btn${a[0]==='appt'?'':' ghost'}" data-add="${a[0]}">${svg('plus')}${a[1]}</button>`).join('');
+  $('#qaDesk').innerHTML=adds().map(a=>`<button class="btn${a[0]==='appt'?'':' ghost'}" data-add="${a[0]}">${svg('plus')}${a[1]}</button>`).join('');
   document.querySelectorAll('#qaDesk [data-add]').forEach(b=>b.onclick=()=>doAdd(b.dataset.add));
   const p=person(S.me);
   for(const [av,nm] of [['#sideAv','#sideName'],['#phoneAv',null]]){const a=$(av);a.textContent=p.id?p.name[0]:'?';a.style.background=p.id?colour(p.id):'var(--faint)';if(nm)$(nm).textContent=p.id?p.name:'Choose who you are'}
 }
 $('#qaPhone').onclick=()=>{openSheet(`<h2>Add</h2><div class="addmenu">${adds().map(a=>`<button data-add="${a[0]}"><span class="ico">${svg(a[2])}</span>${a[1]}<small>${a[3]}</small></button>`).join('')}</div>`);
   document.querySelectorAll('#panel [data-add]').forEach(b=>b.onclick=()=>doAdd(b.dataset.add))};
-function doAdd(k){if(needMe())return;if(k==='appt')editEvent(null);else if(k==='dinner')editMeal(nextFreeNight());else if(k==='chore')editChore(null);else if(k==='note')editNote(null);else if(k==='task')editTask(null);else if(k==='shift')editShifts();else if(k==='bill')editBill(null);else addShopSheet()}
+function doAdd(k){if(needMe())return;if(k==='appt')editEvent(null);else if(k==='dinner')editMeal(nextFreeNight());else if(k==='chore')editChore(null);else if(k==='note')editNote(null);else if(k==='task')editTask(null);else if(k==='shift')editShifts();else addShopSheet()}
 function nextFreeNight(){for(let i=0;i<14;i++){const k=ymd(addDays(new Date(),i));if(!(S.meals[k]||{}).dinner)return k}return today()}
 
 /* ---------- who's using this device ---------- */
@@ -590,7 +574,7 @@ function pickMe(){
   <div class="people">${USERS.map(p=>`<button class="person" data-me="${p.id}" aria-pressed="${S.me===p.id}"><span class="av" style="background:${colour(p.id)}">${p.name[0]}</span>${p.name}</button>`).join('')}</div>`);
   document.querySelectorAll('[data-me]').forEach(b=>b.onclick=()=>{S.me=b.dataset.me;store.set('fh-me',S.me);closeSheet();render()});
 }
-const goMe=()=>{if(S.me)setTab('me');else pickMe()};$('#sideMe').onclick=goMe;$('#mePhone').onclick=goMe;
+$('#sideMe').onclick=pickMe;$('#mePhone').onclick=pickMe;
 function needMe(){if(!S.me){pickMe();return true}return false}
 
 /* ---------- sheet ---------- */
@@ -609,7 +593,7 @@ async function write(fn){if(!S.db){toast('Not connected yet. Try again in a mome
   const sub=(name,key)=>db.collection(name).onSnapshot(s=>{const o={};s.docs.forEach(d=>{if(d.exists)o[d.id]=d.data()});
     const j=JSON.stringify(o);const first=!(key in seen);if(!first&&seen[key]===j)return;seen[key]=j;S[key]=o;S.ready=true;soon()},()=>{});
   sub('events','events');sub('shopping','shop');sub('meals','meals');sub('chores','chores');sub('chorelog','log');
-  sub('regulars','regulars');sub('dinnerin','dinnerin');sub('notes','notes');sub('school','school');sub('birthdays','birthdays');sub('gifts','gifts');sub('homejobs','homejobs');sub('settings','settings');sub('recipes','recipes');sub('pantry','pantry');sub('lunches','lunches');sub('tasks','tasks');sub('weather','weather');sub('mealideas','mealideas');sub('tcomments','tcomments');sub('bills','bills');
+  sub('regulars','regulars');sub('dinnerin','dinnerin');sub('notes','notes');sub('school','school');sub('birthdays','birthdays');sub('gifts','gifts');sub('homejobs','homejobs');sub('settings','settings');sub('recipes','recipes');sub('pantry','pantry');sub('lunches','lunches');sub('tasks','tasks');sub('weather','weather');sub('mealideas','mealideas');sub('tcomments','tcomments');
 })();
 
 /* ---------- render ---------- */
@@ -663,7 +647,7 @@ function evRow(e,k,cl){
   const who=(e.who||[]).map(id=>`<span class="who"><span class="pip" style="background:${colour(id)}"></span>${esc(person(id).name)}</span>`).join('');
   const warn=(cl&&cl[e.id])||[];const lt=liftText(e);
   return `<button class="ev${past?' past':''}${warn.length?' clash':''}" data-ev="${esc(e.id)}" data-k="${k}"><span class="tm">${e.allDay||!e.start?'All day':t12(e.start)}${!e.allDay&&e.end?`<small>to ${t12(e.end)}</small>`:''}</span>
-   <span><span class="tt">${esc(e.title)}</span><span class="meta">${who}${e.type&&e.type!=='other'?`<span class="type ${esc(e.type)}">${typeName(e.type)}</span>`:''}${e.where?`<span>${esc(e.where)}</span>`:''}${e.rep?`<span class="type">${esc(repText(e))}</span>`:''}</span>
+   <span><span class="tt">${esc(e.title)}</span><span class="meta">${who}${e.type&&e.type!=='other'?`<span class="type ${esc(e.type)}">${typeName(e.type)}</span>`:''}${e.where?`<span>${esc(e.where)}</span>`:''}${e.rep?`<span class="type">${esc(repText(e))}</span>`:''}${(e.attachments||[]).length?`<span class="type clipn">${svg('clip')}${e.attachments.length}</span>`:''}</span>
    ${lt?`<span class="lift">${svg('car')}${esc(lt)}</span>`:''}${warn.map(w=>`<span class="warn">${svg('warn')}${esc(w)}</span>`).join('')}</span></button>`;
 }
 function bindEv(){document.querySelectorAll('[data-ev]').forEach(b=>b.onclick=()=>editEvent(b.dataset.ev,null,b.dataset.k))}
@@ -685,6 +669,9 @@ function editEvent(id,dateDefault,occK){
    <label class="field"><span>Where (optional)</span><input id="eWhere" value="${esc(e.where||'')}" placeholder="e.g. Kangaroo Flat Dental" autocomplete="off"></label>
    <div id="eLifts" class="form"><div class="field"><span>Lift there</span>${drv('lto',lTo)}</div><div class="field"><span>Lift home</span>${drv('lfrom',lFrom)}</div></div>
    <label class="field"><span>Notes (optional)</span><textarea id="eNotes">${esc(e.notes||'')}</textarea></label>
+   <div class="field"><span>Photos and paperwork</span><div class="atts" id="eAtts"></div>
+    <label class="btn ghost attadd" id="eAttBtn">${svg('clip')}Add photo or file<input type="file" id="eAttIn" accept="image/*,application/pdf" multiple hidden></label>
+    <p class="hint" id="eAttHint" hidden></p></div>
    ${id&&e.rep&&occK?`<button type="button" class="btn ghost" id="eSkip" style="justify-self:start">Remove just ${esc(niceK(occK))}</button>`:''}
    <div class="actions">${id?`<button type="button" class="link danger" id="eDel">${e.rep?'Delete all repeats':'Delete'}</button>`:''}<span class="grow"></span><button type="button" class="btn ghost" id="eCancel">Cancel</button><button class="btn">Save</button></div></form>`);
   document.querySelectorAll('[data-who]').forEach(b=>b.onclick=()=>{const p=b.dataset.who;who.has(p)?who.delete(p):who.add(p);b.setAttribute('aria-pressed',who.has(p))});
@@ -693,15 +680,53 @@ function editEvent(id,dateDefault,occK){
   pick('[data-lto]','data-lto',v=>lTo=v);pick('[data-lfrom]','data-lfrom',v=>lFrom=v);
   const times=()=>{$('#eTimes').hidden=$('#eAll').checked;$('#eLifts').hidden=$('#eAll').checked};$('#eAll').onchange=times;times();
   $('#eCancel').onclick=closeSheet;
+  const atts=(e.attachments||[]).slice();bindAtts(atts);
   $('#evF').onsubmit=async ev=>{ev.preventDefault();const t=$('#eTitle').value.trim(),d=$('#eDate').value;if(!t||!d)return;
     if(!who.size){toast('Pick who it is for');return}
     const all=$('#eAll').checked;
     const r={title:t.slice(0,100),date:d,allDay:all,start:all?'':$('#eStart').value,end:all?'':$('#eEnd').value,who:[...who],type,where:$('#eWhere').value.trim().slice(0,120),notes:$('#eNotes').value.trim().slice(0,1000),
-      liftTo:all?'':lTo,liftFrom:all?'':lFrom,rep:rp==='none'?null:{every:+rp,days:(rdays.size?[...rdays]:[fromYmd(d).getDay()]).sort(),until:$('#eUntil').value||''},skip:rp==='none'?[]:(e.skip||[]),addedBy:id?(e.addedBy||S.me):S.me,addedAt:id?(e.addedAt||nowIso()):nowIso(),updatedBy:S.me,updatedAt:nowIso()};
+      liftTo:all?'':lTo,liftFrom:all?'':lFrom,attachments:atts.filter(a=>a&&a.id),rep:rp==='none'?null:{every:+rp,days:(rdays.size?[...rdays]:[fromYmd(d).getDay()]).sort(),until:$('#eUntil').value||''},skip:rp==='none'?[]:(e.skip||[]),addedBy:id?(e.addedBy||S.me):S.me,addedAt:id?(e.addedAt||nowIso()):nowIso(),updatedBy:S.me,updatedAt:nowIso()};
+    if(atts.some(a=>a.uploading)){toast('Wait for the upload to finish');return}
     if(await write(db=>db.doc('events/'+(id||rid())).set(r))){closeSheet();toast(id?'Saved':'Added to the calendar')}};
   const del=$('#eDel');if(del)del.onclick=async()=>{if(await write(db=>db.doc('events/'+id).delete())){closeSheet();toast('Deleted')}};
   const sk=$('#eSkip');if(sk)sk.onclick=async()=>{const r=Object.assign({},e,{skip:[...new Set([...(e.skip||[]),occK])],updatedBy:S.me,updatedAt:nowIso()});if(await write(db=>db.doc('events/'+id).set(r))){closeSheet();toast('Removed '+niceK(occK)+' only')}};
 }
+
+
+/* ===== Photos and paperwork on appointments =====
+   Files go to the app's own file store (Google Drive for the home-screen app); the appointment keeps a small list
+   of {id, name, type, size, by, at}. Photos are shrunk to 2000px so paperwork stays readable but uploads fast. */
+let ASSETS;const assetsCap=async()=>{if(ASSETS===undefined){try{ASSETS=await claude.use('assets')}catch(e){ASSETS=null}}return ASSETS};
+const blobUrl=id=>'_blob/'+id;
+async function shrinkImage(file){
+  if(!/^image\/(jpeg|png|webp|heic|heif)/i.test(file.type))return file;
+  try{const bmp=await createImageBitmap(file);const k=Math.min(1,2000/Math.max(bmp.width,bmp.height));
+    const c=document.createElement('canvas');c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.82));return b&&b.size<file.size?b:file}catch(e){return file}
+}
+function attTile(a,i){const img=/^image\//.test(a.type||'');
+  return `<div class="att">${a.uploading?'<span class="attspin"></span>':img?`<button type="button" class="attview" data-av="${i}"><img src="${esc(blobUrl(a.id))}" alt="${esc(a.name)}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'attdoc',textContent:'Photo'}))"></button>`:`<button type="button" class="attview attdoc" data-av="${i}">${svg('clip')}<span>${esc((a.name||'File').slice(0,18))}</span></button>`}
+   ${a.uploading?'':`<button type="button" class="attx" data-ax="${i}" aria-label="Remove ${esc(a.name||'file')}">${svg('x')}</button>`}</div>`}
+async function bindAtts(atts){
+  const box=$('#eAtts'),inp=$('#eAttIn'),hint=$('#eAttHint'),cap=await assetsCap();
+  const draw=()=>{if(!document.body.contains(box))return;box.innerHTML=atts.map(attTile).join('');
+    box.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>viewAtt(atts[+b.dataset.av]));
+    box.querySelectorAll('[data-ax]').forEach(b=>b.onclick=()=>{atts.splice(+b.dataset.ax,1);draw()})};
+  draw();
+  if(!cap){$('#eAttBtn').hidden=true;hint.hidden=false;hint.textContent=atts.length?'Photos are kept in the Family Hub app. Open it on your phone to see or add them.':'Add photos and paperwork from the Family Hub app on your phone.';return}
+  inp.onchange=async()=>{const files=[...inp.files];inp.value='';
+    for(const f of files){
+      if(f.size>15e6){toast(f.name+' is too big (15 MB max)');continue}
+      const a={uploading:true,name:f.name||'Photo',type:f.type};atts.push(a);draw();
+      try{const b=await shrinkImage(f);const r=await cap.upload(b);Object.assign(a,{id:r.id,type:b.type||f.type,size:b.size,by:S.me,at:nowIso()});
+        if(/^image\//.test(a.type)&&!/\.(jpe?g|png|webp|heic)$/i.test(a.name))a.name=(a.name||'Photo').replace(/\.[^.]+$/,'')+'.jpg'}
+      catch(err){atts.splice(atts.indexOf(a),1);toast("That file didn't upload. Check you're online and try again.")}
+      delete a.uploading;draw()}};
+}
+function viewAtt(a){if(!a||!a.id)return;
+  if(/^image\//.test(a.type||'')){const o=document.createElement('div');o.className='attfull';o.innerHTML=`<img src="${esc(blobUrl(a.id))}" alt="${esc(a.name)}"><div class="attbar"><a class="btn ghost" href="${esc(blobUrl(a.id))}" target="_blank" rel="noopener">Open</a><button class="btn" type="button">Close</button></div>`;
+    o.onclick=e=>{if(e.target.tagName!=='A')o.remove()};document.body.appendChild(o)}
+  else window.open(blobUrl(a.id),'_blank','noopener')}
 
 /* ===== shared lookups for Today ===== */
 function schoolDue(){const t=today();return listOf(S.school).filter(s=>!s.done&&s.due&&daysBetween(t,s.due)<=7).sort((a,b)=>a.due.localeCompare(b.due))}
@@ -734,13 +759,6 @@ function skyFor(h){
   if(h<17)return{k:'day',bg:'linear-gradient(180deg,#3567cf 0%,#6f9ff0 60%,#b9d4ff 100%)',orb:'sun-high'};
   return{k:'dusk',bg:'linear-gradient(180deg,#24215a 0%,#5b3a86 55%,#ff8a6a 100%)',orb:'sun-low'};
 }
-/* ---------- home for dinner: per-night answers (dinnerin/<date>) on top of each person's usual nights out (settings/dinnerusual) ---------- */
-const usualOut=(u,k)=>(((S.settings.dinnerusual||{})[u])||[]).includes(fromYmd(k).getDay());
-const isOut=(u,k)=>{const x=(S.dinnerin[k]||{})[u];return x?x==='out':usualOut(u,k)};
-const homeCount=k=>USERS.filter(u=>!isOut(u.id,k)).length;
-/* Saving the same answer as your usual clears that night back to the usual, so a later change to your usual still applies. */
-function setDin(u,k,out){const cur=Object.assign({},S.dinnerin[k]||{});if(out===usualOut(u,k))delete cur[u];else cur[u]=out?'out':'home';cur.updatedBy=S.me;cur.updatedAt=nowIso();
-  const left=Object.keys(cur).filter(x=>x!=='updatedBy'&&x!=='updatedAt').length;if(!left&&!S.dinnerin[k])return Promise.resolve(true);return write(db=>left?db.doc('dinnerin/'+k).set(cur):db.doc('dinnerin/'+k).delete())}
 const hm=d=>pad(d.getHours())+':'+pad(d.getMinutes());
 VIEWS.home=function(v){
   const d=new Date(),h=d.getHours(),p=person(S.me),k=today(),tk=ymd(addDays(d,1));
@@ -764,11 +782,10 @@ VIEWS.home=function(v){
   const nowLine=`<div class="slot nowslot"><span class="tm">Now</span><div class="nowline"></div></div>`;
   let tl='';items.forEach((i,idx)=>{if(idx===nowAt)tl+=nowLine;tl+=slot(i,idx)});if(nowAt===items.length&&items.length)tl+=nowLine;
   // home for dinner
-  const homeN=homeCount(k);
+  const din=S.dinnerin[k]||{};const homeN=USERS.filter(u=>din[u.id]!=='out').length;
   // coming up
   const up=[...schoolDue().map(s=>({k:s.due,t:`${esc(s.title)}${s.amount?' ($'+esc(s.amount)+')':''}`,s:`${esc(person(s.who).name)}, due ${inDays(daysBetween(k,s.due))}`,ic:'school',go:'school'})),
     ...bdaysSoon(14).map(b=>({k:b.next,t:`${esc(b.name)}'s birthday`,s:inDays(daysBetween(k,b.next)).replace(/^./,c=>c.toUpperCase()),ic:'gift',go:'bdays'})),
-    ...(isParent()?billsOpen().filter(b=>b.due&&daysBetween(k,b.due)<=14):[]).map(b=>({k:b.due,t:`${esc(b.title)}${b.amount?' '+money(b.amount):''}`,s:daysBetween(k,b.due)<0?'Bill overdue':'Bill due '+inDays(daysBetween(k,b.due)),ic:'bill',go:'bills'})),
     ...jobsDue().map(j=>({k:j.due,t:esc(j.title),s:daysBetween(k,j.due)<0?'Overdue':'Due '+inDays(daysBetween(k,j.due)),ic:'tool',go:'hjobs'}))].sort((a,b)=>a.k.localeCompare(b.k));
   const notes=liveNotes().slice(0,3);
   v.innerHTML=`<section class="sky sky-${sky.k}" style="background:${sky.bg}"><span class="orb ${sky.orb}"></span>${sky.k==='night'?'<span class="stars"></span>':''}
@@ -777,9 +794,9 @@ VIEWS.home=function(v){
   <div class="homegrid">
     <div class="side">
       <button class="pin" id="toShop"><span class="pc">${open.length}</span><span class="pt"><b>Shopping</b><span>${open.length?esc(open.slice(0,3).map(i=>i.text).join(', '))+(open.length>3?' and '+(open.length-3)+' more':''):'Nothing to buy right now'}</span></span></button>
-      <button class="pin tmw" id="toCal"><span class="pt"><b>Tomorrow</b><span>${wxDay(tk)?esc(wxDay(tk).desc+', '+wxDay(tk).max+'° / '+wxDay(tk).min+'°'+(wxDay(tk).rain!=null?', '+wxDay(tk).rain+'% rain':''))+'<br>':''}${tomorrow.length?tomorrow.join('<br>')+(tev.length>3?'<br>and '+(tev.length-3)+' more':''):'Nothing on yet'}${tm.dinner?`<br>Dinner: ${esc(tm.dinner)}`:''}${(()=>{const o=USERS.filter(u=>isOut(u.id,tk));return o.length?`<br>Out for dinner: ${esc(andJoin(o.map(u=>u.name)))}`:''})()}${LUNCH_PEOPLE.map(p=>{const l=lunchOf(p,tk);return l&&l.main?`<br>${p===S.me?'Your':esc(person(p).name)+"'s"} lunch: ${esc(l.main)}`:''}).join('')}</span></span></button>
-      <section class="card mini-card"><div class="mh"><b>Home for dinner tonight</b><span>${homeN} of ${USERS.length}</span></div><p class="hint" style="padding:0 16px 4px">Going to be out another night? Set it on <button class="linkish" id="dinMine">your page</button>.</p>
-        <div class="dinin">${USERS.map(u=>{const out=isOut(u.id,k);return `<button class="dpill${out?' out':''}" data-din="${u.id}" aria-pressed="${!out}"><span class="av" style="background:${colour(u.id)}">${u.name[0]}</span>${esc(u.name)}<small>${out?'Out':'Home'}</small></button>`}).join('')}</div></section>
+      <button class="pin tmw" id="toCal"><span class="pt"><b>Tomorrow</b><span>${wxDay(tk)?esc(wxDay(tk).desc+', '+wxDay(tk).max+'° / '+wxDay(tk).min+'°'+(wxDay(tk).rain!=null?', '+wxDay(tk).rain+'% rain':''))+'<br>':''}${tomorrow.length?tomorrow.join('<br>')+(tev.length>3?'<br>and '+(tev.length-3)+' more':''):'Nothing on yet'}${tm.dinner?`<br>Dinner: ${esc(tm.dinner)}`:''}${LUNCH_PEOPLE.map(p=>{const l=lunchOf(p,tk);return l&&l.main?`<br>${p===S.me?'Your':esc(person(p).name)+"'s"} lunch: ${esc(l.main)}`:''}).join('')}</span></span></button>
+      <section class="card mini-card"><div class="mh"><b>Home for dinner tonight</b><span>${homeN} of ${USERS.length}</span></div>
+        <div class="dinin">${USERS.map(u=>{const out=din[u.id]==='out';return `<button class="dpill${out?' out':''}" data-din="${u.id}" aria-pressed="${!out}"><span class="av" style="background:${colour(u.id)}">${u.name[0]}</span>${esc(u.name)}<small>${out?'Out':'Home'}</small></button>`}).join('')}</div></section>
       ${S.me?(()=>{const mt=myOpenTasks();return `<section class="card mini-card"><div class="mh"><b>Your tasks</b><button class="more" id="toTasks">${mt.length?mt.length+' open':'All tasks'}</button></div>${mt.length?mt.slice(0,5).map(taskRow).join(''):'<p class="hint" style="padding:0 16px 8px">Nothing for you right now.</p>'}</section>`})():''}
       ${notes.length?`<section class="card mini-card"><div class="mh"><b>Noticeboard</b><button class="more" id="toNotes">All notes</button></div>${notes.map(n=>`<button class="noteline" data-note="${esc(n.id)}"><span class="pip" style="background:${colour(n.by)}"></span><span>${esc(n.text)}<small>${esc(person(n.by).name)}</small></span></button>`).join('')}</section>`:''}
       ${up.length?`<section class="card mini-card"><div class="mh"><b>Coming up</b></div>${up.slice(0,6).map(u=>`<button class="upline" data-go="${u.go}"><span class="ui">${svg(u.ic)}</span><span><b>${u.t}</b><small>${u.s}</small></span></button>`).join('')}</section>`:''}
@@ -800,8 +817,7 @@ VIEWS.home=function(v){
   const tn=$('#toNotes');if(tn)tn.onclick=()=>setTab('notice');
   v.querySelectorAll('[data-note]').forEach(b=>b.onclick=()=>editNote(b.dataset.note));
   v.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>setTab(b.dataset.go));
-  v.querySelectorAll('[data-din]').forEach(b=>b.onclick=()=>{if(needMe())return;const u=b.dataset.din;setDin(u,k,!isOut(u,k))});
-  const dm=$('#dinMine');if(dm)dm.onclick=goMe;
+  v.querySelectorAll('[data-din]').forEach(b=>b.onclick=()=>{if(needMe())return;const u=b.dataset.din;const cur=Object.assign({},S.dinnerin[k]||{});cur[u]=cur[u]==='out'?'home':'out';cur.updatedBy=S.me;cur.updatedAt=nowIso();write(db=>db.doc('dinnerin/'+k).set(cur))});
 };
 
 /* ===== Calendar ===== */
@@ -940,54 +956,10 @@ function editItem(id){
 
 /* ===== More (phone) ===== */
 VIEWS.more=function(v){
-  v.innerHTML=`<div class="ph"><div><h1>More</h1></div></div><div class="moregrid">${extras().map(([k,n,ic])=>{const c=k==='bills'?billsDue().length:k==='tasks'?myOpenTasks().length:k==='school'?schoolDue().length:k==='hjobs'?jobsDue().length:k==='notice'?liveNotes().length:0;return `<button class="moretile" data-to="${k}"><span class="ico">${svg(ic)}</span><b>${n}</b>${c?`<span class="mc">${c}</span>`:''}</button>`}).join('')}</div>`;
+  v.innerHTML=`<div class="ph"><div><h1>More</h1></div></div><div class="moregrid">${EXTRA.map(([k,n,ic])=>{const c=k==='tasks'?myOpenTasks().length:k==='school'?schoolDue().length:k==='hjobs'?jobsDue().length:k==='notice'?liveNotes().length:0;return `<button class="moretile" data-to="${k}"><span class="ico">${svg(ic)}</span><b>${n}</b>${c?`<span class="mc">${c}</span>`:''}</button>`}).join('')}</div>`;
   v.querySelectorAll('[data-to]').forEach(b=>b.onclick=()=>setTab(b.dataset.to));
 };
 
-
-/* ===== My page: everything one person updates for themselves ===== */
-VIEWS.me=function(v){
-  if(!S.me){v.innerHTML=`<div class="ph"><div><h1>My page</h1><p>Choose who you are to see your page.</p></div><button class="btn" id="mePick">Choose who you are</button></div>`;$('#mePick').onclick=pickMe;return}
-  const p=person(S.me),t=today(),usual=new Set(((S.settings.dinnerusual||{})[S.me])||[]);
-  const nights=[...Array(14)].map((_,i)=>ymd(addDays(new Date(),i)));
-  const myEv=nights.flatMap(k=>evOn(k).filter(e=>!e.holiday&&(e.who||[]).includes(S.me)||(!e.holiday&&(e.liftTo===S.me||e.liftFrom===S.me))).map(e=>({k,e}))).slice(0,12);
-  const mt=myOpenTasks();
-  const d=new Date(),kid=KIDS.some(k=>k.id===S.me);
-  const chores=kid?listOf(S.chores).filter(c=>c.active!==false&&c.who===S.me&&choreDue(c,d)):[];
-  const curCol=(S.settings.colours||{})[S.me]||'';
-  v.innerHTML=`<div class="ph mehead"><div style="display:flex;align-items:center;gap:14px"><span class="av xl" style="background:${colour(S.me)}">${esc(p.name[0])}</span><div><h1>${esc(p.name)}</h1><p>Your own updates, all in one spot.</p></div></div><button class="btn ghost" id="meSwitch">Not ${esc(p.name)}? Switch</button></div>
-  <div class="megrid">
-  <section class="card mini-card"><div class="mh"><b>Home for dinner</b><span>Next two weeks</span></div>
-    <p class="hint" style="padding:0 16px 8px">Tap Out for any night you won't be home, so whoever's cooking knows how many to cook for.</p>
-    ${nights.map(k=>{const out=isOut(S.me,k),fromUsual=!(S.dinnerin[k]||{})[S.me]&&usualOut(S.me,k),dd=fromYmd(k),m=S.meals[k]||{};
-      return `<div class="dinrow${k===t?' tonight':''}"><span class="dn"><b>${k===t?'Tonight':k===ymd(addDays(new Date(),1))?'Tomorrow':DOW[dd.getDay()]}</b><small>${nice(dd)}${m.dinner?' · '+esc(m.dinner):''}${fromUsual?' · your usual':''}</small></span>
-        <span class="seg" role="group" aria-label="${esc(niceK(k))}"><button class="chip" data-mdin="${k}" data-out="0" aria-pressed="${!out}">Home</button><button class="chip" data-mdin="${k}" data-out="1" aria-pressed="${out}">Out</button></span></div>`}).join('')}
-    <div class="usualbox"><b>Usually out for dinner on</b><p class="hint">Tick the nights you're normally out, like a regular work shift or training. Those nights start as Out; you can still change any one night above.</p>
-      <div class="chips wrap">${[1,2,3,4,5,6,0].map(n=>`<button class="chip" data-udow="${n}" aria-pressed="${usual.has(n)}">${DOW[n]}</button>`).join('')}</div></div>
-  </section>
-  <div class="mecol">
-  <section class="card mini-card"><div class="mh"><b>Your next two weeks</b><button class="more" id="meAddEv">${svg('plus')}Add</button></div>
-    ${myEv.length?myEv.map(({k,e})=>{const lift=e.liftTo===S.me||e.liftFrom===S.me;const mine=(e.who||[]).includes(S.me);return `<button class="upline" data-ev="${esc(e.id)}" data-k="${k}"><span class="ui">${svg(lift&&!mine?'car':'cal')}</span><span><b>${esc(e.title)}</b><small>${esc(niceK(k))}${e.allDay||!e.start?', all day':', '+t12(e.start)+(e.end?' to '+t12(e.end):'')}${lift&&!mine?', you\'re driving':''}${e.where?', '+esc(e.where):''}</small></span></button>`}).join(''):'<p class="hint" style="padding:0 16px 8px">Nothing in the calendar for you. Add work shifts, sport and appointments so everyone knows where you are.</p>'}
-  </section>
-  <section class="card mini-card"><div class="mh"><b>Your tasks</b><button class="more" id="meTasks">${mt.length?mt.length+' open':'All tasks'}</button></div>${mt.length?mt.slice(0,8).map(taskRow).join(''):'<p class="hint" style="padding:0 16px 8px">Nothing for you right now.</p>'}</section>
-  ${kid?`<section class="card mini-card"><div class="mh"><b>Your chores today</b><button class="more" id="meChores">All chores</button></div>${chores.length?chores.map(c=>{const key=c.id+'__'+periodKey(c,d),lg=S.log[key];return `<div class="row${lg?' done':''}" data-mchore="${esc(c.id)}" role="button" tabindex="0" aria-pressed="${!!lg}"><span class="check">${svg('check')}</span><span class="txt"><b>${esc(c.title)}</b><small>${lg?'Done':(c.freq==='weekly'?'This week':'Today')}</small></span></div>`}).join(''):'<p class="hint" style="padding:0 16px 8px">No chores today.</p>'}</section>`:''}
-  ${isParent()?(()=>{const bs=billsOpen().filter(b=>!b.due||daysBetween(t,b.due)<=30);return `<section class="card mini-card"><div class="mh"><b>Bills to pay</b><button class="more" id="meBills">${billsOpen().length?'All bills':'Add a bill'}</button></div>${bs.length?bs.slice(0,5).map(b=>`<button class="upline" data-bill="${esc(b.id)}"><span class="ui">${svg('bill')}</span><span><b>${esc(b.title)}${b.amount?' '+money(b.amount):''}</b><small>${billWhen(b)}</small></span></button>`).join(''):'<p class="hint" style="padding:0 16px 8px">Nothing due in the next month.</p>'}</section>`})():''}
-  ${LUNCH_PEOPLE.includes(S.me)?`<section class="card mini-card"><div class="mh"><b>Your lunches</b><button class="more" id="meLunch">Plan lunches</button></div>${(()=>{const l=lunchOf(S.me,t),l2=lunchOf(S.me,ymd(addDays(new Date(),1)));return `<p class="hint" style="padding:0 16px 8px">Today: ${l&&l.main?esc(l.main):'nothing planned'}<br>Tomorrow: ${l2&&l2.main?esc(l2.main):'nothing planned'}</p>`})()}</section>`:''}
-  <section class="card mini-card"><div class="mh"><b>Your colour</b></div><div class="sw" style="padding:4px 16px 10px">${PALETTE.map(c=>`<button class="swatch" data-mcol="${c}" style="background:${c}" aria-label="${c}" aria-pressed="${curCol.toLowerCase()===c}"></button>`).join('')}</div></section>
-  </div></div>`;
-  $('#meSwitch').onclick=pickMe;
-  const mb=$('#meBills');if(mb)mb.onclick=()=>setTab('bills');v.querySelectorAll('[data-bill]').forEach(b=>b.onclick=()=>showBill(b.dataset.bill));
-  v.querySelectorAll('[data-mdin]').forEach(b=>b.onclick=()=>{const k=b.dataset.mdin,out=b.dataset.out==='1';if(out===isOut(S.me,k))return;setDin(S.me,k,out)});
-  v.querySelectorAll('[data-udow]').forEach(b=>b.onclick=()=>{const n=+b.dataset.udow,doc=Object.assign({},S.settings.dinnerusual||{}),cur=new Set(doc[S.me]||[]);cur.has(n)?cur.delete(n):cur.add(n);doc[S.me]=[...cur].sort();write(db=>db.doc('settings/dinnerusual').set(doc))});
-  bindEv();
-  $('#meAddEv').onclick=()=>editEvent(null,t);
-  $('#meTasks').onclick=()=>setTab('tasks');bindTasks(v);
-  const mc=$('#meChores');if(mc)mc.onclick=()=>setTab('chores');
-  const ml=$('#meLunch');if(ml)ml.onclick=()=>{S.lunchWho=S.me;setTab('lunch')};
-  tapRows('[data-mchore]',function(){const id=this.dataset.mchore,c=S.chores[id];if(!c)return;const key=id+'__'+periodKey(c,new Date());
-    write(db=>S.log[key]?db.doc('chorelog/'+key).delete():db.doc('chorelog/'+key).set({chore:id,who:c.who,period:periodKey(c,new Date()),doneBy:S.me,at:nowIso()}))});
-  v.querySelectorAll('[data-mcol]').forEach(b=>b.onclick=()=>{const r=Object.assign({},S.settings.colours||{},{[S.me]:b.dataset.mcol});write(db=>db.doc('settings/colours').set(r))});
-};
 
 /* ===== Tasks: give a job or reminder to one or more people, with a comment thread on each ===== */
 const taskWho=t=>Array.isArray(t.who)?t.who:(t.who?[t.who]:[]);
@@ -1044,82 +1016,6 @@ function editTask(id){
     const r=Object.assign({},t,{title:x.slice(0,140),who:[...who],due:$('#tkD').value,notes:$('#tkN').value.trim().slice(0,1000),by:t.by||S.me,at:t.at||nowIso(),updatedBy:S.me,updatedAt:nowIso()});if(!id){r.done=false}
     const nid=id||rid();if(await write(db=>db.doc('tasks/'+nid).set(r))){closeSheet();toast(id?'Saved':'Task added for '+andJoin([...who].map(w=>w===S.me?'you':person(w).name)))}};
   const x=$('#tkX');if(x)x.onclick=async()=>{const cs=commentsFor(id);if(await write(async db=>{await db.doc('tasks/'+id).delete();for(const c of cs)await db.doc('tcomments/'+c.id).delete()}))closeSheet()};
-}
-
-/* ===== Bills: big bills to remember (Tim and Laura only), with a photo or PDF of each bill ===== */
-const BILL_KINDS=['Council rates','Car rego','Land tax','Fine','Insurance','Utilities','School fees','Other'];
-const REPEATS=[['none','Just once'],['monthly','Every month'],['quarterly','Every 3 months'],['yearly','Every year']];
-const billsOpen=()=>listOf(S.bills).filter(b=>!b.paid).sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999'));
-const billsDue=()=>isParent()?billsOpen().filter(b=>b.due&&daysBetween(today(),b.due)<=7):[];
-const money=a=>{const n=+a;return a===''||a==null||isNaN(n)?'':'$'+n.toLocaleString('en-AU',{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2})};
-const billWhen=b=>{if(b.paid)return 'Paid'+(b.paidAt?' '+niceK(ymd(new Date(b.paidAt))):'')+(b.paidBy?' by '+esc(person(b.paidBy).name):'');if(!b.due)return 'No due date';const n=daysBetween(today(),b.due);return n<0?`<span class="late">Overdue since ${niceK(b.due)}</span>`:n<=7?`<span class="soon">Due ${inDays(n)}</span>`:'Due '+niceK(b.due)};
-const blobUrl=id=>'_blob/'+id;
-function addMonths(k,n){const d=fromYmd(k),day=d.getDate();d.setDate(1);d.setMonth(d.getMonth()+n);d.setDate(Math.min(day,new Date(d.getFullYear(),d.getMonth()+1,0).getDate()));return ymd(d)}
-const nextDue=(k,rep)=>rep==='monthly'?addMonths(k,1):rep==='quarterly'?addMonths(k,3):rep==='yearly'?addMonths(k,12):'';
-let ASSETS=null;(async()=>{try{ASSETS=window.claude?await window.claude.use('assets'):null}catch(e){ASSETS=null}})();
-/* Phone photos are shrunk before saving so a bill photo stays small but readable. */
-async function shrinkPhoto(f){if(!/^image\/(jpeg|png|webp|heic|heif)$/i.test(f.type||''))return f;
-  try{const bmp=await createImageBitmap(f);const sc=Math.min(1,2000/Math.max(bmp.width,bmp.height));const c=document.createElement('canvas');c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
-    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.85));return b&&b.size<f.size?b:f}catch(e){return f}}
-const photoTiles=(ps,rm)=>(ps||[]).map((p,i)=>`<figure class="bph">${/pdf/.test(p.type||'')?`<a class="bpdf" href="${blobUrl(p.id)}" target="_blank" rel="noopener">${svg('note')}<span>PDF</span></a>`:`<a href="${blobUrl(p.id)}" target="_blank" rel="noopener"><img src="${blobUrl(p.id)}" alt="Photo of the bill" loading="lazy" onerror="this.closest('figure').classList.add('nophoto')"></a><span class="phnote">Photo saved on the phone app</span>`}${rm?`<button type="button" class="bphx" data-rmph="${i}" aria-label="Remove">${svg('x')}</button>`:''}</figure>`).join('');
-VIEWS.bills=function(v){
-  if(!isParent()){v.innerHTML=`<div class="ph"><div><h1>Bills</h1><p>Bills are kept for Tim and Laura.</p></div></div>`;return}
-  const t=today(),open=billsOpen();
-  const over=open.filter(b=>b.due&&b.due<t),soon=open.filter(b=>!b.due||(b.due>=t&&daysBetween(t,b.due)<=30)),later=open.filter(b=>b.due&&daysBetween(t,b.due)>30);
-  const paid=listOf(S.bills).filter(b=>b.paid).sort((a,b)=>(b.paidAt||'').localeCompare(a.paidAt||'')).slice(0,20);
-  const total=a=>a.reduce((s,b)=>s+(+b.amount||0),0);
-  const row=b=>`<div class="row${b.paid?' done':''}" data-bill="${esc(b.id)}" role="button" tabindex="0"><button class="check" data-bpay="${esc(b.id)}" aria-label="${b.paid?'Mark not paid':'Mark paid'}">${svg('check')}</button>
-    <span class="txt"><b>${esc(b.title)}</b><small>${[esc(b.kind||''),billWhen(b),(b.photos||[]).length?(b.photos.length===1?'1 photo':b.photos.length+' photos'):'',b.rep&&b.rep!=='none'?esc((REPEATS.find(r=>r[0]===b.rep)||['',''])[1].toLowerCase()):''].filter(Boolean).join(' · ')}</small></span>${b.amount?`<span class="bamt">${money(b.amount)}</span>`:''}</div>`;
-  const group=(label,list)=>list.length?`<section class="card"><div class="glabel">${label}<span>${list.length}${total(list)?' · '+money(total(list)):''}</span></div>${list.map(row).join('')}</section>`:'';
-  v.innerHTML=`<div class="ph"><div><h1>Bills</h1><p>Rates, rego, fines and other big bills. Snap a photo of each so the payment details are all here. Tick a bill when it's paid.</p></div><button class="btn" id="newBill">${svg('plus')}New bill</button></div>
-  ${open.length?group('Overdue',over)+group('Due in the next month',soon)+group('Later',later):`<section class="card" style="padding:18px"><div class="empty"><b>No bills to pay</b>Add one when it arrives, like council rates, car rego or a parking fine.</div></section>`}
-  ${paid.length?`<section class="card"><div class="glabel">Paid<span>${paid.length}</span></div>${paid.map(row).join('')}</section>`:''}`;
-  $('#newBill').onclick=()=>editBill(null);
-  tapRows('[data-bill]',function(e){if(e.target.closest('[data-bpay]'))return;showBill(this.dataset.bill)});
-  v.querySelectorAll('[data-bpay]').forEach(b=>b.onclick=e=>{e.stopPropagation();togglePaid(b.dataset.bpay)});
-};
-async function togglePaid(id){
-  if(needMe())return;const b=S.bills[id];if(!b)return;
-  if(b.paid){if(await write(db=>db.doc('bills/'+id).set(Object.assign({},b,{paid:false,paidAt:'',paidBy:''}))))toast(b.title+' marked not paid');return}
-  const r=Object.assign({},b,{paid:true,paidAt:nowIso(),paidBy:S.me});let nk='';
-  if(b.rep&&b.rep!=='none'&&b.due&&!b.nextId){nk=nextDue(b.due,b.rep);r.nextId=rid()}
-  const ok=await write(async db=>{await db.doc('bills/'+id).set(r);if(nk)await db.doc('bills/'+r.nextId).set({title:b.title,kind:b.kind||'',amount:b.amount||'',due:nk,rep:b.rep,pay:b.pay||'',notes:b.notes||'',photos:[],paid:false,by:S.me,at:nowIso()})});
-  if(ok){closeSheet();toast(nk?`Paid. Next ${b.title} added for ${niceK(nk)}`:'Paid: '+b.title)}
-}
-function showBill(id){
-  const b=S.bills[id];if(!b)return;
-  openSheet(`<h2>${esc(b.title)}</h2><p class="sub">${[esc(b.kind||''),b.amount?money(b.amount):'',billWhen(b)].filter(Boolean).join(' · ')}</p>
-   ${b.pay?`<div class="field"><span>How to pay</span><p class="tnotes">${esc(b.pay)}</p></div>`:''}
-   ${b.notes?`<div class="field"><span>Notes</span><p class="tnotes">${esc(b.notes)}</p></div>`:''}
-   ${(b.photos||[]).length?`<div class="field"><span>The bill (tap to open full size)</span><div class="bphotos">${photoTiles(b.photos)}</div></div>`:''}
-   ${b.rep&&b.rep!=='none'?`<p class="hint">Repeats ${esc((REPEATS.find(r=>r[0]===b.rep)||['',''])[1].toLowerCase())}. Ticking it paid adds the next one.</p>`:''}
-   <div class="actions"><button type="button" class="btn${b.paid?' ghost':''}" id="bPaid">${b.paid?'Mark not paid':'Mark paid'}</button><span class="grow"></span><button type="button" class="link" id="bEdit">Edit</button></div>`);
-  $('#bPaid').onclick=()=>togglePaid(id);$('#bEdit').onclick=()=>editBill(id);
-}
-function editBill(id){
-  if(needMe())return;if(!isParent()){toast('Bills are kept for Tim and Laura');return}
-  const b=id?S.bills[id]:{title:'',kind:'',amount:'',due:'',rep:'none',pay:'',notes:'',photos:[]};
-  let kind=b.kind||'',rep=b.rep||'none';const photos=(b.photos||[]).slice();let busy=0;
-  openSheet(`<h2>${id?'Edit bill':'New bill'}</h2><form class="form" id="biF">
-   <div class="field"><span>Photo or PDF of the bill</span><div class="bphotos" id="bPh"></div>
-     ${ASSETS?`<label class="btn ghost bpick">${svg('plus')}Add photo or PDF<input type="file" id="bFile" accept="image/*,application/pdf" multiple hidden></label><span class="hint" id="bUp"></span>`:'<p class="hint">Adding photos isn\'t available on this device. Add them from the Family Hub app on your phone.</p>'}</div>
-   <label class="field"><span>What is it</span><input id="biT" value="${esc(b.title)}" placeholder="e.g. Council rates, 3rd instalment" autocomplete="off" required></label>
-   <div class="field"><span>Type</span><div class="chips wrap">${BILL_KINDS.map(x=>`<button type="button" class="chip" data-bk="${x}" aria-pressed="${kind===x}">${x}</button>`).join('')}</div></div>
-   <div class="two"><label class="field"><span>Amount $</span><input id="biA" value="${esc(b.amount||'')}" inputmode="decimal" placeholder="e.g. 612.40" autocomplete="off"></label><label class="field"><span>Due date</span><input type="date" id="biD" value="${esc(b.due||'')}"></label></div>
-   <div class="field"><span>Repeats</span><div class="chips wrap">${REPEATS.map(([k,n])=>`<button type="button" class="chip" data-br="${k}" aria-pressed="${rep===k}">${n}</button>`).join('')}</div></div>
-   <label class="field"><span>How to pay (BPAY biller code and reference, account details, website)</span><textarea id="biP" placeholder="e.g. BPAY biller 12345, ref 9876 5432 1">${esc(b.pay||'')}</textarea></label>
-   <label class="field"><span>Notes (optional)</span><input id="biN" value="${esc(b.notes||'')}" placeholder="e.g. Can pay in instalments" autocomplete="off"></label>
-   <div class="actions">${id?'<button type="button" class="link danger" id="biX">Delete</button>':''}<span class="grow"></span><button class="btn" id="biS">Save</button></div></form>`);
-  const drawPh=()=>{$('#bPh').innerHTML=photoTiles(photos,true);document.querySelectorAll('[data-rmph]').forEach(x=>x.onclick=()=>{photos.splice(+x.dataset.rmph,1);drawPh()})};drawPh();
-  pick('[data-bk]','data-bk',x=>kind=x);pick('[data-br]','data-br',x=>rep=x);
-  const fi=$('#bFile');if(fi)fi.onchange=async()=>{const fs=[...fi.files];fi.value='';if(!fs.length)return;busy++;$('#bUp').textContent='Saving '+(fs.length===1?'the photo':fs.length+' files')+'…';
-    let bad=0;for(const f of fs){try{const blob=await shrinkPhoto(f);const up=await ASSETS.upload(blob);photos.push({id:up.id,type:up.contentType||blob.type||f.type})}catch(e){bad++}}
-    busy--;$('#bUp').textContent=bad?"One or more files didn't save. Try again.":'';drawPh()};
-  $('#biF').onsubmit=async e=>{e.preventDefault();if(busy){toast('Wait for the photo to finish saving');return}const t=$('#biT').value.trim();if(!t)return;
-    const r=Object.assign({},b,{title:t.slice(0,100),kind,amount:$('#biA').value.replace(/[^0-9.]/g,'').slice(0,10),due:$('#biD').value,rep,pay:$('#biP').value.trim().slice(0,1000),notes:$('#biN').value.trim().slice(0,300),photos:photos.slice(0,10),by:b.by||S.me,at:b.at||nowIso(),updatedBy:S.me,updatedAt:nowIso()});
-    if(!id)r.paid=false;
-    if(await write(db=>db.doc('bills/'+(id||rid())).set(r))){closeSheet();toast(id?'Saved':'Bill added')}};
-  const x=$('#biX');if(x)x.onclick=async()=>{if(await write(db=>db.doc('bills/'+id).delete())){closeSheet();toast('Bill deleted')}};
 }
 
 /* ===== Noticeboard ===== */
@@ -1388,7 +1284,7 @@ VIEWS.meals=function(v){
   <section class="card">${days.map(d=>{const k=ymd(d),m=S.meals[k]||{};const ing=(m.ingredients||[]).filter(Boolean);
     return `<button class="night${k===t?' tonight':''}" data-day="${k}"><span class="dn"><b>${DOW[d.getDay()]}</b><small>${nice(d)}</small></span>
       <span><span class="dish${m.dinner?'':' none'}">${m.dinner?esc(m.dinner):'Nothing planned'}</span>
-      ${m.dinner&&(m.cook||ing.length)?`<span class="dmeta">${m.cook?`<span class="pip" style="background:${colour(m.cook)}"></span>${esc(person(m.cook).name)} cooking`:''}${m.cook&&ing.length?'. ':''}${ing.length?ing.length+' ingredient'+(ing.length===1?'':'s'):''}</span>`:''}${m.dinner&&m.notes?`<span class="dmeta">${esc(m.notes)}</span>`:''}${(()=>{const o=USERS.filter(u=>isOut(u.id,k));return `<span class="dmeta">${homeCount(k)} of ${USERS.length} home${o.length?', out: '+esc(andJoin(o.map(u=>u.name))):''}</span>`})()}</span>
+      ${m.dinner&&(m.cook||ing.length)?`<span class="dmeta">${m.cook?`<span class="pip" style="background:${colour(m.cook)}"></span>${esc(person(m.cook).name)} cooking`:''}${m.cook&&ing.length?'. ':''}${ing.length?ing.length+' ingredient'+(ing.length===1?'':'s'):''}</span>`:''}${m.dinner&&m.notes?`<span class="dmeta">${esc(m.notes)}</span>`:''}</span>
       ${k===t?'<span class="tag">Tonight</span>':`<span style="color:var(--faint)">${svg('right','  width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"')}</span>`}</button>`}).join('')}</section>`;
   $('#toRec').onclick=()=>setTab('recipes');$('#wkPrev').onclick=()=>{S.week=addDays(S.week,-7);render()};$('#wkNext').onclick=()=>{S.week=addDays(S.week,7);render()};$('#wkNow').onclick=()=>{S.week=monday(new Date());render()};
   v.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>editMeal(b.dataset.day));
@@ -1407,7 +1303,6 @@ function editMeal(k){
     ${recs.length?`<div class="field"><span>From the recipe box</span><div class="chips">${recs.map(r=>`<button type="button" class="chip" data-mrec="${esc(r.id)}" aria-pressed="${recipe===r.id}">${esc(r.title)}</button>`).join('')}</div></div>`:''}
     <label class="field"><span>Dinner</span><input id="mDinner" value="${esc(m.dinner||'')}" placeholder="e.g. Lamb roast" autocomplete="off"></label>
     <label class="field"><span>Dinner time</span><input type="time" id="mTime" value="${esc(m.time||'18:30')}"></label>
-    <div class="field"><span>Home for dinner (${homeCount(k)} of ${USERS.length})</span><div class="dinin" style="padding:0">${USERS.map(u=>{const out=isOut(u.id,k);return `<span class="dpill${out?' out':''}"><span class="av" style="background:${colour(u.id)}">${u.name[0]}</span>${esc(u.name)}<small>${out?'Out':'Home'}</small></span>`}).join('')}</div></div>
     <div class="field"><span>Who's cooking</span><div class="chips wrap">${[{id:'',name:'Not decided'}].concat(USERS).map(p=>`<button type="button" class="chip" data-cook="${p.id}" aria-pressed="${cook===p.id}">${p.id?`<span class="pip" style="background:${colour(p.id)}"></span>`:''}${p.name}</button>`).join('')}</div></div>
     <label class="field"><span>Notes (sides and reminders, e.g. cook rice, make mash)</span><input id="mNotes" value="${esc(m.notes||'')}" placeholder="e.g. Cook rice, steam greens" autocomplete="off"></label>
     <label class="field"><span>Ingredients, one per line</span><textarea id="mIng" placeholder="Leg of lamb&#10;Potatoes&#10;Rosemary">${esc((m.ingredients||[]).join('\n'))}</textarea></label>
@@ -1468,7 +1363,6 @@ function editChore(id){
 render();
 if(!S.me)setTimeout(pickMe,400);
 </script>
-
 
 </body>
 </html>
