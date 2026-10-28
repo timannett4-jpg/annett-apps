@@ -23,7 +23,7 @@ addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&/_b
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&family=Grand+Hotel&family=Cinzel+Decorative:wght@700&display=swap">
 <style>
 /* SOLARI. A real split-flap board has two colours: amber on black. Status is the
    only thing allowed to be green, orange or red, because on a board colour means
@@ -612,6 +612,149 @@ body[data-look="day"] #routemap .lbl{fill:#111; stroke:#fff}
 }
 </style>
 
+<style>
+/* ================= DISNEYLAND PARIS =================
+   Layout: a storybook night sky over the Solari app. Midnight ink, starlight gold,
+   a fairytale castle drawn in gold line, script for the big names, Barlow for reading.
+   Scoped to body[data-view="disney"] and .dis so the rest of the app keeps its board. */
+:root{
+  --dNight:#0B1433; --dNight2:#13204D; --dDeep:#1B2C66; --dLine:#2B3D7E;
+  --dGold:#F3C45A; --dGold2:#FFE3A0; --dInk:#F4F1FF; --dDim:#B9BEE0; --dFaint:#8A90BC;
+  --dRose:#FF8FB1; --dMint:#7BE0B5; --dWarn:#FFB45E; --dStop:#FF7A7A;
+  --dScript:"Grand Hotel","Brush Script MT",cursive;
+  --dCap:"Cinzel Decorative","Cinzel",Georgia,serif;
+}
+body[data-view="disney"] #sky{display:block;
+  background:radial-gradient(120% 60% at 50% 0%,#24357A 0%,#13204D 45%,#0B1433 100%)}
+body[data-view="disney"] #sky::before{content:"";position:absolute;inset:0;opacity:.75;
+  background-image:radial-gradient(1.4px 1.4px at 8% 12%,#fff 50%,transparent),radial-gradient(1px 1px at 22% 30%,#fff 50%,transparent),
+  radial-gradient(1.6px 1.6px at 37% 8%,#FFE3A0 50%,transparent),radial-gradient(1px 1px at 51% 22%,#fff 50%,transparent),
+  radial-gradient(1.3px 1.3px at 66% 6%,#fff 50%,transparent),radial-gradient(1px 1px at 79% 26%,#FFE3A0 50%,transparent),
+  radial-gradient(1.5px 1.5px at 91% 14%,#fff 50%,transparent),radial-gradient(1px 1px at 14% 48%,#fff 50%,transparent),
+  radial-gradient(1.2px 1.2px at 85% 44%,#fff 50%,transparent),radial-gradient(1px 1px at 45% 40%,#fff 50%,transparent)}
+body[data-view="disney"] #sky i{display:none}
+body[data-view="disney"]{background:var(--dNight)}
+.dis{color:var(--dInk);padding-bottom:20px}
+.dis a{color:var(--dGold)}
+.dHero{position:relative;text-align:center;padding:22px 0 8px}
+.dHero svg.castle{display:block;width:min(100%,420px);height:auto;margin:0 auto}
+.dHero .castle .ln{fill:none;stroke:var(--dGold);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.dHero .castle .fl{fill:var(--dGold)}
+.dHero .castle .win{fill:var(--dGold2);opacity:.9}
+.dHero .castle .glow{fill:url(#dGlow)}
+@keyframes tw{0%,100%{opacity:.25}50%{opacity:1}}
+.dHero .castle .tw{fill:var(--dGold2);animation:tw 2.6s ease-in-out infinite}
+.dHero .castle .tw:nth-of-type(2n){animation-delay:.8s}
+.dHero .castle .tw:nth-of-type(3n){animation-delay:1.6s}
+.dEyebrow{font-family:var(--dCap);font-size:12px;letter-spacing:.24em;color:var(--dGold);text-transform:uppercase}
+.dTitle{font-family:var(--dScript);font-weight:400;font-size:clamp(46px,13vw,84px);line-height:1;color:var(--dInk);
+  margin:6px 0 0;text-shadow:0 0 24px rgba(243,196,90,.35);text-wrap:balance}
+.dSub{color:var(--dDim);font-size:15.5px;margin:10px auto 0;max-width:46ch;line-height:1.5}
+.dCount{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:16px}
+.dCount span{border:1px solid var(--dLine);background:rgba(19,32,77,.7);border-radius:999px;padding:7px 14px;
+  font-size:13px;color:var(--dDim)}
+.dCount b{color:var(--dGold);font-weight:700;font-variant-numeric:tabular-nums}
+.dNav{position:sticky;top:calc(env(safe-area-inset-top,0px) + 58px);z-index:20;display:flex;gap:6px;overflow-x:auto;
+  scrollbar-width:none;padding:10px 0;margin-top:14px;background:var(--dNight);box-shadow:0 10px 14px -6px var(--dNight)}
+@media (min-width:900px){.dNav{top:calc(env(safe-area-inset-top,0px) + 108px)}}
+.dNav::-webkit-scrollbar{display:none}
+.dNav button{flex:none;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--dLine);
+  background:var(--dNight2);color:var(--dDim);font-weight:600;font-size:13.5px}
+.dNav button:hover{border-color:var(--dGold);color:var(--dInk)}
+.dSec{margin-top:30px;scroll-margin-top:130px}
+.dSecH{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.dSecH h2{font-family:var(--dCap);font-weight:700;font-size:clamp(19px,5.2vw,25px);color:var(--dGold);letter-spacing:.02em;
+  text-wrap:balance;line-height:1.15}
+.dSecH::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--dGold),transparent);opacity:.5}
+.dSecH svg{width:22px;height:22px;flex:none;fill:var(--dGold)}
+.dLede{color:var(--dDim);font-size:15px;line-height:1.55;max-width:62ch;margin:-2px 0 14px}
+.dCard{background:linear-gradient(180deg,rgba(27,44,102,.55),rgba(19,32,77,.85));border:1px solid var(--dLine);
+  border-radius:16px;padding:16px}
+.dGrid{display:grid;gap:12px}
+@media (min-width:760px){.dGrid.two{grid-template-columns:1fr 1fr}.dGrid.three{grid-template-columns:repeat(3,1fr)}}
+.dGrid{align-items:start}
+.dGrid>*{min-width:0}
+.dCard h3{font-weight:700;font-size:17px;margin:0;color:var(--dInk)}
+.dCard p{color:var(--dDim);font-size:14.5px;line-height:1.55;margin:6px 0 0}
+.dStay{display:grid;gap:4px}
+.dStay .ref{font-family:var(--mono);color:var(--dGold);font-size:14px}
+.dPerks{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.dPerks span{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:999px;background:rgba(243,196,90,.12);
+  color:var(--dGold2);border:1px solid rgba(243,196,90,.35)}
+/* day plans */
+.dDay{border:1px solid var(--dLine);border-radius:16px;overflow:hidden;background:rgba(19,32,77,.85)}
+.dDayH{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:14px 16px;background:rgba(243,196,90,.08);
+  border-bottom:1px solid var(--dLine)}
+.dDayH b{font-family:var(--dScript);font-weight:400;font-size:30px;color:var(--dGold2);line-height:1}
+.dDayH span{color:var(--dDim);font-size:14px}
+.dStep{display:grid;grid-template-columns:58px 1fr;gap:12px;padding:11px 16px;border-top:1px solid rgba(43,61,126,.6)}
+.dStep:first-of-type{border-top:0}
+.dStep time{font-family:var(--mono);font-weight:700;color:var(--dGold);font-size:13.5px;padding-top:1px;
+  font-variant-numeric:tabular-nums}
+.dStep b{display:block;font-weight:700;color:var(--dInk);font-size:15.5px}
+.dStep p{color:var(--dDim);font-size:14px;margin:3px 0 0;line-height:1.5}
+.dStep.spec{background:linear-gradient(90deg,rgba(255,143,177,.16),transparent)}
+.dStep.spec b{color:var(--dRose)}
+/* rides */
+.dFilt{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.dFilt button{min-height:36px;padding:0 13px;border-radius:999px;border:1px solid var(--dLine);background:var(--dNight2);
+  color:var(--dDim);font-size:13px;font-weight:600}
+.dFilt button[aria-pressed="true"]{background:var(--dGold);border-color:var(--dGold);color:var(--dNight)}
+.dKey{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:13px;color:var(--dDim);margin:0 0 12px}
+.dKey span{display:inline-flex;align-items:center;gap:6px}
+.dRides{display:grid;gap:10px}
+@media (min-width:760px){.dRides{grid-template-columns:1fr 1fr}}
+.dRide{border:1px solid var(--dLine);border-radius:14px;padding:13px 14px;background:rgba(19,32,77,.85);display:grid;gap:8px}
+.dRideT{display:flex;align-items:baseline;gap:10px}
+.dRideT b{flex:1;min-width:0;font-weight:700;font-size:16px;color:var(--dInk)}
+.dRideT small{font-size:12px;color:var(--dFaint);white-space:nowrap}
+.dRide p{margin:0;color:var(--dDim);font-size:13.8px;line-height:1.5}
+.dBadges{display:flex;flex-wrap:wrap;gap:6px}
+.dB{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:4px 9px;border-radius:999px;
+  border:1px solid currentColor;line-height:1.2}
+.dB svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dB.ok{color:var(--dMint)} .dB.strap{color:var(--dWarn)} .dB.off{color:var(--dStop)}
+.dB.cam{color:var(--dStop)} .dB.camok{color:var(--dMint)} .dB.h{color:var(--dGold2)} .dB.i{color:var(--dDim)}
+/* lists */
+.dList{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.dList li{display:grid;grid-template-columns:22px 1fr;gap:9px;font-size:14.5px;color:var(--dInk);line-height:1.5}
+.dList li svg{width:18px;height:18px;margin-top:2px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.dList.yes li svg{color:var(--dMint)} .dList.no li svg{color:var(--dStop)} .dList.star li svg{color:var(--dGold)}
+.dList li span{min-width:0}
+.dList li em{font-style:normal;color:var(--dDim)}
+.dCard h3+.dList{margin-top:12px}
+/* prices */
+.dPrice{display:grid;grid-template-columns:1fr auto auto;gap:4px 14px;align-items:baseline}
+.dPrice div{padding:8px 0;border-bottom:1px solid rgba(43,61,126,.6);font-size:14.5px}
+.dPrice .n{color:var(--dInk)} .dPrice .n small{display:block;color:var(--dFaint);font-size:12px}
+.dPrice .e{font-family:var(--mono);color:var(--dGold);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dPrice .a{font-family:var(--mono);color:var(--dDim);text-align:right;font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dPrice .hd{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dFaint);border-bottom:1px solid var(--dLine)}
+.dNote{margin-top:12px;padding:11px 13px;border-radius:12px;background:rgba(243,196,90,.1);border:1px solid rgba(243,196,90,.3);
+  color:var(--dGold2);font-size:14px;line-height:1.5}
+.dNote.warn{background:rgba(255,122,122,.1);border-color:rgba(255,122,122,.35);color:#FFC2C2}
+/* checklist */
+.dCk{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;padding:11px 0;border-bottom:1px solid rgba(43,61,126,.6);color:var(--dInk)}
+.dCk .bx{width:22px;height:22px;border-radius:7px;border:2px solid var(--dLine);flex:none;display:grid;place-items:center}
+.dCk .bx svg{width:13px;height:13px;stroke:var(--dNight);stroke-width:3.2;fill:none;opacity:0}
+.dCk[aria-pressed="true"] .bx{background:var(--dGold);border-color:var(--dGold)}
+.dCk[aria-pressed="true"] .bx svg{opacity:1}
+.dCk[aria-pressed="true"] span.t{color:var(--dFaint);text-decoration:line-through}
+.dCk span.t{font-size:15px}
+.dCk span.t small{display:block;color:var(--dFaint);font-size:12.5px;text-decoration:none}
+.dSrc{margin-top:28px;font-size:12.5px;color:var(--dFaint);line-height:1.6}
+.dSrc a{color:var(--dDim)}
+.dToGuide{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-top:12px;padding:14px;border-radius:3px;
+  background:linear-gradient(120deg,#13204D,#24357A);border:1px solid #F3C45A;color:#F4F1FF}
+.dToGuide b{font-family:var(--dScript);font-weight:400;font-size:26px;color:#FFE3A0;line-height:1}
+.dToGuide span{flex:1;font-size:13.5px;color:#B9BEE0}
+.dToGuide i{font-style:normal;color:#F3C45A;font-weight:700}
+#nav button[data-tab="disney"][aria-current="true"]{color:#F3C45A;border-top-color:#F3C45A}
+@media (min-width:900px){#nav button[data-tab="disney"][aria-current="true"]{border-bottom-color:#F3C45A}}
+@media (prefers-reduced-motion:reduce){.dHero .castle .tw{animation:none}}
+.dRide.closed{opacity:.6}
+.dRide.closed .dRideT b{text-decoration:line-through;text-decoration-color:var(--dStop)}
+</style>
 <div id="sky"><i></i></div>
 
 <header id="hdr"><div class="hdrIn">
@@ -1041,6 +1184,7 @@ function dayView(day,isToday){
           <span class="sunN">${dur(day.lightMins)} light</span></div>`:''}
       </div></div>
     ${alerts(day.date)}
+    ${/^DISNEY/.test(day.city)||day.date==='2027-01-16'?`<button class="dToGuide" data-tab="disney"><b>Disneyland</b><span>Rides and glasses, what to bring, prices and today\u2019s plan</span><i>Open &rarr;</i></button>`:''}
     ${isToday?deadlineBlock():''}
     ${flagsFor(day).length?`<button class="toFix" data-tab="check">
       <b>${flagsFor(day).length}</b> thing${flagsFor(day).length>1?'s':''} on this day
@@ -1607,8 +1751,113 @@ V.sos=function(){
         <span class="ckb"><b>${esc(c)}</b></span></button>`).join('')}</div></div>`;
 };
 
+/* ---- Disneyland Paris ---- */
+const DIS={"castle": "<svg class=\"castle\" viewBox=\"0 0 400 230\" role=\"img\" aria-label=\"A fairytale castle under the stars\">\n<defs><radialGradient id=\"dGlow\" cx=\"50%\" cy=\"75%\" r=\"55%\"><stop offset=\"0\" stop-color=\"#F3C45A\" stop-opacity=\".28\"/><stop offset=\"1\" stop-color=\"#F3C45A\" stop-opacity=\"0\"/><\/radialGradient><\/defs>\n<ellipse class=\"glow\" cx=\"200\" cy=\"160\" rx=\"190\" ry=\"68\"/>\n<path class=\"tw\" d=\"M60 40l2 6 6 2-6 2-2 6-2-6-6-2 6-2z\"/><path class=\"tw\" d=\"M338 30l2 6 6 2-6 2-2 6-2-6-6-2 6-2z\"/>\n<path class=\"tw\" d=\"M300 78l1.4 4 4 1.4-4 1.4-1.4 4-1.4-4-4-1.4 4-1.4z\"/><path class=\"tw\" d=\"M96 86l1.4 4 4 1.4-4 1.4-1.4 4-1.4-4-4-1.4 4-1.4z\"/>\n<path class=\"tw\" d=\"M250 22l1.2 3.4 3.4 1.2-3.4 1.2-1.2 3.4-1.2-3.4-3.4-1.2 3.4-1.2z\"/>\n<g class=\"ln\">\n<path d=\"M18 214h364\"/>\n<path d=\"M150 214V120h100v94\"/><path d=\"M182 214v-30a18 18 0 0 1 36 0v30\"/>\n<path d=\"M150 120l6-8h88l6 8\"/>\n<path d=\"M185 112V70h30v42\"/><path d=\"M182 70l18-46 18 46z\"/><path d=\"M200 24V8\"/>\n<path d=\"M120 214V138h24v76\"/><path d=\"M116 138l16-40 16 40z\"/><path d=\"M132 98V86\"/>\n<path d=\"M256 214V138h24v76\"/><path d=\"M252 138l16-40 16 40z\"/><path d=\"M268 98V86\"/>\n<path d=\"M156 120V92h20v28\"/><path d=\"M153 92l13-30 13 30z\"/><path d=\"M166 62V52\"/>\n<path d=\"M224 120V92h20v28\"/><path d=\"M221 92l13-30 13 30z\"/><path d=\"M234 62V52\"/>\n<path d=\"M84 214V164h22v50\"/><path d=\"M80 164l15-30 15 30z\"/><path d=\"M95 134v-8\"/>\n<path d=\"M294 214V164h22v50\"/><path d=\"M290 164l15-30 15 30z\"/><path d=\"M305 134v-8\"/>\n<path d=\"M106 182h14M280 182h14M144 150h6M250 150h6\"/>\n<path d=\"M150 214c-20-8-60-8-80 0M250 214c20-8 60-8 80 0\"/>\n<\/g>\n<path class=\"fl\" d=\"M200 8l14 4-14 4z\"/><path class=\"fl\" d=\"M132 86l10 3-10 3z\"/><path class=\"fl\" d=\"M268 86l10 3-10 3z\"/>\n<path class=\"fl\" d=\"M166 52l8 2.5-8 2.5z\"/><path class=\"fl\" d=\"M234 52l8 2.5-8 2.5z\"/>\n<rect class=\"win\" x=\"196\" y=\"84\" width=\"8\" height=\"12\" rx=\"4\"/><rect class=\"win\" x=\"128\" y=\"160\" width=\"8\" height=\"12\" rx=\"4\"/>\n<rect class=\"win\" x=\"264\" y=\"160\" width=\"8\" height=\"12\" rx=\"4\"/><rect class=\"win\" x=\"162\" y=\"100\" width=\"8\" height=\"10\" rx=\"4\"/>\n<rect class=\"win\" x=\"230\" y=\"100\" width=\"8\" height=\"10\" rx=\"4\"/><rect class=\"win\" x=\"168\" y=\"136\" width=\"8\" height=\"12\" rx=\"4\"/>\n<rect class=\"win\" x=\"224\" y=\"136\" width=\"8\" height=\"12\" rx=\"4\"/>\n<\/svg>", "checked": "28 October 2026", "nav": [["stay", "Our stay"], ["days", "Three days"], ["rides", "Rides & glasses"], ["rules", "Do's & don'ts"], ["bags", "What to bring"], ["prices", "Prices"], ["food", "Food"], ["shows", "Shows"], ["winter", "Winter"], ["getting", "Getting there"], ["pack", "Checklist"]], "perks": ["4 days of park tickets", "Both parks every day", "Breakfast", "PhotoPass+", "Extra Magic Time", "Free cancellation to 7 days before"], "club": ["Private Compass Club reception, so no lobby queue", "Lounge breakfast 7 to 11am, with Mickey waffles", "Afternoon snacks about 4 to 5:30pm: cakes, pastries, fruit and savoury bites", "Soft and hot drinks in the lounge all day", "Free left-luggage on arrival and checkout day", "Shop purchases can be sent to the hotel, so you don’t carry them all day"], "daysLede": "January is one of the quietest times of year, and forecasts put our days among the emptiest. Extra Magic Time runs 8:30 to 9:30am for hotel guests. Which park opens early changes daily, so check the Disneyland Paris app the night before and swap the day plans around if you need to.", "plan": [{"d": "Wed 13 Jan", "s": "Arrival day, Disneyland Park", "steps": [{"t": "08:00", "w": "RER A to Marne-la-Vallée–Chessy", "x": "Only board trains showing Chessy. About 35 to 40 minutes, and Chessy is the last stop."}, {"t": "09:00", "w": "Bags into Newport Bay left-luggage", "x": "15 minutes’ walk around the lake, or the free shuttle. Collect the room later."}, {"t": "09:45", "w": "Fantasyland first", "x": "Peter Pan’s Flight, then it’s a small world, Pinocchio and the Tea Cups while queues are short."}, {"t": "11:30", "w": "Big Thunder Mountain and Phantom Manor", "x": "Frontierland. Glasses strap on for Big Thunder."}, {"t": "13:00", "w": "Lunch at Café Hyperion", "x": "Burgers and nuggets in a big warm indoor hall."}, {"t": "14:00", "w": "Discoveryland", "x": "Hyperspace Mountain, Buzz Lightyear and Star Tours."}, {"t": "16:00", "w": "Disney Stars on Parade", "x": "Afternoon parade down Main Street. Get a spot 30 to 45 minutes early."}, {"t": "17:00", "w": "Pirates of the Caribbean, then check in", "x": "Dark by about 5pm."}, {"t": "Close", "w": "Disney Tales of Magic at the castle", "x": "Fireworks and projections at closing time. Stand on Main Street about 30 minutes before."}]}, {"d": "Thu 14 Jan", "s": "Disneyland Park, then our anniversary", "steps": [{"t": "07:30", "w": "Breakfast in the Compass Club lounge", "x": "Included. Eat properly, park food adds up fast."}, {"t": "08:30", "w": "Extra Magic Time", "x": "If Disneyland Park opens early: Peter Pan, then Hyperspace Mountain, then Big Thunder."}, {"t": "10:30", "w": "Anything we missed yesterday", "x": "Repeat favourites, Alice’s Labyrinth, Dumbo, Autopia, Orbitron."}, {"t": "12:30", "w": "Lunch", "x": "Casa de Coco or Hakuna Matata, or pretzel sandwiches from Market House Deli."}, {"t": "14:30", "w": "Character meets", "x": "Book Meet Mickey or the Princess Pavilion in the app."}, {"t": "16:00", "w": "Compass Club afternoon tea", "x": "Included. Rest for an hour and get changed for dinner."}, {"t": "17:30", "w": "Anniversary dinner at Bistrot Chez Rémy", "x": "In Disney Adventure World, beside the Ratatouille ride. That park closed at 7pm on January weekdays this year, so book an early table.", "spec": true}, {"t": "Close", "w": "Back to Disneyland Park for Tales of Magic", "x": "Short walk across the plaza if the castle show is on after dinner."}]}, {"d": "Fri 15 Jan", "s": "Disney Adventure World", "steps": [{"t": "07:30", "w": "Breakfast in the lounge", "x": ""}, {"t": "08:30", "w": "Frozen Ever After first", "x": "Longest queue in the park. As soon as you scan in, book the Anna and Elsa meet in the app."}, {"t": "09:15", "w": "Avengers Campus", "x": "Flight Force and Spider-Man. Strap glasses on for Flight Force."}, {"t": "10:30", "w": "Tower of Terror", "x": "Then RC Racer and Toy Soldiers once the whole park opens."}, {"t": "12:30", "w": "Lunch at Stark Factory", "x": "Pizza and pasta in Avengers Campus."}, {"t": "13:30", "w": "Ratatouille, Tangled Spin, Cars ROAD TRIP", "x": "Gentle afternoon, plus a Hero Training Center meet."}, {"t": "16:00", "w": "Last Compass Club afternoon tea", "x": ""}, {"t": "17:30", "w": "Disney Cascade of Lights or back to the castle", "x": "Adventure World’s lake show and the castle show run at the same time. It’s one or the other each night."}, {"t": "20:00", "w": "Pack", "x": "Checkout is by 11am. Bags can stay in the hotel left-luggage."}]}], "ridesLede": "Nothing official says you can’t wear prescription glasses on any ride. Sienna and Laura can wear theirs everywhere, and only need to strap them on for the big coasters and drops. Meta glasses are the same physically, but filming is banned on the intense rides and isn’t allowed in the dark rides either.", "rides": [{"p": "dlp", "land": "Discoveryland", "n": "Star Wars Hyperspace Mountain", "h": 120, "i": "Thrill", "g": "off", "film": 2, "t": "Launch and three loops in the dark. Strap glasses on tightly or hand them to someone off the ride. Do it during Extra Magic Time.", "closed": false}, {"p": "dlp", "land": "Frontierland", "n": "Big Thunder Mountain", "h": 102, "i": "Moderate", "g": "strap", "film": 1, "t": "Runaway mine train with fast turns and small drops, no loops. Heads knock side to side, so a strap stops glasses pressing on ears. On-ride photo.", "closed": false}, {"p": "dlp", "land": "Adventureland", "n": "Indiana Jones et le Temple du Péril", "h": 140, "i": "Thrill", "g": "off", "film": 2, "t": "Closed for refurbishment from 4 January 2027, so expect it to be shut while we are there.", "closed": true}, {"p": "dlp", "land": "Frontierland", "n": "Phantom Manor", "h": 0, "i": "Gentle", "g": "ok", "film": 1, "t": "Haunted house in slow cars. Spooky in places, nothing physical.", "closed": false}, {"p": "dlp", "land": "Adventureland", "n": "Pirates of the Caribbean", "h": 0, "i": "Gentle", "g": "ok", "film": 1, "t": "Boat ride with two small drops. Glasses can get a splash of mist. On-ride photo.", "closed": false}, {"p": "dlp", "land": "Discoveryland", "n": "Buzz Lightyear Laser Blast", "h": 0, "i": "Gentle", "g": "ok", "film": 1, "t": "Shoot the targets and compare scores. Glasses help with aiming. On-ride photo.", "closed": false}, {"p": "dlp", "land": "Discoveryland", "n": "Star Tours: L’Aventure Continue", "h": 102, "i": "Moderate", "g": "ok", "film": 2, "t": "Motion simulator. The 3D glasses fit over prescription glasses. Filming is banned.", "closed": false}, {"p": "dlp", "land": "Discoveryland", "n": "Autopia", "h": 81, "i": "Gentle", "g": "ok", "film": 0, "t": "Drive your own car. Under 1.32 m needs an adult to drive. Can close in high wind.", "closed": false}, {"p": "dlp", "land": "Discoveryland", "n": "Orbitron", "h": 0, "i": "Gentle", "g": "ok", "film": 0, "t": "Spinning rockets, outdoors. Closes in high wind.", "closed": false}, {"p": "dlp", "land": "Fantasyland", "n": "Peter Pan’s Flight", "h": 0, "i": "Gentle", "g": "ok", "film": 1, "t": "Fly over London in a pirate ship. Queues build early, so go first thing.", "closed": false}, {"p": "dlp", "land": "Fantasyland", "n": "it’s a small world", "h": 0, "i": "Gentle", "g": "ok", "film": 1, "t": "Slow boat ride, good when you need to warm up.", "closed": false}, {"p": "dlp", "land": "Fantasyland", "n": "Blanche-Neige et les Sept Nains", "h": 0, "i": "Gentle", "g": "ok", "film": 1, "t": "Short dark ride. The witch is scary for little ones.", "closed": false}, {"p": "dlp", "land": "Fantasyland", "n": "Les Voyages de Pinocchio", "h": 0, "i": "Gentle", "g": "ok", "film": 1, "t": "Short dark ride with a few dark scenes.", "closed": false}, {"p": "dlp", "land": "Fantasyland", "n": "Alice’s Curious Labyrinth", "h": 0, "i": "Gentle", "g": "ok", "film": 0, "t": "Walk-through hedge maze up to a castle lookout.", "closed": false}, {"p": "dlp", "land": "Fantasyland", "n": "Mad Hatter’s Tea Cups", "h": 0, "i": "Spinning", "g": "strap", "film": 0, "t": "Spin it as hard as you like. Hold glasses or strap them if you spin fast.", "closed": false}, {"p": "dlp", "land": "Fantasyland", "n": "Dumbo the Flying Elephant", "h": 0, "i": "Gentle", "g": "ok", "film": 0, "t": "Classic spinner, outdoors.", "closed": false}, {"p": "dlp", "land": "Fantasyland", "n": "Casey Jr.", "h": 0, "i": "Gentle", "g": "ok", "film": 0, "t": "Little kiddie coaster train. No problem with glasses.", "closed": false}, {"p": "dlp", "land": "Fantasyland", "n": "Le Pays des Contes de Fées", "h": 0, "i": "Gentle", "g": "ok", "film": 0, "t": "Slow storybook boats past miniature scenes.", "closed": false}, {"p": "daw", "land": "Avengers Campus", "n": "Avengers Assemble: Flight Force", "h": 120, "i": "Thrill", "g": "off", "film": 2, "t": "Launch coaster with three loops in the dark. Strap glasses tightly or take them off. Filming is very likely banned. On-ride photo.", "closed": false}, {"p": "daw", "land": "World Premiere Plaza", "n": "Twilight Zone Tower of Terror", "h": 102, "i": "Thrill", "g": "strap", "film": 2, "t": "Big repeated drops. A strap keeps glasses on your face when you go weightless. Filming banned. On-ride photo.", "closed": false}, {"p": "daw", "land": "Avengers Campus", "n": "Spider-Man W.E.B. Adventure", "h": 0, "i": "Moderate", "g": "ok", "film": 1, "t": "Shoot webs at robots. Uses 3D glasses that go over your own.", "closed": false}, {"p": "daw", "land": "World of Frozen", "n": "Frozen Ever After", "h": 0, "i": "Gentle", "g": "ok", "film": 1, "t": "New in 2026. Boat ride with one backwards slide and one small drop. Longest queue in the park, so go first. On-ride photo.", "closed": false}, {"p": "daw", "land": "Worlds of Pixar", "n": "Ratatouille: The Adventure", "h": 0, "i": "Gentle", "g": "ok", "film": 1, "t": "Rat-sized trackless ride through the kitchen. Right next to Bistrot Chez Rémy.", "closed": false}, {"p": "daw", "land": "Worlds of Pixar", "n": "Crush’s Coaster", "h": 107, "i": "Thrill", "g": "strap", "film": 2, "t": "Closed until about mid-2027, so it will be shut while we are there.", "closed": true}, {"p": "daw", "land": "Toy Story Playland", "n": "RC Racer", "h": 120, "i": "Thrill", "g": "off", "film": 2, "t": "Swings up a half-pipe until you hang near vertical. Glasses can slide; strap them or take them off. Filming banned. Opens at park opening, not Extra Magic Time.", "closed": false}, {"p": "daw", "land": "Toy Story Playland", "n": "Toy Soldiers Parachute Drop", "h": 81, "i": "Moderate", "g": "ok", "film": 0, "t": "Short parachute drops, outdoors. Closes in high wind.", "closed": false}, {"p": "daw", "land": "Toy Story Playland", "n": "Slinky Dog Zigzag Spin", "h": 0, "i": "Gentle", "g": "ok", "film": 0, "t": "Gentle spinner for anyone.", "closed": false}, {"p": "daw", "land": "Worlds of Pixar", "n": "Cars ROAD TRIP", "h": 0, "i": "Gentle", "g": "ok", "film": 0, "t": "Tram tour past Cars scenes.", "closed": false}, {"p": "daw", "land": "Worlds of Pixar", "n": "Cars Quatre Roues Rallye", "h": 0, "i": "Spinning", "g": "ok", "film": 0, "t": "Spinning cars. Hold glasses if you spin hard.", "closed": false}, {"p": "daw", "land": "Adventure Way", "n": "Raiponce Tangled Spin", "h": 0, "i": "Gentle", "g": "ok", "film": 0, "t": "New in 2026. Spins gently in lantern boats, less than the Tea Cups.", "closed": false}, {"p": "daw", "land": "World Premiere Plaza", "n": "Flying Carpets Over Agrabah", "h": 0, "i": "Gentle", "g": "ok", "film": 0, "t": "Dumbo-style spinner. Closes in high wind.", "closed": false}], "glassesNote": "Pack a sports glasses strap each for Sienna and Laura, and a spare pair of glasses for the trip. On the rides marked No filming, take the Meta glasses off or keep them zipped in a pocket. The on-ride photos come with our PhotoPass+, so we still get the big-drop shots.", "dos": ["Download the Disneyland Paris app, and check opening hours and Extra Magic Time each night", "Book character meets in the app as soon as you scan in. You can only hold one booking at a time", "Stand on the yellow line for parades. Cast Members move people standing in the road", "Keep bags zipped and the open pockets out when you reach security", "Ask for <em>une carafe d’eau<\/em> at counters for free tap water", "Agree a meeting spot in each park in case someone gets separated"], "donts": ["Smoke or vape outside the marked smoking areas, including in queues", "Save places in a queue or jump it. Cast Members can turn people away", "Wear full-face masks. Costumes are only for children 12 and under", "Use flash inside any ride or indoor show", "Film on rides marked No filming, with a phone or Meta glasses", "Eat or drink in ride queues"], "bagsLede": "Every bag is checked at the park gates, and again each time you come back in.", "bringYes": ["Day bags up to 55 × 40 × 25 cm", "Phones, small cameras and action cameras", "Meta glasses (just not filming on the banned rides)", "Your own snacks and packed food", "Refillable plastic or metal water bottles", "Phone grips and supports under 20 cm", "Ponchos, umbrellas and a power bank"], "bringNo": ["Selfie sticks, tripods and poles longer than 20 cm when extended", "Professional cameras and lenses over 135 mm", "Lighting kits and microphones", "Drones and remote-control toys", "Glass of any kind, including perfume bottles", "Alcohol", "Scooters, skateboards and wheeled shoes", "Large suitcases, cool boxes and folding chairs"], "bagsNote": "Anything too big goes to Guest Storage outside the Disneyland Park gates (about €11 small, €15 large), but as hotel guests we can just leave it at Newport Bay.", "prices": [{"h": "Drinks and snacks", "rows": [["Bottle of water (50 cl)", 3.5, ""], ["Soft drink (50 cl)", 4.2, ""], ["Coffee or hot chocolate", 3.8, "Fancy hot chocolates €7 to €8"], ["Popcorn box", 6.5, ""], ["Popcorn souvenir bucket", [15, 25], "Refills about €6.50"], ["Churros", [4.5, 6], "Casa de Coco, Frontierland"], ["Ice cream", [4, 7], "Mickey ice-cream bar €4.50"], ["Mickey waffle", 5, "Rocket Café"], ["Cookie", [3.8, 5.5], ""], ["Macarons", 5, "Box of three"]]}, {"h": "Quick meals", "rows": [["Burger, nuggets or pizza meal", [15, 20], "Main, side and drink"], ["Hot dog at Casey’s Corner", [12, 16.5], ""], ["Mickey pretzel sandwich", 10.5, "Market House Deli"], ["Kids’ meal", [9, 16], "Ages 3 to 11"], ["Nordic Crowns Tavern menu", [22, 24], "World of Frozen"]]}, {"h": "Souvenirs", "rows": [["Minnie or Mickey ears", [15, 40], "Standard Minnie ears about €35"], ["Plush toy", [8, 40], "Big ones €60 to €100"], ["T-shirt, adult", [26, 36], ""], ["T-shirt, kids", 18, ""], ["Hoodie", [50, 90], ""], ["Spirit jersey", 75, ""], ["Pin", [7, 25], "Most are €10 to €15"], ["Mug", [12, 35], ""], ["Avengers gadgets", 30, "Repulsor or web shooter"]]}, {"h": "Bistrot Chez Rémy", "rows": [["Rémy menu, 2 courses", 45, ""], ["Émile menu, 3 courses", 55, ""], ["Émile with matched wines", 75, ""], ["Petit Chef kids’ menu", 30, "3 courses and a drink, ages 3 to 11"], ["Celebration dessert to share", 25, "Good for the anniversary"]]}], "water": "Free water refill points are in both parks, mostly beside the toilet blocks: Discovery Arcade on Main Street, near Colonel Hathi’s and Pirates, by Big Thunder, at Videopolis and Hyperspace Mountain, by Pizzeria Bella Notte, near Stark Factory and Flight Force, and in Toy Story Playland. Fill the bottles at the hotel each morning and top up there.", "foodLede": "Quick-service spots that suit a cold day. Some counters don’t open all day in winter, so check the app.", "food": [{"h": "Disneyland Park", "items": ["<b>Café Hyperion<\/b>, Discoveryland: burgers and nuggets, huge warm indoor hall", "<b>Casey’s Corner<\/b>, Main Street: hot dogs", "<b>Market House Deli<\/b>, Main Street: sandwiches and the Mickey pretzel sandwich", "<b>Casa de Coco<\/b>, Frontierland: Tex-Mex and churros", "<b>Hakuna Matata<\/b>, Adventureland: chicken and plantain fries", "<b>Colonel Hathi’s Pizza Outpost<\/b>, Adventureland", "<b>Toad Hall<\/b>, Fantasyland: fish and chips"]}, {"h": "Disney Adventure World", "items": ["<b>Stark Factory<\/b>, Avengers Campus: pizza and pasta", "<b>Super Diner<\/b> and <b>Fan-tastic Food Truck<\/b>, Avengers Campus", "<b>Nordic Crowns Tavern<\/b>, World of Frozen: sit-down feel, €22 to €24 menus", "<b>Café Luminosity<\/b>, Adventure Way", "<b>Hollywood Gardens<\/b> and <b>Ice Cream Creations<\/b>, World Premiere"]}], "remy": "<b>Anniversary dinner, Thursday 14 January.<\/b> Bistrot Chez Rémy is inside Disney Adventure World next to the Ratatouille ride, and you need a park ticket that day (ours covers it). Tables open two months ahead, about 14 November, and it is one of the hardest restaurants to get, so book on the day bookings open. Aim for about 5:30pm because the park closed at 7pm on January weekdays this year. Smart casual is fine. For the five of us expect about €200 (A$324) before drinks.", "showsLede": "Character meets mostly use a free virtual queue in the app, booked after you scan into the park.", "shows": [{"h": "Disney Tales of Magic", "t": "The castle show: fireworks and projections at park closing, every night. Stand on Main Street or the Central Plaza about 30 minutes before."}, {"h": "Disney Cascade of Lights", "t": "Adventure World’s new lake show with fountains, drones and fireworks. It runs at the same time as the castle show, and may not run on 7pm-close winter nights."}, {"h": "Disney Stars on Parade", "t": "Daily afternoon parade down Main Street. Claim a kerb spot 30 to 45 minutes before."}, {"h": "Stage shows", "t": "The Lion King: Rhythms of the Pride Lands, TOGETHER: A Pixar Musical Adventure, Frozen – A Musical Invitation and Stitch Live! all run in January. Mickey and the Magician closes on 10 January."}, {"h": "Meet the characters", "t": "Meet Mickey Mouse and the Princess Pavilion in Fantasyland, Star Wars characters at Starport, Marvel heroes at the Hero Training Center, Toy Story friends in Worlds of Pixar, and Anna and Elsa at Arendelle Castle. Book Anna and Elsa the moment you scan in."}, {"h": "Closed while we’re there", "t": "Indiana Jones and Crush’s Coaster are both closed for refurbishment. The Frozen lake show, A Celebration in Arendelle, is on a break until April. Christmas finishes on 6 January."}], "winter": ["Expect around 6°C by day and 1°C at night, and rain on about half of January’s days. Snow is possible but unusual.", "Dark by about 5pm, which is when the parks look their best.", "Layer up: thermals, a waterproof jacket, beanie, gloves, warm socks and waterproof shoes.", "Ponchos are cheap and great in outdoor queues.", "Warm up in the covered Discovery and Liberty Arcades on Main Street, Café Hyperion and the indoor rides.", "High wind or ice closes outdoor rides like Big Thunder, Orbitron, Dumbo, Autopia, RC Racer and Toy Soldiers. Check the app if it’s blowy.", "Opening hours are shorter in winter. January 2027 times aren’t out yet, so check the app before each day."], "getting": [{"h": "Paris to Disneyland", "t": "RER A from central Paris to Marne-la-Vallée–Chessy, about 35 to 40 minutes. One standard Paris metro and RER ticket each (€2.55 adult in 2026, likely a little more in 2027). Only board trains that show Chessy; Torcy and Boissy trains go elsewhere."}, {"h": "Hotel to the parks", "t": "Newport Bay Club is a flat 15-minute walk around Lake Disney to the park gates, or a short ride on the free hotel shuttle."}, {"h": "Leaving on Saturday", "t": "Leave bags at Newport Bay’s left-luggage after the 11am checkout. RER A from Chessy straight to Gare de Lyon with no change. Chessy is the first stop, so you’ll get seats. Gare de Lyon has lifts and wide platforms for the bags."}, {"h": "Between the parks", "t": "Disneyland Park and Disney Adventure World face each other across one plaza, a two-minute walk. Our tickets let us go between them as often as we like."}], "pack": [["Glasses straps for Sienna and Laura", "Sports retainer style"], ["Spare prescription glasses", ""], ["Power bank and cable", "For the phones and the Meta glasses case"], ["Refillable water bottle each", ""], ["Ponchos for everyone", ""], ["Beanies, gloves and thermals", ""], ["Small day bag under 55 × 40 × 25 cm", ""], ["Hotel cards for Extra Magic Time", "Needed at the gate"], ["Disneyland Paris app logged in with tickets", ""], ["PhotoPass+ card", "Collect from the hotel desk"], ["Smart outfit for Chez Rémy", ""], ["Snacks for the queues", ""]], "sources": [["Disneyland Paris park rules (DLP Guide)", "https://dlpguide.com/planning/practicalities/park-rules-etiquette/"], ["2026 banned items", "https://www.laughingplace.com/disney-parks/disneyland-paris-updated-prohibited-items"], ["Ride heights", "https://dlptips.com/advice/ride-restrictions/"], ["Thrill rides", "https://dlptips.com/disneyland-paris-thrill-rides-ranked/"], ["Refurbishments", "https://wdwnt.com/refurbishments/"], ["Snack prices", "https://firststepeurope.com/disneyland-paris-snacks/"], ["Water refill points", "https://dlptips.com/disneyland-paris-water-refill-stations-guide/"], ["Chez Rémy menu", "https://gettable.fr/en/actualites/chez-remy-disneyland-paris-menu-prices-2026/"], ["Opening times", "https://www.mycastleclub.co.uk/disneyland-paris-planning/disneyland-paris-opening-times/"], ["Characters", "https://www.sortiraparis.com/en/what-to-visit-in-paris/walks/guides/350518-where-and-when-to-meet-disney-characters-at-disneyland-paris-schedules-and-meeting-spots"]]};
+
+/* ================= DISNEYLAND PARIS: the family's own guide =================
+   Content lives in DIS (filled from research on 28 Oct 2026). Euro prices show an
+   AUD figure using the app's own EUR rate from the Money tab. */
+const DIS_IC={
+ castle:'<path d="M4 21V11l2-3 2 3v10M16 21V11l2-3 2 3v10M8 21v-8h8v8M10 13V7l2-4 2 4v6"/>',
+ star:'<path d="M12 2.5l2.6 6.4 6.9.5-5.3 4.4 1.7 6.7L12 16.8 6.1 20.5l1.7-6.7L2.5 9.4l6.9-.5z"/>',
+ glasses:'<circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4M3 14 4.5 8M21 14l-1.5-6"/>',
+ strap:'<circle cx="6.5" cy="12" r="3.5"/><circle cx="17.5" cy="12" r="3.5"/><path d="M10 12h4M3 12c0 6 18 6 18 0"/>',
+ cam:'<rect x="3" y="7" width="18" height="13" rx="2.5"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8.5 7 10 4.5h4L15.5 7"/>',
+ nocam:'<rect x="3" y="7" width="18" height="13" rx="2.5"/><circle cx="12" cy="13.5" r="3.5"/><path d="M3 3l18 18"/>',
+ ruler:'<path d="M4 20 20 4M7 17l2 2M10 14l2 2M13 11l2 2M16 8l2 2"/>',
+ bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+ tick:'<path d="M4 12.5 9 17.5 20 6.5"/>', x:'<path d="M6 6l12 12M18 6 6 18"/>', dot:'<circle cx="12" cy="12" r="4"/>'
+};
+const dIc=(k,c)=>`<svg viewBox="0 0 24 24"${c?` class="${c}"`:''}>${DIS_IC[k]}</svg>`;
+const eurRate=()=>{const c=(D.cash||[]).find(x=>x.cur==='EUR');return c?c.rate:1.62};
+const aud=e=>'A$'+(Math.round(e*eurRate()*2)/2).toFixed(e*eurRate()<20?2:0);
+const eur=e=>'€'+(e%1?e.toFixed(2):e);
+
+function dRideCard(r){
+  const g={ok:['ok','glasses','Glasses fine'],strap:['strap','strap','Strap recommended'],off:['off','strap','Strap or take off']}[r.g];
+  const cam=r.film===2?`<span class="dB cam">${dIc('nocam')}No filming</span>`:r.film===1?`<span class="dB strap">${dIc('cam')}Wear, no video</span>`:`<span class="dB camok">${dIc('cam')}Meta glasses OK</span>`;
+  return `<div class="dRide${r.closed?' closed':''}" data-park="${r.p}">
+    <div class="dRideT"><b>${esc(r.n)}</b><small>${esc(r.land)}</small></div>
+    <div class="dBadges">${r.closed?`<span class="dB off">${dIc('x')}Closed that week</span>`:`<span class="dB ${g[0]}">${dIc(g[1])}${g[2]}</span>${cam}`}
+      <span class="dB h">${dIc('ruler')}${r.h?r.h+' cm min':'Any height'}</span>
+      <span class="dB i">${dIc('bolt')}${esc(r.i)}</span></div>
+    <p>${esc(r.t)}</p></div>`;
+}
+const dSec=(id,ic,t,lede,body)=>`<section class="dSec" id="d-${id}"><div class="dSecH">${dIc(ic)}<h2>${t}</h2></div>
+  ${lede?`<p class="dLede">${lede}</p>`:''}${body}</section>`;
+const dUl=(cls,ic,items)=>`<ul class="dList ${cls}">${items.map(x=>`<li>${dIc(ic)}<span>${x}</span></li>`).join('')}</ul>`;
+
+V.disney=function(){
+  const X=DIS, start=new Date('2027-01-13T09:00:00+01:00');
+  const days=Math.max(0,Math.ceil((start-Date.now())/864e5));
+  const f=local.dFilt||'all';
+  const rides=X.rides.filter(r=>f==='all'||(f==='dlp'&&r.p==='dlp')||(f==='daw'&&r.p==='daw')||(f==='strap'&&r.g!=='ok'&&!r.closed)||(f==='film'&&r.film===2));
+  const pk=local.dPack||{};
+  return `<div class="dis">
+  <div class="dHero">${X.castle}
+    <div class="dEyebrow">13 &ndash; 16 January 2027</div>
+    <h1 class="dTitle">Disneyland Paris</h1>
+    <p class="dSub">Three nights at Newport Bay Club, four days of both parks, and Mum and Dad&rsquo;s anniversary at Bistrot Chez R&eacute;my.</p>
+    <div class="dCount"><span><b>${days}</b> days to go</span><span><b>2</b> parks</span><span><b>${X.rides.length}</b> rides checked</span></div>
+  </div>
+  <nav class="dNav" aria-label="Disneyland sections">${X.nav.map(([k,l])=>`<button data-dgo="${k}">${l}</button>`).join('')}</nav>
+
+  ${dSec('stay','castle','Our stay','',`<div class="dGrid two">
+    <div class="dCard dStay"><h3>Disney Newport Bay Club</h3><p>Compass Club Suite &middot; Wed 13 to Sat 16 Jan &middot; 3 nights</p>
+      <span class="ref">Booking 35302855 &middot; Customer DC20363783</span>
+      <div class="dPerks">${X.perks.map(p=>`<span>${esc(p)}</span>`).join('')}</div></div>
+    <div class="dCard"><h3>What the Compass Club gets you</h3>${dUl('star','star',X.club)}</div></div>`)}
+
+  ${dSec('days','star','Our three days',X.daysLede,`<div class="dGrid">${X.plan.map(d=>`<div class="dDay">
+    <div class="dDayH"><b>${esc(d.d)}</b><span>${esc(d.s)}</span></div>
+    ${d.steps.map(s=>`<div class="dStep${s.spec?' spec':''}"><time>${esc(s.t)}</time><div><b>${esc(s.w)}</b>${s.x?`<p>${esc(s.x)}</p>`:''}</div></div>`).join('')}</div>`).join('')}</div>`)}
+
+  ${dSec('rides','glasses','Rides and glasses',X.ridesLede,`
+    <div class="dFilt" role="group" aria-label="Show rides">${[['all','All rides'],['dlp','Disneyland Park'],['daw','Adventure World'],['strap','Need a strap'],['film','No filming']].map(([k,l])=>`<button data-dfilt="${k}" aria-pressed="${f===k}">${l}</button>`).join('')}</div>
+    <div class="dKey"><span><span class="dB strap">${dIc('strap')}Strap</span> use a sports strap or hold them</span><span><span class="dB strap">${dIc('cam')}Wear, no video</span> dark ride, don&rsquo;t record</span><span><span class="dB cam">${dIc('nocam')}No filming</span> Meta glasses off or in a pocket</span></div>
+    <div class="dRides">${rides.map(dRideCard).join('')||'<p class="dLede">No rides match.</p>'}</div>
+    <div class="dNote">${X.glassesNote}</div>`)}
+
+  ${dSec('rules','tick',"Do's and don'ts",'',`<div class="dGrid two">
+    <div class="dCard"><h3>Do</h3>${dUl('yes','tick',X.dos)}</div>
+    <div class="dCard"><h3>Don&rsquo;t</h3>${dUl('no','x',X.donts)}</div></div>`)}
+
+  ${dSec('bags','cam','What we can bring in',X.bagsLede,`<div class="dGrid two">
+    <div class="dCard"><h3>Fine to bring</h3>${dUl('yes','tick',X.bringYes)}</div>
+    <div class="dCard"><h3>Not allowed</h3>${dUl('no','x',X.bringNo)}</div></div>
+    ${X.bagsNote?`<div class="dNote">${X.bagsNote}</div>`:''}`)}
+
+  ${dSec('prices','star','What things cost',`Typical prices inside the parks. Australian dollars use the A$${eurRate().toFixed(2)} euro rate from the Money tab.`,`<div class="dGrid two">
+    ${X.prices.map(g=>`<div class="dCard"><h3>${esc(g.h)}</h3><div class="dPrice" style="margin-top:8px">
+      <div class="hd">Item</div><div class="hd" style="text-align:right">EUR</div><div class="hd" style="text-align:right">AUD</div>
+      ${g.rows.map(r=>`<div class="n">${esc(r[0])}${r[2]?`<small>${esc(r[2])}</small>`:''}</div><div class="e">${Array.isArray(r[1])?eur(r[1][0])+'&ndash;'+eur(r[1][1]):eur(r[1])}</div><div class="a">${Array.isArray(r[1])?aud(r[1][0])+'&ndash;'+aud(r[1][1]):aud(r[1])}</div>`).join('')}
+    </div></div>`).join('')}</div>
+    <div class="dNote">${X.water}</div>`)}
+
+  ${dSec('food','star','Quick food in the parks',X.foodLede,`<div class="dGrid two">${X.food.map(g=>`<div class="dCard"><h3>${esc(g.h)}</h3>${dUl('star','dot',g.items)}</div>`).join('')}</div>
+    <div class="dNote" style="background:rgba(255,143,177,.12);border-color:rgba(255,143,177,.4);color:#FFD3E1">${X.remy}</div>`)}
+
+  ${dSec('shows','star','Shows and characters',X.showsLede,`<div class="dGrid two">${X.shows.map(s=>`<div class="dCard"><h3>${esc(s.h)}</h3><p>${s.t}</p></div>`).join('')}</div>`)}
+
+  ${dSec('winter','star','Winter in the parks','',`<div class="dCard">${dUl('star','star',X.winter)}</div>`)}
+
+  ${dSec('getting','castle','Getting there and around','',`<div class="dGrid two">${X.getting.map(s=>`<div class="dCard"><h3>${esc(s.h)}</h3><p>${s.t}</p></div>`).join('')}</div>`)}
+
+  ${dSec('pack','tick','Disney bag checklist','Ticks are saved on this device.',`<div class="dCard" style="padding:4px 16px">${X.pack.map((p,i)=>`<button class="dCk" data-dk="${i}" aria-pressed="${!!pk[i]}"><span class="bx"><svg viewBox="0 0 24 24"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span><span class="t">${esc(p[0])}${p[1]?`<small>${esc(p[1])}</small>`:''}</span></button>`).join('')}</div>`)}
+
+  <p class="dSrc">Checked ${esc(X.checked)} against Disneyland Paris&rsquo;s own park rules and attraction pages, plus recent guides. Prices are typical and change; heights and ride status can change, so check the Disneyland Paris app on the day. ${X.sources.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${esc(t)}</a>`).join(' &middot; ')}</p>
+  </div>`;
+};
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-dgo],[data-dfilt],[data-dk]');if(!t)return;const s=t.dataset;
+  if(s.dgo){const el=document.getElementById('d-'+s.dgo);if(el)window.scrollTo({top:Math.max(0,el.getBoundingClientRect().top+scrollY-120),behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});return}
+  if(s.dfilt){local.dFilt=s.dfilt;saveLocal();const y=scrollY;render();scrollTo(0,y);return}
+  if(s.dk!==undefined){local.dPack=local.dPack||{};local.dPack[s.dk]=!local.dPack[s.dk];saveLocal();t.setAttribute('aria-pressed',!!local.dPack[s.dk]);return}
+});
+
 const TABS=[['today','Today','<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'],
  ['plan','Plan','<rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 2.5v3M16 2.5v3"/>'],
+ ['disney','Disney','<path d="M4 21V11l2-3 2 3v10M16 21V11l2-3 2 3v10M8 21v-8h8v8M10 13V7l2-4 2 4v6"/>'],
  ['map','Route','<path d="M9 3 3 5.5v15L9 18l6 3 6-2.5v-15L15 6 9 3z"/><path d="M9 3v15M15 6v15"/>'],
  ['stays','Beds','<path d="M3 18.5v-7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7M3 15h18M7 9.5V7a1.5 1.5 0 0 1 1.5-1.5h7A1.5 1.5 0 0 1 17 7v2.5"/>'],
  ['money','Money','<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M2.5 10h19"/>'],
@@ -1621,6 +1870,7 @@ document.getElementById('navIn').innerHTML=TABS.map(([k,l,ic])=>
 
 function render(){
   const V_=document.getElementById('view');
+  document.body.dataset.view=cur;
   V_.innerHTML=(V[cur]||V.today)();
   riffle(V_);
   const nf=DAYS.reduce((a,d)=>a+flagsFor(d).length,0);
@@ -1711,6 +1961,7 @@ function index(){
       q:[s.w,s.d,s.b,d.cityName,d.label].join(' ')}))});
   D.stays.forEach(s=>ix.push({t:s.name,s:s.city+' · '+s.ref,tab:'stays',
     q:[s.name,s.city,s.ref,s.addr,s.note,s.kitchen].join(' ')}));
+  ix.push({t:'Disneyland Paris guide',s:'Rides, glasses, rules, prices',tab:'disney',q:'disney disneyland paris rides glasses meta filming prices food water souvenirs bag rules chez remy '+DIS.rides.map(r=>r.n).join(' ')});
   D.travel.forEach(t=>ix.push({t:t.leg,s:t.svc,tab:'map',q:[t.leg,t.svc,t.detail,t.status].join(' ')}));
   D.sos.refs.forEach(r=>ix.push({t:r.v,s:r.k,tab:'sos',q:r.k+' '+r.v}));
   D.sos.contacts.forEach(c=>ix.push({t:c.detail,s:c.who,tab:'sos',q:c.who+' '+c.detail}));

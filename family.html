@@ -463,6 +463,16 @@ nav.tabs button[aria-current="true"]::before{content:"";position:absolute;top:0;
 .attfull{position:fixed;inset:0;z-index:100;background:rgba(10,10,25,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(16px + env(safe-area-inset-top,0px)) 12px calc(16px + env(safe-area-inset-bottom,0px));gap:14px}
 .attfull img{max-width:100%;max-height:calc(100% - 70px);object-fit:contain;border-radius:8px;background:#fff}
 .attbar{display:flex;gap:10px}
+.woolies{display:flex;align-items:center;flex-wrap:wrap;gap:12px 14px;padding:14px 16px;border-left:5px solid #1a8a3e}
+.woolies .actions{margin-left:auto}
+.woolies .wico{width:44px;height:44px;border-radius:12px;background:#e6f4ea;color:#1a7a37;display:grid;place-items:center;flex:none}
+.woolies .wico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.woolies .wt{flex:1 1 220px;min-width:0}.woolies .wt b{display:block;font-weight:800}.woolies .wt small{display:block;color:var(--muted);font-size:.84rem;line-height:1.4}
+.btn.green{background:#1a8a3e;color:#fff;text-decoration:none}
+.wprompt:focus{outline:none;border-color:var(--accent-deep)}
+.wsteps{margin:0;padding-left:20px;display:grid;gap:6px;color:var(--ink)}
+.wprompt{width:100%;min-height:150px;border:1px solid var(--line2);background:var(--sunk);border-radius:12px;padding:12px 14px;font:.85rem/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;resize:vertical}
+.wnote{background:#fff8e6;border:1px solid #f6dfb5;color:#7a4b00;border-radius:12px;padding:10px 14px;font-size:.9rem;margin:0}
 </style>
 
 <div class="app">
@@ -955,6 +965,7 @@ VIEWS.shop=function(v){
   <section class="card"><form class="composer" id="addShop"><div class="inline"><input id="shopText" placeholder="Add something, e.g. Milk" autocomplete="off" enterkeyhint="done" aria-label="Item"><input id="shopQty" class="qty" placeholder="Qty" autocomplete="off" aria-label="How many"><button class="btn big">Add</button></div>${S.list==='super'?aisleChips(S.aisle):''}</form>
     <div class="usuals"><div class="uh"><b>Usuals</b><span>Tap to add</span><button class="link" id="editUsuals">${S.editUsuals?'Done':'Edit'}</button></div>
       ${usuals.length?`<div class="chips wrap">${usuals.map(u=>`<button class="chip usual${onList.has(u.text.toLowerCase())?' have':''}" data-usual="${esc(u.id)}">${S.editUsuals?svg('x',' class="ux"'):''}${esc(u.text)}${u.qty?` <small>${esc(u.qty)}</small>`:''}</button>`).join('')}</div>`:`<p class="hint">Things you buy every time. Tap the pencil on any item and choose "Save as a usual".</p>`}</div></section>
+  ${S.list==='super'&&open.length?wooliesCard(open):''}
   ${groups.length?`<section class="card">${groups.map(g=>`${g.a?`<div class="glabel">${esc(g.a)}<span>${g.list.length}</span></div>`:''}${g.list.map(itemRow).join('')}`).join('')}</section>`:
    `<section class="card"><div style="padding:18px"><div class="empty"><b>All bought</b>Add something above. It shows on everyone's phone within a minute.</div></div></section>`}
   ${bought.length?`<section class="card"><div class="glabel">Bought<span>${bought.length}</span></div>${bought.slice(0,30).map(itemRow).join('')}</section>`:''}`;
@@ -970,8 +981,60 @@ VIEWS.shop=function(v){
     write(db=>db.doc('shopping/'+id).set(Object.assign({},i,i.done?{done:false,doneBy:'',doneAt:''}:{done:true,doneBy:S.me,doneAt:nowIso()})))});
   v.querySelectorAll('.icon[data-del]').forEach(b=>b.onclick=()=>write(db=>db.doc('shopping/'+b.dataset.del).delete()));
   v.querySelectorAll('.icon[data-edit]').forEach(b=>b.onclick=()=>editItem(b.dataset.edit));
+  const wb=$('#wooliesGo');if(wb)wb.onclick=()=>wooliesSheet(open);const wc=$('#wooliesGot');if(wc)wc.onclick=wooliesCollected;
   const cb=$('#clearBought');if(cb)cb.onclick=async()=>{for(const i of bought)await write(db=>db.doc('shopping/'+i.id).delete());toast('Cleared '+bought.length+' bought item'+(bought.length===1?'':'s'))};
 };
+/* ===== Woolworths Click & Collect: hand the Supermarket list to Claude in Chrome on the laptop =====
+   Woolworths has no ordering link for outside apps, so this builds a ready-made request and opens it in Claude.
+   Claude in Chrome (already installed on Tim's laptop) logs in, fills the cart and stops before checkout.
+   The last send is saved to settings/woolies so everyone sees it, and "Collected" ticks off exactly what was sent. */
+const WOOLIES_ICON='<path d="M3 5h3l2.2 10.2a1.5 1.5 0 0 0 1.5 1.2h7.6a1.5 1.5 0 0 0 1.5-1.1L21 8H7"/><circle cx="10" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/>';
+function wooliesPrompt(items){
+  const lines=items.map(i=>'- '+i.text+(i.qty?' x '+i.qty:'')+(i.note?' ('+i.note+')':'')+(i.aisle&&i.aisle!=='Other'?' [aisle: '+i.aisle+']':''));
+  return `Please use Claude in Chrome to fill our Woolworths online cart for a Click & Collect order.
+
+1. Open woolworths.com.au in my Chrome. I should already be logged in to our account. If I'm not, stop and ask me to log in.
+2. Make sure the order is set to Click & Collect at our usual pick-up store. If no store is set, ask me which one.
+3. For each item below, search and add it to the cart. Prefer what we have bought before (check past purchases / "Buy again"). Otherwise pick the closest match in the size or quantity asked, at a sensible price. Match the quantities.
+4. If you aren't sure about an item, or it's out of stock, don't guess. Leave it out and list it for me.
+5. Don't remove anything already in the cart without asking me.
+6. STOP before checkout. Do not choose a pick-up time, apply payment or place the order. I'll review the cart and do that myself.
+
+When you're done, tell me: what you added (with the price), anything you couldn't find or weren't sure about, and the cart total.
+
+Shopping list from the Annett Family Hub (${items.length} item${items.length===1?'':'s'}):
+${lines.join('\n')}`;
+}
+function wooliesCard(open){
+  const w=S.settings.woolies||{};const sent=(w.ids||[]).filter(id=>S.shop[id]&&!S.shop[id].done).length;
+  return `<section class="card woolies"><span class="wico">${`<svg viewBox="0 0 24 24">${WOOLIES_ICON}</svg>`}</span><span class="wt"><b>Woolworths Click &amp; Collect</b><small>${w.at?`Last sent ${esc(whenText(w.at))} by ${esc(person(w.by).name)}, ${w.count} item${w.count===1?'':'s'}. `:''}Claude fills the cart on the laptop. You check it, pick a time and pay.</small></span>
+    <span class="actions">${sent?`<button class="btn ghost small" id="wooliesGot">Collected</button>`:''}<button class="btn green" id="wooliesGo">Send ${open.length}</button></span></section>`;
+}
+async function copyText(t){
+  try{await navigator.clipboard.writeText(t);return true}catch(e){}
+  try{const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();return ok}catch(e){return false}
+}
+function wooliesSheet(items){
+  if(needMe())return;
+  items=items.slice().sort((a,b)=>AISLES.indexOf(a.aisle||'Other')-AISLES.indexOf(b.aisle||'Other'));
+  const text=wooliesPrompt(items);
+  const url='https://claude.ai/new?q='+encodeURIComponent(text);
+  const small=matchMedia('(max-width:899px)').matches;
+  openSheet(`<h2>Woolworths Click &amp; Collect</h2><p class="sub">${items.length} item${items.length===1?'':'s'} from the Supermarket list</p>
+   ${small?'<p class="wnote">Claude in Chrome runs on the laptop. Open the Family Hub on the laptop and tap Send there, or copy this and paste it into Claude on the laptop.</p>':''}
+   <ol class="wsteps"><li>Tap <b>Open in Claude</b>. A new chat opens with the list filled in. Press send.</li><li>Claude logs into Woolworths in Chrome and fills the cart. The first time, allow it on woolworths.com.au when it asks.</li><li>Claude stops before checkout. You check the cart, pick the pick-up time and pay.</li><li>After pick-up, tap <b>Collected</b> here to tick everything off.</li></ol>
+   <label class="field"><span>What Claude gets</span><textarea class="wprompt" id="wTx" readonly>${esc(text)}</textarea></label>
+   <div class="actions"><button type="button" class="btn ghost" id="wCopy">Copy</button><span class="grow"></span><a class="btn green" id="wOpen" href="${esc(url)}" target="_blank" rel="noopener">Open in Claude</a></div>`);
+  const mark=()=>write(db=>db.doc('settings/woolies').set({at:nowIso(),by:S.me,count:items.length,ids:items.map(i=>i.id)}));
+  $('#wCopy').onclick=async()=>{const ok=await copyText(text);if(!ok){const t=$('#wTx');t.focus();t.select()}toast(ok?'Copied. Paste it into Claude on the laptop.':'Select the text and copy it');mark()};
+  $('#wOpen').onclick=()=>{copyText(text);mark();setTimeout(closeSheet,300)};
+}
+async function wooliesCollected(){
+  if(needMe())return;const w=S.settings.woolies||{};const ids=(w.ids||[]).filter(id=>S.shop[id]&&!S.shop[id].done);
+  if(!ids.length){toast('Nothing left to tick off');return}
+  const ok=await write(async db=>{for(const id of ids)await db.doc('shopping/'+id).set(Object.assign({},S.shop[id],{done:true,doneBy:S.me,doneAt:nowIso()}))});
+  if(ok)toast('Ticked off '+ids.length+' item'+(ids.length===1?'':'s')+' from the Woolworths order');
+}
 function itemRow(i){
   const by=i.done?i.doneBy:i.addedBy,p=person(by);
   return `<div class="row${i.done?' done':''}" data-shop="${esc(i.id)}" role="button" tabindex="0" aria-pressed="${!!i.done}"><span class="check">${svg('check')}</span>
