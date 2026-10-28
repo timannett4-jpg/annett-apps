@@ -1756,7 +1756,7 @@ body.focus #rail{display:none!important}body.focus.wide #v-results{margin-right:
   <section class="card comp" id="compCard"></section>
   <section class="card kmc" id="kmCard"></section>
   <section class="card" id="speedTrk"></section>
-  <section class="card lz" id="leasedCard"><h2>Leased properties<span>Counted on the move-in date, or settlement for transfers of ownership</span></h2><div class="lzb" id="lzb"></div></section>
+  <section class="card lz" id="leasedCard"><h2>Leased properties<span>Counted on the move-in date · transfers of ownership on settlement · takeovers when the agreement is signed</span></h2><div class="lzb" id="lzb"></div></section>
   <section class="kpis" id="kpis"></section>
 
   <section class="card chart">
@@ -1904,7 +1904,7 @@ body.focus #rail{display:none!important}body.focus.wide #v-results{margin-right:
   <div class="actions"><span class="sub2" id="bkState"></span><span style="flex:1"></span><button class="btn primary" id="bkGo">Book it</button></div>
 </div></dialog>
 <dialog id="leased" aria-labelledby="lTitle"><div class="sheet">
-  <div class="dtop"><div><div class="sub2">Leased properties · by move-in or settlement date</div><h3 id="lTitle">Leased</h3></div><button class="x" data-close="leased" aria-label="Close">×</button></div>
+  <div class="dtop"><div><div class="sub2">Leased properties · by move-in, settlement or sign-up date</div><h3 id="lTitle">Leased</h3></div><button class="x" data-close="leased" aria-label="Close">×</button></div>
   <div class="lhead"><div class="seg" role="group" aria-label="Leased period" id="lSeg"><button data-l="mtd">Month to date</button><button data-l="month">Month</button><button data-l="fy">Financial year</button></div>
     <div class="nav" id="lNav"><button id="lPrev" aria-label="Previous">‹</button><span id="lLabel">—</span><button id="lNext" aria-label="Next">›</button></div></div>
   <div class="lsum" id="lSum"></div>
@@ -3138,9 +3138,10 @@ function renderRoster(){
 
 /* ===== Leased properties (by move-in / lease start date) ===== */
 let lMode="month", lAnchor=THIS_M;
-/* Same rule as commission: a transfer of ownership counts on its settlement date (Tim, 29 Oct) */
+/* Same rule as commission (Tim, 29 Oct): a transfer of ownership counts on its settlement date, a management takeover on the date the management agreement is signed */
 const isToo=d=>d.mgmtType==="Transfer of ownership"&&!!d.settlementDate;
-const leaseDate=d=>isToo(d)?d.settlementDate:(d.leaseStartDate||d.leasedDate||"");
+const isMto=d=>d.mgmtType==="Management takeover"&&!!d.signedDate;
+const leaseDate=d=>isToo(d)?d.settlementDate:isMto(d)?d.signedDate:(d.leaseStartDate||d.leasedDate||"");
 const leasedList=()=>deals.filter(d=>!d.lost&&leaseDate(d));
 function lRange(){
   if(lMode==="mtd")return {from:THIS_M+"-01",to:TODAY,label:`${mName(THIS_M)} to date`};
@@ -3173,8 +3174,8 @@ function renderLeased(){
   else $("#lMonths").innerHTML="";
   const notes=[st.noRent?`${st.noRent} without rent recorded`:"",st.dom!==null?`average ${st.dom} days listed to leased`:"",l.some(d=>!d.mgmtPct)?`fees use ${pctTxt(FEE_STD)} where none is recorded`:""].filter(Boolean);
   $("#lState").textContent=notes.join(" · ");
-  $("#lTbl").innerHTML=l.length?`<table><thead><tr><th>Property</th><th>Type</th><th class="num">Rent</th><th class="num">Fee</th><th>Listed</th><th>Move-in / settled</th><th>Status</th></tr></thead><tbody>${l.map(d=>{const ld=leaseDate(d),inn=ld<=TODAY;
-    return `<tr data-id="${esc(d.id)}"><td><div class="addr">${esc(d.address||"")}</div><div class="sub2">${esc(d.owner||"")}</div></td><td class="sub2">${esc(typeShort(d.mgmtType))}</td><td class="num">${d.rentPw?money(d.rentPw):"—"}</td><td class="num">${d.mgmtPct?pctTxt(d.mgmtPct):"—"}</td><td class="sub2">${fmtD(d.listedDate)||"—"}</td><td>${fmtD(ld)}</td><td><span class="tag ${inn?"in":"soon"}">${isToo(d)?(inn?"Settled":"Settles"):(inn?"Moved in":"Booked")}</span>${d.noCommission?' <span class="tag">Not paid</span>':""}${paidBy()[d.id]?' <span class="tag">Already paid</span>':""}</td></tr>`}).join("")}</tbody></table>`:`<div class="empty">No leased properties in ${esc(r.label)}.</div>`;
+  $("#lTbl").innerHTML=l.length?`<table><thead><tr><th>Property</th><th>Type</th><th class="num">Rent</th><th class="num">Fee</th><th>Listed</th><th>Counted on</th><th>Status</th></tr></thead><tbody>${l.map(d=>{const ld=leaseDate(d),inn=ld<=TODAY;
+    return `<tr data-id="${esc(d.id)}"><td><div class="addr">${esc(d.address||"")}</div><div class="sub2">${esc(d.owner||"")}</div></td><td class="sub2">${esc(typeShort(d.mgmtType))}</td><td class="num">${d.rentPw?money(d.rentPw):"—"}</td><td class="num">${d.mgmtPct?pctTxt(d.mgmtPct):"—"}</td><td class="sub2">${fmtD(d.listedDate)||"—"}</td><td>${fmtD(ld)}</td><td><span class="tag ${inn?"in":"soon"}">${isToo(d)?(inn?"Settled":"Settles"):isMto(d)?"Signed":(inn?"Moved in":"Booked")}</span>${d.noCommission?' <span class="tag">Not paid</span>':""}${paidBy()[d.id]?' <span class="tag">Already paid</span>':""}</td></tr>`}).join("")}</tbody></table>`:`<div class="empty">No leased properties in ${esc(r.label)}.</div>`;
 }
 $("#lSeg").addEventListener("click",e=>{const b=e.target.closest("button[data-l]");if(!b)return;lMode=b.dataset.l;if(lMode!=="fy")lAnchor=THIS_M;renderLeased()});
 $("#lPrev").onclick=()=>{lAnchor=addM(lAnchor,lMode==="fy"?-12:-1);renderLeased()};
@@ -8804,7 +8805,7 @@ function renderSky(){const v=$("#v-results");if(!v)return;let k=$("#bdSky");if(!
   /* 1. Leased this month in the yellow banner, next to sign-ups */
   function tdLeased(){const k=document.querySelector("#tdHead .tdh2 .k");if(!k||k.querySelector("[data-leasedopen]"))return;let mo=0,mtd=0;
     try{const all=leasedList();mo=all.filter(d=>leaseDate(d).slice(0,7)===THIS_M).length;mtd=all.filter(d=>leaseDate(d)>=THIS_M+"-01"&&leaseDate(d)<=TODAY).length}catch(e){}
-    const b=document.createElement("button");b.type="button";b.dataset.leasedopen="month";b.title="Counted on the move-in date (settlement for transfers of ownership). Tap to see them";
+    const b=document.createElement("button");b.type="button";b.dataset.leasedopen="month";b.title="Counted on the move-in date (settlement for transfers of ownership, sign-up for takeovers). Tap to see them";
     b.innerHTML=`<b>${mo}</b><small>Leased in ${esc(mName(THIS_M,1))} · ${mtd} moved in</small>`;const f=k.querySelector("button");if(f)f.after(b);else k.prepend(b)}
   document.addEventListener("click",e=>{const b=e.target.closest("[data-leasedopen]");if(!b)return;e.stopPropagation();try{lMode="month";lAnchor=THIS_M;renderLeased();$("#leased").showModal()}catch(err){setView("track")}},true);
 
