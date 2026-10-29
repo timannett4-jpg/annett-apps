@@ -1756,7 +1756,7 @@ body.focus #rail{display:none!important}body.focus.wide #v-results{margin-right:
   <section class="card comp" id="compCard"></section>
   <section class="card kmc" id="kmCard"></section>
   <section class="card" id="speedTrk"></section>
-  <section class="card lz" id="leasedCard"><h2>Leased properties<span>Counted on the move-in date · transfers of ownership on settlement · takeovers when the agreement is signed</span></h2><div class="lzb" id="lzb"></div></section>
+  <section class="card lz" id="leasedCard"><h2>Leased properties<span>Counted on move-in · tenanted transfers on settlement · tenanted takeovers on sign-up</span></h2><div class="lzb" id="lzb"></div></section>
   <section class="kpis" id="kpis"></section>
 
   <section class="card chart">
@@ -1780,7 +1780,7 @@ body.focus #rail{display:none!important}body.focus.wide #v-results{margin-right:
   <div id="todayLists"></div>
   <div id="trkExtra"></div>
   <div id="relLists"></div>
-  <div class="foot">Commission counts new business on lease start, takeovers on sign-up, transfers of ownership on settlement · once per house, first lease only (transfers of ownership excepted) · 1–13 $0 · 14–16 $400 each · 17+ $600 each · gross incl. super</div>
+  <div class="foot">Commission counts new business on lease start, tenanted takeovers on sign-up, tenanted transfers of ownership on settlement, and vacant ones when the tenant moves in · once per house, first lease only (transfers of ownership excepted) · 1–13 $0 · 14–16 $400 each · 17+ $600 each · gross incl. super</div>
 </section>
 </main>
 
@@ -2699,20 +2699,22 @@ let _paidSig="",_paidBy={};
 function paidBy(){if(_paidSig===deals)return _paidBy;_paidSig=deals;_paidBy={};
   const first={};deals.forEach(d=>{const c=rawCommDate(d);if(!c)return;const k=houseKey(d.address);if(!k)return;if(!first[k]||c<rawCommDate(first[k]))first[k]=d});
   deals.forEach(d=>{const c=rawCommDate(d);if(!c||d.countAgain||d.mgmtType==="Transfer of ownership")return;const f=first[houseKey(d.address)];if(f&&f.id!==d.id)_paidBy[d.id]=f});return _paidBy}
+/* Takeovers and transfers of ownership (Tim, 29 Oct): if TENANTED they count on the sign-up date (takeover) or settlement (transfer);
+   if VACANT and we lease it, they count when the new tenant moves in. d.occupancy ("tenanted"/"vacant") is set by Tim on the deal;
+   otherwise it's vacant when we listed it, or when the tenant moved in more than a week after sign-up/settlement. */
+function occBase(d){return d.mgmtType==="Transfer of ownership"?d.settlementDate:d.mgmtType==="Management takeover"?d.signedDate:""}
+function occOf(d){if(d.occupancy==="tenanted"||d.occupancy==="vacant")return d.occupancy;if(d.listedDate)return"vacant";const b=occBase(d),l=d.leaseStartDate||d.leasedDate;if(b&&l&&(new Date(l)-new Date(b))/864e5>7)return"vacant";return"tenanted"}
+function countOn(d){const t=d.mgmtType||"";
+  if(t==="Management takeover"||t==="Transfer of ownership"){if(occOf(d)==="vacant")return d.leaseStartDate||"";return occBase(d)||d.leaseStartDate||""}
+  return d.leaseStartDate||""}
 function rawCommDate(d){
   if(d.lost||d.noCommission) return "";
-  const t=d.mgmtType||"";
-  if(t==="Management takeover") return d.signedDate||"";
-  if(t==="Transfer of ownership") return d.settlementDate||d.leaseStartDate||"";
-  return d.leaseStartDate||"";
+  return countOn(d);
 }
 function commDate(d){
   if(d.lost||d.noCommission) return ""; // noCommission: not paid to Tim (e.g. while away)
   if(paidBy()[d.id]) return ""; // house already paid on an earlier deal
-  const t=d.mgmtType||"";
-  if(t==="Management takeover") return d.signedDate||"";
-  if(t==="Transfer of ownership") return d.settlementDate||d.leaseStartDate||"";
-  return d.leaseStartDate||"";
+  return countOn(d);
 }
 const moveIns=ym=>deals.filter(d=>{const c=commDate(d);return c&&c.slice(0,7)===ym});
 function suOk(d){return !d.lost||!!d.signedDate} /* a deal lost AFTER sign-up still counts as a sign-up (Tim, 13 Oct) */
@@ -3139,8 +3141,8 @@ function renderRoster(){
 /* ===== Leased properties (by move-in / lease start date) ===== */
 let lMode="month", lAnchor=THIS_M;
 /* Same rule as commission (Tim, 29 Oct): a transfer of ownership counts on its settlement date, a management takeover on the date the management agreement is signed */
-const isToo=d=>d.mgmtType==="Transfer of ownership"&&!!d.settlementDate;
-const isMto=d=>d.mgmtType==="Management takeover"&&!!d.signedDate;
+const isToo=d=>d.mgmtType==="Transfer of ownership"&&!!d.settlementDate&&occOf(d)==="tenanted";
+const isMto=d=>d.mgmtType==="Management takeover"&&!!d.signedDate&&occOf(d)==="tenanted";
 const leaseDate=d=>isToo(d)?d.settlementDate:isMto(d)?d.signedDate:(d.leaseStartDate||d.leasedDate||"");
 const leasedList=()=>deals.filter(d=>!d.lost&&leaseDate(d));
 function lRange(){
@@ -4091,7 +4093,7 @@ function refreshSheet(){
   const st=stageOf(d);
   const tel=d.ownerPhone?`<a href="tel:${esc(d.ownerPhone.replace(/\s/g,""))}">${esc(d.ownerPhone)}</a>`:"";
   const mail=d.ownerEmail?`<a href="mailto:${esc(d.ownerEmail)}">${esc(d.ownerEmail)}</a>`:"";
-  $("#dshHead").innerHTML=`<div class="dtop"><div><div class="sub2">${esc([typeShort(d.mgmtType),d.suburb].filter(Boolean).join(" · "))}</div><h3 id="dshTitle">${esc(d.address||"Untitled")}</h3><span class="chip c-${st}"><i></i>${STAGE[st]}${d.archived?" · archived":""}${d.noCommission?" · not paid to you":""}${paidBy()[d.id]?" · house already paid":""}</span>${paidBy()[d.id]?`<div class="sub2" style="margin-top:6px">Not counted: commission was already paid on this house (${esc(paidBy()[d.id].mgmtType||"")} ${fmtD(rawCommDate(paidBy()[d.id]))}). ${canWrite?`<button class="link" data-act="countagain">Count it anyway</button>`:""}</div>`:d.countAgain?`<div class="sub2" style="margin-top:6px">Counted again by your choice. ${canWrite?`<button class="link" data-act="countonce">Undo</button>`:""}</div>`:""}</div><button class="x" data-act="close" aria-label="Close">×</button></div>
+  $("#dshHead").innerHTML=`<div class="dtop"><div><div class="sub2">${esc([typeShort(d.mgmtType),d.suburb].filter(Boolean).join(" · "))}</div><h3 id="dshTitle">${esc(d.address||"Untitled")}</h3><span class="chip c-${st}"><i></i>${STAGE[st]}${d.archived?" · archived":""}${d.noCommission?" · not paid to you":""}${paidBy()[d.id]?" · house already paid":""}</span>${paidBy()[d.id]?`<div class="sub2" style="margin-top:6px">Not counted: commission was already paid on this house (${esc(paidBy()[d.id].mgmtType||"")} ${fmtD(rawCommDate(paidBy()[d.id]))}). ${canWrite?`<button class="link" data-act="countagain">Count it anyway</button>`:""}</div>`:d.countAgain?`<div class="sub2" style="margin-top:6px">Counted again by your choice. ${canWrite?`<button class="link" data-act="countonce">Undo</button>`:""}</div>`:""}${(d.mgmtType==="Management takeover"||d.mgmtType==="Transfer of ownership")?(()=>{const o=occOf(d),tko=d.mgmtType==="Management takeover";return `<div class="sub2" style="margin-top:6px">${o==="vacant"?"Vacant: counts when the tenant moves in":"Tenanted: counts on "+(tko?"sign-up":"settlement")}${d.occupancy?"":" (worked out)"}. ${canWrite?`<button class="link" data-act="occ">It was ${o==="vacant"?"tenanted":"vacant"}</button>`:""}</div>`})():""}</div><button class="x" data-act="close" aria-label="Close">×</button></div>
    <div class="dgrid">
      <div class="dbox"><h4>Owner</h4><div class="big2">${esc(d.owner||"No name yet")}</div>${tel?`<div>${tel}</div>`:""}${mail?`<div>${mail}</div>`:""}${!tel&&!mail?`<div class="sub2">No phone or email yet</div>`:""}${(d.altContacts||[]).map((a,i)=>`<div class="alt"><div class="sub2">${esc(a.source||"Another source")} has a different ${a.field==="ownerPhone"?"phone":"email"}:</div><div class="av">${esc(a.value)}</div>${canWrite?`<div class="acts"><button data-act="altuse" data-i="${i}">Use this one</button><button data-act="altkeep" data-i="${i}">Keep current</button></div>`:""}</div>`).join("")}</div>
      <div class="dbox"><h4>Key dates</h4>${kd(d)}</div>
@@ -4140,6 +4142,7 @@ $("#dsh").addEventListener("click",async e=>{
       await db.collection("deals").doc(d.id).update(up);
       await db.collection("activity").add({dealId:d.id,type:"note",text:act==="altuse"?`${a.field==="ownerPhone"?"Phone":"Email"} changed to ${a.value} (from ${a.source||"another source"})`:`Kept current ${a.field==="ownerPhone"?"phone":"email"}; ignored ${a.value} from ${a.source||"another source"}`,at:now,by:"tim"});
       toast(act==="altuse"?"Contact updated":"Kept the current one")}
+    else if(act==="occ"){const o=occOf(d)==="vacant"?"tenanted":"vacant";await db.collection("deals").doc(d.id).update({occupancy:o,updatedAt:now});toast(o==="vacant"?"Marked vacant: counts when the tenant moves in":"Marked tenanted: counts on "+(d.mgmtType==="Management takeover"?"sign-up":"settlement"))}
     else if(act==="countagain"||act==="countonce"){await db.collection("deals").doc(d.id).update({countAgain:act==="countagain",updatedAt:now});toast(act==="countagain"?"Counted again":"Back to one commission per house")}
     else if(act==="archive"){await db.collection("deals").doc(d.id).update({archived:!d.archived,updatedAt:now});toast(d.archived?"Back in the pipeline":"Archived")}
     else if(act==="edit"){$("#dsh").close();openForm(d.id)}
