@@ -472,6 +472,15 @@ nav.tabs button[aria-current="true"]::before{content:"";position:absolute;top:0;
 .wprompt:focus{outline:none;border-color:var(--accent-deep)}
 .wsteps{margin:0;padding-left:20px;display:grid;gap:6px;color:var(--ink)}
 .wprompt{width:100%;min-height:150px;border:1px solid var(--line2);background:var(--sunk);border-radius:12px;padding:12px 14px;font:.85rem/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;resize:vertical}
+.scanbox{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--sunk);border:1px dashed var(--line2);border-radius:14px;padding:12px 14px}
+.scanbox .hint{flex:1 1 180px}
+.scanbtn{cursor:pointer}.scanbtn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.scanst{margin:0;border-radius:12px;padding:10px 14px;font-size:.92rem;font-weight:600}
+.scanst.busy{background:var(--accent-soft);color:var(--accent-deep)}
+.scanst.ok{background:#e9f6ee;color:#1d6b3c}
+.scanst.bad{background:#fff1ef;color:#b4423a}
+.scanst small{display:block;font-weight:500;margin-top:2px}
+.field.need input{border-color:#e0a100;background:#fff8e6}
 .wnote{background:#fff8e6;border:1px solid #f6dfb5;color:#7a4b00;border-radius:12px;padding:10px 14px;font-size:.9rem;margin:0}
 </style>
 
@@ -544,6 +553,7 @@ const I={
  left:'<path d="M15 6l-6 6 6 6"/>', right:'<path d="M9 6l6 6-6 6"/>',
  check:'<path d="M6 12.5l4 4L18 8"/>',
  bill:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+ cam:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
  user:'<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.8 4-5.5 7.5-5.5s6.3 1.7 7.5 5.5"/>'
 };
 const svg=(k,extra='')=>`<svg viewBox="0 0 24 24"${extra}>${I[k]}</svg>`;
@@ -599,18 +609,18 @@ function setTab(t){S.tab=t;store.set('fh-tab2',t);render();scrollTo(0,0)}
 function paintColours(){const c=S.settings.colours||{},r=document.documentElement.style;for(const p of FAMILY){if(c[p.id]&&/^#[0-9a-f]{6}$/i.test(c[p.id]))r.setProperty('--'+p.id,c[p.id]);else r.removeProperty('--'+p.id)}}
 
 /* ---------- quick add ---------- */
-const ADDS=[['appt','Appointment','cal','For anyone in the family'],['shop','Shopping','shop','Add to a list'],['dinner','Dinner','meal','Plan a night'],['task','Task','tick','Give someone a job'],['shift','Work shifts','cal',"Add a week's roster"],['note','Note','note','Pin to the noticeboard'],['bill','Bill','bill','A bill to pay'],['chore','Chore','chore','A job for the kids']];
+const ADDS=[['appt','Appointment','cal','For anyone in the family'],['scan','Scan a letter','cam','Photo of an appointment letter'],['shop','Shopping','shop','Add to a list'],['dinner','Dinner','meal','Plan a night'],['task','Task','tick','Give someone a job'],['shift','Work shifts','cal',"Add a week's roster"],['note','Note','note','Pin to the noticeboard'],['bill','Bill','bill','A bill to pay'],['chore','Chore','chore','A job for the kids']];
 function adds(){return ADDS.filter(a=>(a[0]!=='chore'&&a[0]!=='bill')||isParent())}
 function paintTop(){
   const d=new Date();$('#topWhen').textContent=DOWL[d.getDay()]+' '+d.getDate()+' '+MONL[d.getMonth()];
-  $('#qaDesk').innerHTML=adds().filter(a=>a[0]!=='bill').map(a=>`<button class="btn${a[0]==='appt'?'':' ghost'}" data-add="${a[0]}">${svg('plus')}${a[1]}</button>`).join('');
+  $('#qaDesk').innerHTML=adds().filter(a=>a[0]!=='bill'&&a[0]!=='scan').map(a=>`<button class="btn${a[0]==='appt'?'':' ghost'}" data-add="${a[0]}">${svg('plus')}${a[1]}</button>`).join('');
   document.querySelectorAll('#qaDesk [data-add]').forEach(b=>b.onclick=()=>doAdd(b.dataset.add));
   const p=person(S.me);
   for(const [av,nm] of [['#sideAv','#sideName'],['#phoneAv',null]]){const a=$(av);a.textContent=p.id?p.name[0]:'?';a.style.background=p.id?colour(p.id):'var(--faint)';if(nm)$(nm).textContent=p.id?p.name:'Choose who you are'}
 }
 $('#qaPhone').onclick=()=>{openSheet(`<h2>Add</h2><div class="addmenu">${adds().map(a=>`<button data-add="${a[0]}"><span class="ico">${svg(a[2])}</span>${a[1]}<small>${a[3]}</small></button>`).join('')}</div>`);
   document.querySelectorAll('#panel [data-add]').forEach(b=>b.onclick=()=>doAdd(b.dataset.add))};
-function doAdd(k){if(needMe())return;if(k==='appt')editEvent(null);else if(k==='dinner')editMeal(nextFreeNight());else if(k==='chore')editChore(null);else if(k==='note')editNote(null);else if(k==='task')editTask(null);else if(k==='shift')editShifts();else if(k==='bill')editBill(null);else addShopSheet()}
+function doAdd(k){if(needMe())return;if(k==='appt')editEvent(null);else if(k==='scan'){editEvent(null);const si=$('#eScanIn');if(si)si.click()}else if(k==='dinner')editMeal(nextFreeNight());else if(k==='chore')editChore(null);else if(k==='note')editNote(null);else if(k==='task')editTask(null);else if(k==='shift')editShifts();else if(k==='bill')editBill(null);else addShopSheet()}
 function nextFreeNight(){for(let i=0;i<14;i++){const k=ymd(addDays(new Date(),i));if(!(S.meals[k]||{}).dinner)return k}return today()}
 
 /* ---------- who's using this device ---------- */
@@ -702,15 +712,16 @@ function editEvent(id,dateDefault,occK){
   const who=new Set(e.who||[]);let type=e.type||'appointment',lTo=e.liftTo||'',lFrom=e.liftFrom||'';let rp=e.rep?String(e.rep.every||1):'none';const rdays=new Set(e.rep?e.rep.days:[fromYmd(e.date).getDay()]);
   const drv=(sel,cur)=>`<div class="chips wrap">${[['','No lift'],['?','Needs a driver']].concat(DRIVERS.map(d=>[d,person(d).name])).map(([v,n])=>`<button type="button" class="chip" data-${sel}="${v}" aria-pressed="${cur===v}">${v&&v!=='?'?`<span class="pip" style="background:${colour(v)}"></span>`:''}${n}</button>`).join('')}</div>`;
   openSheet(`<h2>${id?'Edit':'New'} ${id?esc(typeName(type).toLowerCase()):'appointment'}</h2><form class="form" id="evF">
-   <label class="field"><span>What</span><input id="eTitle" value="${esc(e.title)}" placeholder="e.g. Dentist, Work, Hockey game" autocomplete="off" required></label>
+   ${id?'':`<div class="scanbox"><label class="btn dark scanbtn">${svg('cam')}Scan a letter<input type="file" id="eScanIn" accept="image/*" hidden></label><span class="hint">Got a letter? Take a photo of it and the details fill in for you to check.</span></div><p class="scanst" id="eScanSt" hidden></p>`}
+   <label class="field" id="fTitle"><span>What</span><input id="eTitle" value="${esc(e.title)}" placeholder="e.g. Dentist, Work, Hockey game" autocomplete="off" required></label>
    <div class="field"><span>Who</span><div class="chips wrap">${FAMILY.map(p=>`<button type="button" class="chip" data-who="${p.id}" aria-pressed="${who.has(p.id)}"><span class="pip" style="background:${colour(p.id)}"></span>${p.name}</button>`).join('')}</div></div>
    <div class="field"><span>Type</span><div class="chips wrap">${TYPES.map(t=>`<button type="button" class="chip" data-type="${t[0]}" aria-pressed="${type===t[0]}">${t[1]}</button>`).join('')}</div></div>
-   <label class="field"><span>Date</span><input type="date" id="eDate" value="${esc(e.date)}" required></label>
+   <label class="field" id="fDate"><span>Date</span><input type="date" id="eDate" value="${esc(e.date)}" required></label>
    <div class="field"><span>Repeats</span><div class="chips wrap"><button type="button" class="chip" data-rp="none" aria-pressed="${rp==='none'}">Doesn't repeat</button><button type="button" class="chip" data-rp="1" aria-pressed="${rp==='1'}">Every week</button><button type="button" class="chip" data-rp="2" aria-pressed="${rp==='2'}">Every 2 weeks</button></div></div>
    <div id="eRep" class="form"><div class="field"><span>On these days</span><div class="chips wrap">${[1,2,3,4,5,6,0].map(n=>`<button type="button" class="chip" data-rd="${n}" aria-pressed="${rdays.has(n)}">${DOW[n]}</button>`).join('')}</div></div>
    <label class="field"><span>Until (optional, leave blank to keep going)</span><input type="date" id="eUntil" value="${esc(e.rep&&e.rep.until||'')}"></label></div>
    <label class="toggle"><input type="checkbox" id="eAll"${e.allDay?' checked':''}>All day</label>
-   <div class="two" id="eTimes"><label class="field"><span>Starts</span><input type="time" id="eStart" value="${esc(e.start||'')}"></label><label class="field"><span>Ends</span><input type="time" id="eEnd" value="${esc(e.end||'')}"></label></div>
+   <div class="two" id="eTimes"><label class="field" id="fStart"><span>Starts</span><input type="time" id="eStart" value="${esc(e.start||'')}"></label><label class="field"><span>Ends</span><input type="time" id="eEnd" value="${esc(e.end||'')}"></label></div>
    <label class="field"><span>Where (optional)</span><input id="eWhere" value="${esc(e.where||'')}" placeholder="e.g. Kangaroo Flat Dental" autocomplete="off"></label>
    <div id="eLifts" class="form"><div class="field"><span>Lift there</span>${drv('lto',lTo)}</div><div class="field"><span>Lift home</span>${drv('lfrom',lFrom)}</div></div>
    <label class="field"><span>Notes (optional)</span><textarea id="eNotes">${esc(e.notes||'')}</textarea></label>
@@ -725,7 +736,8 @@ function editEvent(id,dateDefault,occK){
   pick('[data-lto]','data-lto',v=>lTo=v);pick('[data-lfrom]','data-lfrom',v=>lFrom=v);
   const times=()=>{$('#eTimes').hidden=$('#eAll').checked;$('#eLifts').hidden=$('#eAll').checked};$('#eAll').onchange=times;times();
   $('#eCancel').onclick=closeSheet;
-  const atts=(e.attachments||[]).slice();bindAtts(atts);
+  const atts=(e.attachments||[]).slice();const attCtl=bindAtts(atts);
+  const si=$('#eScanIn');if(si)si.onchange=()=>{const f=si.files[0];si.value='';if(f)scanLetter(f,attCtl,{who,setType:v=>{type=v;document.querySelectorAll('[data-type]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.type===v))}})};
   $('#evF').onsubmit=async ev=>{ev.preventDefault();const t=$('#eTitle').value.trim(),d=$('#eDate').value;if(!t||!d)return;
     if(!who.size){toast('Pick who it is for');return}
     const all=$('#eAll').checked;
@@ -758,20 +770,160 @@ async function bindAtts(atts){
     box.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>viewAtt(atts[+b.dataset.av]));
     box.querySelectorAll('[data-ax]').forEach(b=>b.onclick=()=>{atts.splice(+b.dataset.ax,1);draw()})};
   draw();
-  if(!cap){$('#eAttBtn').hidden=true;hint.hidden=false;hint.textContent=atts.length?'Photos are kept in the Family Hub app. Open it on your phone to see or add them.':'Add photos and paperwork from the Family Hub app on your phone.';return}
-  inp.onchange=async()=>{const files=[...inp.files];inp.value='';
-    for(const f of files){
-      if(f.size>15e6){toast(f.name+' is too big (15 MB max)');continue}
+  if(!cap){$('#eAttBtn').hidden=true;hint.hidden=false;hint.textContent=atts.length?'Photos are kept in the Family Hub app. Open it on your phone to see or add them.':'Add photos and paperwork from the Family Hub app on your phone.';return null}
+  const addFile=async(f,shrunk)=>{
+      if(f.size>15e6){toast(f.name+' is too big (15 MB max)');return}
       const a={uploading:true,name:f.name||'Photo',type:f.type};atts.push(a);draw();
-      try{const b=await shrinkImage(f);const r=await cap.upload(b);Object.assign(a,{id:r.id,type:b.type||f.type,size:b.size,by:S.me,at:nowIso()});
+      try{const b=shrunk||await shrinkImage(f);const r=await cap.upload(b);Object.assign(a,{id:r.id,type:b.type||f.type,size:b.size,by:S.me,at:nowIso()});
         if(/^image\//.test(a.type)&&!/\.(jpe?g|png|webp|heic)$/i.test(a.name))a.name=(a.name||'Photo').replace(/\.[^.]+$/,'')+'.jpg'}
       catch(err){atts.splice(atts.indexOf(a),1);toast("That file didn't upload. Check you're online and try again.")}
-      delete a.uploading;draw()}};
+      delete a.uploading;draw()};
+  inp.onchange=async()=>{const files=[...inp.files];inp.value='';for(const f of files)await addFile(f)};
+  return {addFile};
 }
 function viewAtt(a){if(!a||!a.id)return;
   if(/^image\//.test(a.type||'')){const o=document.createElement('div');o.className='attfull';o.innerHTML=`<img src="${esc(blobUrl(a.id))}" alt="${esc(a.name)}"><div class="attbar"><a class="btn ghost" href="${esc(blobUrl(a.id))}" target="_blank" rel="noopener">Open</a><button class="btn" type="button">Close</button></div>`;
     o.onclick=e=>{if(e.target.tagName!=='A')o.remove()};document.body.appendChild(o)}
   else window.open(blobUrl(a.id),'_blank','noopener')}
+
+/* ===== Scan a letter: photo of an appointment letter -> the appointment form filled in to check =====
+   Inside Claude the photo is read by Claude. In the home-screen app it is read on the phone itself
+   (Tesseract, loaded the first time it's used), then the date, time, place, who and title are picked out. */
+const MONTHS={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+const MON_RE='(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)';
+function mkDate(y,m,d){
+  if(m<0||m>11||d<1||d>31)return '';
+  const t=new Date();t.setHours(0,0,0,0);
+  if(y==null||y===''){let x=new Date(t.getFullYear(),m,d);if(x<addDays(t,-1))x=new Date(t.getFullYear()+1,m,d);return x.getMonth()===m?ymd(x):''}
+  y=+y;if(y<100)y+=2000;if(y<2000||y>2100)return '';const x=new Date(y,m,d);return x.getMonth()===m?ymd(x):''}
+function parseTimeTok(h,mi,ap){h=+h;mi=mi==null?0:+mi;if(isNaN(h)||h>23||mi>59)return '';
+  ap=(ap||'').toLowerCase().replace(/\./g,'');if(ap==='pm'&&h<12)h+=12;else if(ap==='am'&&h===12)h=0;else if(!ap&&h>=1&&h<7)h+=12;
+  if(!ap&&mi==null)return '';return pad(h)+':'+pad(mi)}
+function timesIn(line){const out=[];
+  const re=/(?<![\d\/.])(\d{1,2})(?:[:.](\d{2}))?\s*(a\.?\s?m\.?|p\.?\s?m\.?|noon)?(?![\d\/]|\.\d)/gi;let m;
+  while((m=re.exec(line))){const hasMin=m[2]!=null,ap=m[3]||'';if(!hasMin&&!ap)continue;
+    if(/noon/i.test(ap)){out.push({t:'12:00',i:m.index});continue}
+    const v=parseTimeTok(m[1],hasMin?m[2]:0,ap.replace(/\s/g,''));if(v)out.push({t:v,i:m.index,ap:!!ap})}
+  return out}
+function parseLetter(raw){
+  const text=String(raw||'').replace(/\r/g,'').replace(/[|]/g,' ').replace(/[‘’]/g,"'");
+  const lines=text.split('\n').map(l=>l.replace(/\s+/g,' ').trim()).filter(Boolean);
+  const all=lines.join('\n'),low=all.toLowerCase(),t0=today();
+  /* --- the appointment date --- */
+  const dates=[];
+  lines.forEach((l,li)=>{let m;
+    const r1=new RegExp('\\b(\\d{1,2})(?:st|nd|rd|th)?(?:\\s+of)?[\\s\\-]+'+MON_RE+'\\.?,?[\\s\\-]*(\\d{4}|\\d{2}(?!\\d|:|\\.\\d))?','gi');
+    while((m=r1.exec(l)))dates.push({k:mkDate(m[3],MONTHS[m[2].slice(0,3).toLowerCase()],+m[1]),li,i:m.index});
+    const r2=new RegExp('\\b'+MON_RE+'\\.?\\s+(\\d{1,2})(?!\\d)(?:st|nd|rd|th)?,?\\s*(\\d{4})?','gi');
+    while((m=r2.exec(l)))dates.push({k:mkDate(m[3],MONTHS[m[1].slice(0,3).toLowerCase()],+m[2]),li,i:m.index});
+    const r3=/\b(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4}|\d{2})\b/g;
+    while((m=r3.exec(l)))dates.push({k:mkDate(m[3],+m[2]-1,+m[1]),li,i:m.index})});
+  const near=(li,re,span)=>{for(let j=Math.max(0,li-(span||1));j<=Math.min(lines.length-1,li);j++)if(re.test(lines[j]))return true;return false};
+  let best=null;
+  for(const d of dates){if(!d.k)continue;const l=lines[d.li];let s=0;
+    if(/birth|\bdob\b|d\.o\.b|born/i.test(l))s-=30;
+    if(/\b(printed|dated|letter date|date of (letter|referral)|referral (date|received)|received|sent|issued)\b/i.test(l))s-=6;
+    if(near(d.li,/appointment|appt|attend|scheduled|booked|clinic|consult|review|your (visit|procedure|test|scan)|when|date and time|date\/time|date:/i,1))s+=6;
+    if(/\b(mon|tues?|wed(nes)?|thu(rs)?|fri|sat(ur)?|sun)(day)?\b/i.test(l))s+=3;
+    if(timesIn(l).length||(lines[d.li+1]&&timesIn(lines[d.li+1]).length))s+=4;
+    const dd=daysBetween(t0,d.k);if(dd<0)s-=20;else if(dd>730)s-=8;
+    if(!best||s>best.s||(s===best.s&&d.k>best.k))best=Object.assign({s},d)}
+  const out={title:'',date:best&&best.s>-15?best.k:'',start:'',end:'',where:'',who:[],notes:[]};
+  /* --- the time --- */
+  const tc=[];
+  lines.forEach((l,li)=>{const ts=timesIn(l);if(!ts.length)return;
+    const dist=best?Math.abs(li-best.li):9;let s=dist===0?6:dist===1?4:dist<=3?2:0;
+    if(/appointment time|appt time|\btime\b|at\s+\d|commenc|start/i.test(l))s+=3;
+    if(/arriv/i.test(l))s-=3;if(/(open|hours|between|mon(day)?\s*(-|to)\s*fri)/i.test(l))s-=5;
+    ts.forEach((x,k)=>tc.push({s:s-(k?1:0),t:x.t,li,l,k,n:ts.length,ts}))});
+  tc.sort((a,b)=>b.s-a.s);
+  if(tc.length&&tc[0].s>=2){const c=tc[0];out.start=c.t;
+    const rng=new RegExp('(\\d{1,2}[:.]\\d{2}\\s*(?:[ap]\\.?\\s?m\\.?)?|\\d{1,2}\\s*[ap]\\.?\\s?m\\.?)\\s*(?:-|–|to|until)\\s*(\\d{1,2}(?:[:.]\\d{2})?\\s*(?:[ap]\\.?\\s?m\\.?)?)','i');
+    const rm=c.l.match(rng);if(rm){const a=timesIn(rm[1])[0],b=timesIn(rm[2].match(/[ap]/i)||/[:.]/.test(rm[2])?rm[2]:rm[2]+':00')[0];if(a&&b&&a.t===out.start&&b.t>a.t)out.end=b.t}}
+  const arr=lines.find(l=>/arriv/i.test(l)&&timesIn(l).length);if(arr&&timesIn(arr)[0].t!==out.start)out.notes.push('Arrive by '+t12(timesIn(arr)[0].t));
+  const early=all.match(/arrive\s+(\d{1,2})\s*(?:min|minutes)\s+(?:early|before|prior)/i);if(early)out.notes.push('Arrive '+early[1]+' minutes early');
+  /* --- phone / video / place --- */
+  const phone=/(tele(phone)?\s*(consult|appointment|call|clinic|review)|phone\s*(consult|appointment|call|review|clinic)|we will (call|phone|ring) you|will (call|phone|ring) you|by (tele)?phone)/i.test(all);
+  const video=/(telehealth|video\s*(consult|call|appointment)|healthdirect video|zoom|coviu)/i.test(all);
+  if(video)out.where='Telehealth (video)';else if(phone)out.where='Phone consult';
+  else{const lab=lines.findIndex(l=>/^(location|venue|address|where|place|site|campus|clinic location|attend at|please attend|report to)\b\s*[:\-]?\s*\S/i.test(l));
+    if(lab>=0){let w=lines[lab].replace(/^(location|venue|address|where|place|site|campus|clinic location|attend at|please attend|report to)\b\s*[:\-]?\s*/i,'');
+      const nx=lines[lab+1];if(nx&&nx.length<60&&!/call|phone|ring|fax|email|@/i.test(nx)&&/\d|\b(st|street|rd|road|ave|avenue|dr|drive|level|floor|building|vic)\b/i.test(nx)&&!/[:]/.test(nx))w+=', '+nx;out.where=w.slice(0,120)}
+    else{const ad=lines.find((l,i)=>i>0&&/\b(level|floor)\s*\d|\d+\s+[A-Za-z][\w'\- ]+\s(st|street|rd|road|ave|avenue|dr|drive|way|lane|pde|parade|hwy|highway|cres|crescent|ct|court|pl|place)\b/i.test(l)&&!/phone|fax|email|po box/i.test(l));if(ad)out.where=ad.slice(0,120)}}
+  /* --- title: who it's with --- */
+  const ORGFIX={'bendigo health':'Bendigo Health'};let org=((all.match(/\bbendigo health\b/i)||[])[0]||'').toLowerCase();org=ORGFIX[org]||'';if(!org)org=(all.match(/\b(St John of God[\w ]*|[A-Z][a-z]+ (?:Health|Hospital|Private Hospital|Medical (?:Centre|Clinic|Group)|Imaging|Radiology|Pathology|Dental(?: Clinic)?|Eye (?:Clinic|Centre)|Specialist Centre))\b/)||[])[1]||'';
+  let clinic='';const cl=lines.find(l=>/^(clinic|department|dept|service|specialty|speciality|unit|appointment type|appointment with|type of appointment)\b\s*[:\-]/i.test(l));
+  if(cl)clinic=cl.replace(/^[^:\-]+[:\-]\s*/,'');
+  else{const m=all.match(/\b((?:[A-Z][A-Za-z&]+[ \-]){0,3}(?:Outpatients?|Clinic|Department|Service|Unit))\b/);if(m)clinic=m[1]}
+  clinic=clinic.replace(/\b(the|your)\b\s*/gi,'').trim();
+  if(org&&clinic&&clinic.toLowerCase().includes(org.toLowerCase()))clinic=clinic.replace(new RegExp(org,'i'),'').trim();
+  const doc=(all.match(/\b(?:Dr\.?|Doctor|Prof\.?|Professor|Mr|Ms)\s+[A-Z][a-z]+(?:[ \-][A-Z][a-z]+)?/)||[])[0]||'';
+  const docOk=doc&&!/^(Mr|Ms)/.test(doc);
+  let title=[org,clinic].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+  if(!title&&docOk)title='Appointment with '+doc;
+  if(title&&(phone||video)&&!/phone|tele|video/i.test(title))title+=video?' telehealth':' phone consult';
+  out.title=(title||'').slice(0,100);
+  if(docOk&&!out.title.includes(doc))out.notes.push('With '+doc);
+  /* --- who it's for --- */
+  const sc={};for(const p of FAMILY){const re=new RegExp('\\b'+p.name+'\\b','gi');const hits=(all.match(re)||[]).length;if(!hits)continue;
+    let s=hits;lines.forEach(l=>{if(re.test(l)&&/patient|dear|name|re:|\bmr|\bmrs|\bms\b|miss|master|for:/i.test(l))s+=3;re.lastIndex=0});sc[p.id]=s}
+  const top=Object.entries(sc).sort((a,b)=>b[1]-a[1]);if(top.length&&(top.length===1||top[0][1]>top[1][1]))out.who=[top[0][0]];
+  /* --- useful bits for the notes --- */
+  const PHRE=/(?:\(0\d\)\s?\d{4}\s?\d{4}|\b0\d\s?\d{4}\s?\d{4}|\b1[38]00\s?\d{3}\s?\d{3}|\b13\s?\d{2}\s?\d{2}\b|\b[3-9]\d{3}\s\d{4}\b)/;
+  const phl=lines.find(l=>/reschedul|cancel|cannot|unable|change|enquir|please (call|phone|ring|contact)/i.test(l)&&PHRE.test(l))||lines.find(l=>/call|phone|ring|contact|enquir|reschedul|cancel|change/i.test(l)&&!/^\s*(ph(one)?|tel|fax)\b.*fax/i.test(l)&&PHRE.test(l)&&!/fax/i.test(l.slice(0,l.search(PHRE))));
+  const ph=(phl||'').match(PHRE)||all.match(/(?:\(0\d\)\s?\d{4}\s?\d{4}|\b0\d\s?\d{4}\s?\d{4}|\b1[38]00\s?\d{3}\s?\d{3}|\b13\s?\d{2}\s?\d{2}\b)/);if(ph)out.notes.push('Phone '+ph[0].replace(/\s+/g,' '));
+  const ur=all.match(/\b(UR|URN|MRN|Patient)\s*(?:No\.?|Number|#)?\s*[:\-]?\s*([A-Z]{0,2}\d{4,})/i);if(ur)out.notes.push(ur[1].toUpperCase()+' number '+ur[2]);
+  const tips=lines.filter(l=>/\b(bring|fast|fasting|nothing to eat|no food|referral|medicare|medication list|x-?rays?|interpreter|park(ing)?|car park|full bladder|cancel|reschedul|unable to attend|cannot (keep|attend|make)|medications?|wear|empty stomach)\b/i.test(l)&&l.length>12).slice(0,4);
+  for(const x of tips)out.notes.push(x.slice(0,160));
+  return out}
+let TESS=null;
+function loadTess(){return TESS||(TESS=new Promise((res,rej)=>{if(window.Tesseract)return res(window.Tesseract);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=()=>window.Tesseract?res(window.Tesseract):rej(new Error('load'));s.onerror=()=>{TESS=null;rej(new Error('load'))};document.head.appendChild(s)}))}
+async function ocrText(blob,say){
+  const T=await loadTess();say('Getting the letter reader ready…');
+  const w=await T.createWorker('eng',1,{logger:m=>{if(m.status==='recognizing text')say('Reading the letter… '+Math.round((m.progress||0)*100)+'%');else if(/load|initializ/i.test(m.status||''))say('Getting the letter reader ready (slower the first time)…')}});
+  try{const r=await w.recognize(blob);return (r&&r.data&&r.data.text)||''}finally{try{await w.terminate()}catch(e){}}}
+async function aiRead(blob){
+  let sample=null;try{sample=window.claude?await window.claude.use('sample'):null}catch(e){}
+  if(!sample)return null;try{const l=await sample.limits();if(!l||!l.images)return null}catch(e){return null}
+  const fam=FAMILY.map(p=>p.name).join(', ');
+  const q=`You are reading a photo of a letter for the Annett family calendar. Today is ${today()} (Bendigo, Victoria, Australia; dates are day/month/year).
+Find the appointment this letter is about and reply with JSON only, no other text:
+{"title": short name for the calendar, like "Bendigo Health Urology phone consult" or "Dental check-up with Dr Smith",
+ "date": "YYYY-MM-DD" of the appointment (not the date the letter was written or a date of birth), or "",
+ "start": "HH:MM" 24-hour appointment time, or "",
+ "end": "HH:MM" if an end time or length is given, or "",
+ "where": place or address, or "Phone consult" / "Telehealth (video)" if it is by phone or video, or "",
+ "who": the patient's first name if it is one of: ${fam}; otherwise "",
+ "notes": array of short useful lines, e.g. arrival time, what to bring, fasting, phone number to call, UR number, who it is with}
+If there is no appointment in the letter, set "date" to "".`;
+  const v=await sample.json(q,{images:[blob],modelTier:'quick'});if(!v||typeof v!=='object')return null;
+  const nm=String(v.who||'').trim().toLowerCase();const p=FAMILY.find(x=>x.name.toLowerCase()===nm||x.id===nm);
+  const okT=x=>/^\d{2}:\d{2}$/.test(x||'')?x:'';
+  return {title:String(v.title||'').slice(0,100),date:/^\d{4}-\d{2}-\d{2}$/.test(v.date||'')?v.date:'',start:okT(v.start),end:okT(v.end),where:String(v.where||'').slice(0,120),who:p?[p.id]:[],notes:(Array.isArray(v.notes)?v.notes:[v.notes]).filter(Boolean).map(x=>String(x).slice(0,160)).slice(0,6)}}
+async function scanLetter(file,attCtlP,ctx){
+  const st=$('#eScanSt');if(!st)return;const say=t=>{if(document.body.contains(st)){st.hidden=false;st.className='scanst busy';st.textContent=t}};
+  say('Reading the letter…');
+  let img=file;try{img=await shrinkImage(file)}catch(e){}
+  const ctl=await attCtlP;if(ctl)ctl.addFile(file,img);
+  let r=null;
+  try{r=await aiRead(img)}catch(e){r=null}
+  if(!r){try{const tx=await ocrText(img,say);r=tx.replace(/\s/g,'').length>30?parseLetter(tx):null}catch(e){r=null;
+    if(!document.body.contains(st))return;st.className='scanst bad';st.innerHTML="The letter reader couldn't load. Check you're online and try again.<small>The photo is still attached, so you can fill the rest in by hand.</small>";return}}
+  if(!document.body.contains(st))return;
+  if(!r||(!r.date&&!r.title&&!r.start)){st.className='scanst bad';st.innerHTML="Couldn't make out the appointment in that photo.<small>Try again with the whole letter flat, in good light and filling the screen. The photo is attached either way.</small>";return}
+  const set=(sel,v)=>{const el=$(sel);if(el&&v)el.value=v};
+  set('#eTitle',r.title);set('#eDate',r.date);if(r.date)$('#eDate').dispatchEvent(new Event('change'));
+  $('#eAll').checked=false;$('#eAll').dispatchEvent(new Event('change'));
+  set('#eStart',r.start);set('#eEnd',r.end);set('#eWhere',r.where);
+  if(r.notes&&r.notes.length){const n=$('#eNotes');const add='From the letter:\n'+r.notes.map(x=>'• '+x).join('\n');n.value=n.value.trim()?n.value.trim()+'\n\n'+add:add}
+  if(r.who&&r.who.length){ctx.who.clear();r.who.forEach(x=>ctx.who.add(x));document.querySelectorAll('[data-who]').forEach(b=>b.setAttribute('aria-pressed',ctx.who.has(b.dataset.who)))}
+  ctx.setType('appointment');
+  const miss=[];[['#fTitle','what it is',r.title],['#fDate','the date',r.date],['#fStart','the time',r.start]].forEach(([f,n,v])=>{const el=$(f);if(el)el.classList.toggle('need',!v);if(!v)miss.push(n)});
+  if(!(r.who&&r.who.length))miss.push('who it\'s for');
+  const got=[r.date&&niceK(r.date),r.start&&t12(r.start),r.where,r.who&&r.who.length&&person(r.who[0]).name].filter(Boolean);
+  st.className='scanst '+(miss.length?'busy':'ok');
+  st.innerHTML=`Filled in from the letter${got.length?': '+esc(got.join(', ')):''}.<small>${miss.length?'Couldn\'t find '+esc(andJoin(miss))+'. Fill '+(miss.length===1?'it':'them')+' in, then check the rest and tap Save.':'Check it all matches the letter, then tap Save. The photo is attached.'}</small>`;
+  st.scrollIntoView({block:'nearest',behavior:'smooth'})}
 
 /* ===== shared lookups for Today ===== */
 function schoolDue(){const t=today();return listOf(S.school).filter(s=>!s.done&&s.due&&daysBetween(t,s.due)<=7).sort((a,b)=>a.due.localeCompare(b.due))}
