@@ -448,6 +448,18 @@ body[data-look="day"] .rib .rl.sel{fill:#F2E8D0}
 .ckb{min-width:0}
 .ckb b{display:block; font-weight:500; font-size:15.5px; color:var(--ink)}
 .ckb p{font-size:13px; color:var(--dim); margin-top:3px}
+.ckRow{display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid var(--rule)}
+.ckRow .ck{border-bottom:0;flex:1;min-width:0}
+.needB{flex:none;margin-top:11px;min-height:34px;padding:0 10px;border:1px solid var(--rule);background:var(--panel2);
+  font-family:var(--disp);font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);border-radius:2px;white-space:nowrap}
+.needB[aria-pressed="true"]{background:var(--orange);border-color:var(--orange);color:#0A0A0A}
+.pkBox{margin:-2px 0 6px 34px;padding:9px 11px;border-left:3px solid var(--orange);background:var(--panel2);font-size:13.5px;line-height:1.5}
+.pkBox.cart{border-left-color:var(--green)} .pkBox.idea{border-left-color:var(--rule)}
+.pkH{display:block;font-family:var(--disp);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:3px}
+.pkL{color:var(--ink);text-decoration:underline;text-decoration-color:var(--rule)} .pkP{font-family:var(--mono);font-size:12px;color:var(--amber)}
+.szRow{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:8px}
+.szRow label{display:grid;gap:4px} .szRow span{font-family:var(--disp);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.szRow input{min-height:42px;padding:8px 10px;border:1px solid var(--rule);background:var(--panel2);color:var(--ink);font-size:16px;font-family:var(--body);border-radius:2px;width:100%}
 .ckS{font-family:var(--disp); font-weight:600; font-size:11px; letter-spacing:.18em;
   text-transform:uppercase; color:var(--amber); padding:20px 0 4px}
 
@@ -1705,18 +1717,31 @@ V.kit=function(){
   let last=null,list='';
   items.forEach((it,i)=>{
     if(it.s!==last){list+=`<h3 class="ckS">${esc(it.s)}</h3>`;last=it.s}
-    list+=`<button class="ck" data-pack="${i}" aria-pressed="${on(i)}">
+    const buyable=!!it.q&&!/^(PERSONAL|DOCUMENTS|MEDICAL)/.test(it.s||'');
+    const need=!!st['n'+i], picks=st['s'+i]||[], cart=st['c'+i]||[];
+    const lk=x=>`<a class="pkL" href="${esc(x.u)}" target="_blank" rel="noopener">${esc(x.t)}</a>${x.p?' <span class="pkP">$'+esc(x.p)+'</span>':''}${x.sz?' <span class="pkP">'+esc(x.sz)+'</span>':''}`;
+    list+=`<div class="ckRow"><button class="ck" data-pack="${i}" aria-pressed="${on(i)}">
       <span class="box"><svg viewBox="0 0 24 24"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span>
       <span class="ckb"><b>${esc(it.i)}${it.q?' &times;'+esc(it.q):''}</b>
       ${it.n?`<p>${esc(it.n)}</p>`:''}
-      ${it.p?'<p style="color:var(--amber);font-weight:700">Wear it on the plane</p>':''}</span></button>`;
+      ${it.p?'<p style="color:var(--amber);font-weight:700">Wear it on the plane</p>':''}</span></button>
+      ${buyable?`<button class="needB" data-need="${i}" aria-pressed="${need}">${need?'Need to buy':'Need it?'}</button>`:''}</div>
+      ${cart.length?`<div class="pkBox cart"><span class="pkH">In The Iconic cart</span>${cart.map(x=>`<div>${lk(x)}</div>`).join('')}</div>`
+        :need?`<div class="pkBox"><span class="pkH">${picks.length?'Claude&rsquo;s picks &middot; going in the cart on the next run':'Claude will find '+(+it.q>1?'these':'one')+' and add to the cart on the next run'}</span>${picks.map(x=>`<div>${lk(x)}</div>`).join('')}</div>`
+        :picks.length?`<div class="pkBox idea"><span class="pkH">Claude&rsquo;s picks &middot; tick Need to buy to add them</span>${picks.map(x=>`<div>${lk(x)}</div>`).join('')}</div>`:''}`;
   });
+  const sz=st.sizes||{};
+  const szF=[['top','Tops'],['bottom','Pants'],['jeans','Jeans'],['dress','Dress'],['shoe','Shoes']];
+  const sizeBox=who==='Shared Kit'?'':`<div class="szRow">${szF.map(([k,l])=>
+    `<label><span>${l}</span><input data-size="${k}" value="${esc(sz[k]||'')}" placeholder="e.g. L" autocomplete="off"></label>`).join('')}</div>
+    <p class="tiny" style="margin-top:8px">Sizes Claude shops in. Tick <b>Need to buy</b> on anything you don&rsquo;t have, and Claude finds it on The Iconic and puts it in the cart (it never checks out).</p>`;
   return `<h1 class="ttl">The <em>kit</em></h1>
     <p class="lede">20 kg each, and five apartments with washing machines, so this is deliberately short.
       ${connected?'Ticks are shared &mdash; everyone sees the same list.':'Not connected, so ticks save on this device only.'}</p>
     ${seg('pack')}
     <div class="chips">${Object.keys(D.packing).map(k=>
       `<button class="chip${k===who?' on':''}" data-kit="${esc(k)}">${esc(k)}</button>`).join('')}</div>
+    ${sizeBox?`<div class="sec">${secH('Sizes &amp; shopping',items.filter((_,i)=>st['n'+i]).length?items.filter((_,i)=>st['n'+i]).length+' to buy':'')}<div class="panel">${sizeBox}</div></div>`:''}
     <div class="sec">${secH(esc(who),done+' of '+items.length)}
       <div class="panel"><div class="meter" style="margin-top:0"><i style="width:${pct}%"></i></div>
       ${list}</div></div>`;
@@ -1982,9 +2007,17 @@ function search(term){
   box._h=h;
 }
 
+document.addEventListener('change',async e=>{
+  const f=e.target.closest&&e.target.closest('[data-size]'); if(!f)return;
+  const who=local.kitWho||'Tim';
+  if(!(connected&&CANWRITE))return toast('Needs the shared list to be connected.');
+  const st=Object.assign({},SHARED.pack[who]||{}); st.sizes=Object.assign({},st.sizes||{},{[f.dataset.size]:f.value.trim()});
+  SHARED.pack[who]=st;
+  try{await DB.doc('packing/'+who).set(st);toast('Size saved')}catch(err){toast('Could not save that.')}
+});
 let pendingDay=null;
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kitmode],[data-shopadd],[data-shopwho],[data-shopdone],[data-shop],[data-kit],[data-pack],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug]');
+  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kitmode],[data-shopadd],[data-shopwho],[data-shopdone],[data-shop],[data-kit],[data-pack],[data-need],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug]');
   if(!t)return; const s=t.dataset;
   if(s.tab)return go(s.tab);
   if(s.l!==undefined){local.look=s.l||null;saveLocal();return applyLook()}
@@ -2028,6 +2061,12 @@ document.addEventListener('click',async e=>{
   if(s.chk!==undefined){const k='chk:'+s.chk;local[k]=!local[k];saveLocal();
     t.setAttribute('aria-pressed',!!local[k]);
     if(local[k]){const r=t.getBoundingClientRect();burst(r.left+20,r.top+16)}return}
+  if(s.need!==undefined){
+    const who=local.kitWho||'Tim',i=+s.need;
+    if(!(connected&&CANWRITE))return toast('Needs the shared list to be connected.');
+    const st=Object.assign({},SHARED.pack[who]||{}); st['n'+i]=!st['n'+i]; SHARED.pack[who]=st; render();
+    try{await DB.doc('packing/'+who).set(st)}catch(err){toast('Could not save that.')}
+    return}
   if(s.pack!==undefined){
     const who=local.kitWho||'Tim',i=+s.pack,r=t.getBoundingClientRect();
     if(connected&&CANWRITE){const st=Object.assign({},SHARED.pack[who]||{});
