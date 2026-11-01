@@ -448,12 +448,21 @@ body[data-look="day"] .rib .rl.sel{fill:#F2E8D0}
 .ckb{min-width:0}
 .ckb b{display:block; font-weight:500; font-size:15.5px; color:var(--ink)}
 .ckb p{font-size:13px; color:var(--dim); margin-top:3px}
+.boxW{display:flex;flex-direction:column;align-items:center;gap:3px;flex:none;width:34px}
+.boxW small{font-family:var(--disp);font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.ck[aria-pressed="true"] .boxW small{color:var(--green)}
+.needB[disabled]{opacity:.45;cursor:default}
+.pkKey{display:grid;gap:7px;margin-top:13px;padding:10px 12px;background:var(--panel2);border:1px solid var(--rule);font-size:13.5px;color:var(--dim)}
+.pkKey span{display:block;line-height:1.7}
+.pkKey b{color:var(--ink);font-weight:600}
+.kBox{display:inline-block;vertical-align:-3px;margin-right:6px;width:16px;height:16px;border:1px solid var(--rule);background:var(--panel);flex:none}
+.kNeed{display:inline-block;margin-right:4px;font-style:normal;font-family:var(--disp);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:3px 7px;border:1px solid var(--rule);color:var(--faint)}
 .ckRow{display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid var(--rule)}
 .ckRow .ck{border-bottom:0;flex:1;min-width:0}
 .needB{flex:none;margin-top:11px;min-height:34px;padding:0 10px;border:1px solid var(--rule);background:var(--panel2);
   font-family:var(--disp);font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);border-radius:2px;white-space:nowrap}
 .needB[aria-pressed="true"]{background:var(--orange);border-color:var(--orange);color:#0A0A0A}
-.pkBox{margin:-2px 0 6px 34px;padding:9px 11px;border-left:3px solid var(--orange);background:var(--panel2);font-size:13.5px;line-height:1.5}
+.pkBox{margin:-2px 0 6px 46px;padding:9px 11px;border-left:3px solid var(--orange);background:var(--panel2);font-size:13.5px;line-height:1.5}
 .pkBox.cart{border-left-color:var(--green)} .pkBox.idea{border-left-color:var(--rule)}
 .pkH{display:block;font-family:var(--disp);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:3px}
 .pkL{color:var(--ink);text-decoration:underline;text-decoration-color:var(--rule)} .pkP{font-family:var(--mono);font-size:12px;color:var(--amber)}
@@ -1720,12 +1729,12 @@ V.kit=function(){
     const buyable=!!it.q&&!/^(PERSONAL|DOCUMENTS|MEDICAL)/.test(it.s||'');
     const need=!!st['n'+i], picks=st['s'+i]||[], cart=st['c'+i]||[];
     const lk=x=>`<a class="pkL" href="${esc(x.u)}" target="_blank" rel="noopener">${esc(x.t)}</a>${x.p?' <span class="pkP">$'+esc(x.p)+'</span>':''}${x.sz?' <span class="pkP">'+esc(x.sz)+'</span>':''}`;
-    list+=`<div class="ckRow"><button class="ck" data-pack="${i}" aria-pressed="${on(i)}">
-      <span class="box"><svg viewBox="0 0 24 24"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span>
+    list+=`<div class="ckRow"><button class="ck" data-pack="${i}" aria-pressed="${on(i)}" aria-label="${on(i)?'Packed':'Mark as packed'}: ${esc(it.i)}">
+      <span class="boxW"><span class="box"><svg viewBox="0 0 24 24"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span><small>${on(i)?'Packed':'Pack'}</small></span>
       <span class="ckb"><b>${esc(it.i)}${it.q?' &times;'+esc(it.q):''}</b>
       ${it.n?`<p>${esc(it.n)}</p>`:''}
       ${it.p?'<p style="color:var(--amber);font-weight:700">Wear it on the plane</p>':''}</span></button>
-      ${buyable?`<button class="needB" data-need="${i}" aria-pressed="${need}">${need?'Need to buy':'Need it?'}</button>`:''}</div>
+      ${buyable?`<button class="needB" data-need="${i}" aria-pressed="${need}"${on(i)&&!need?' disabled':''}>${need?'Need to buy':on(i)?'In the bag':'Need it?'}</button>`:''}</div>
       ${cart.length?`<div class="pkBox cart"><span class="pkH">In The Iconic cart</span>${cart.map(x=>`<div>${lk(x)}</div>`).join('')}</div>`
         :need?`<div class="pkBox"><span class="pkH">${picks.length?'Claude&rsquo;s picks &middot; going in the cart on the next run':'Claude will find '+(+it.q>1?'these':'one')+' and add to the cart on the next run'}</span>${picks.map(x=>`<div>${lk(x)}</div>`).join('')}</div>`
         :picks.length?`<div class="pkBox idea"><span class="pkH">Claude&rsquo;s picks &middot; tick Need to buy to add them</span>${picks.map(x=>`<div>${lk(x)}</div>`).join('')}</div>`:''}`;
@@ -1734,7 +1743,7 @@ V.kit=function(){
   const szF=[['top','Tops'],['bottom','Pants'],['jeans','Jeans'],['dress','Dress'],['shoe','Shoes']];
   const sizeBox=who==='Shared Kit'?'':`<div class="szRow">${szF.map(([k,l])=>
     `<label><span>${l}</span><input data-size="${k}" value="${esc(sz[k]||'')}" placeholder="e.g. L" autocomplete="off"></label>`).join('')}</div>
-    <p class="tiny" style="margin-top:8px">Sizes Claude shops in. Tick <b>Need to buy</b> on anything you don&rsquo;t have, and Claude finds it on The Iconic and puts it in the cart (it never checks out).</p>`;
+    <p class="tiny" style="margin-top:8px">Sizes Claude shops in. Tap <b>Need it?</b> on anything you don&rsquo;t have, and Claude finds it on The Iconic and puts it in the cart (it never checks out).</p>`;
   return `<h1 class="ttl">The <em>kit</em></h1>
     <p class="lede">20 kg each, and five apartments with washing machines, so this is deliberately short.
       ${connected?'Ticks are shared &mdash; everyone sees the same list.':'Not connected, so ticks save on this device only.'}</p>
@@ -1744,6 +1753,8 @@ V.kit=function(){
     ${sizeBox?`<div class="sec">${secH('Sizes &amp; shopping',items.filter((_,i)=>st['n'+i]).length?items.filter((_,i)=>st['n'+i]).length+' to buy':'')}<div class="panel">${sizeBox}</div></div>`:''}
     <div class="sec">${secH(esc(who),done+' of '+items.length)}
       <div class="panel"><div class="meter" style="margin-top:0"><i style="width:${pct}%"></i></div>
+      <div class="pkKey"><span><i class="kBox"></i><b>Pack</b> = it&rsquo;s in your bag</span>
+        <span><i class="kNeed">Need it?</i> = you don&rsquo;t have it, Claude adds it to The Iconic cart</span></div>
       ${list}</div></div>`;
 };
 
@@ -2063,6 +2074,7 @@ document.addEventListener('click',async e=>{
     if(local[k]){const r=t.getBoundingClientRect();burst(r.left+20,r.top+16)}return}
   if(s.need!==undefined){
     const who=local.kitWho||'Tim',i=+s.need;
+    if(t.disabled)return;
     if(!(connected&&CANWRITE))return toast('Needs the shared list to be connected.');
     const st=Object.assign({},SHARED.pack[who]||{}); st['n'+i]=!st['n'+i]; SHARED.pack[who]=st; render();
     try{await DB.doc('packing/'+who).set(st)}catch(err){toast('Could not save that.')}
