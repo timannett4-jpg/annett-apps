@@ -126,6 +126,29 @@ main{max-width:1200px; margin:0 auto; position:relative;
 .fxRow i{display:block; margin-top:3px; font-style:normal; font-size:11px; color:var(--dim)}
 .shot.wide{margin-top:13px}
 
+.refB{min-height:34px; padding:0 11px; font-family:var(--mono); font-size:12px; font-weight:700;
+  text-decoration:none; display:inline-flex; align-items:center; white-space:nowrap}
+.drv{background:var(--panel); border:1px solid var(--rule); border-left:4px solid var(--cAcc);
+  border-radius:5px; padding:15px 16px; margin-bottom:10px}
+.drv > span{display:block; font-family:var(--disp); font-size:9.5px; font-weight:600;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--dim)}
+.drv b{display:block; margin-top:5px; font-family:"Cinzel",Georgia,serif; font-size:19px;
+  font-weight:600; color:var(--ink)}
+.drv p{margin:7px 0 0; font-size:21px; line-height:1.35; color:var(--ink); font-weight:600}
+.drv .refB{margin-top:11px}
+.stamps{display:grid; grid-template-columns:repeat(auto-fit,minmax(104px,1fr)); gap:9px;
+  margin-top:12px}
+.stamp{padding:14px 8px; border:2px dashed var(--rule); border-radius:9px; background:transparent;
+  text-align:center; opacity:.5}
+.stamp.got{border-style:solid; border-color:var(--cAcc); background:var(--panel); opacity:1;
+  box-shadow:0 2px 10px var(--cGlow)}
+.stF{display:block; font-size:28px; line-height:1; filter:grayscale(1)}
+.stamp.got .stF{filter:none}
+.stamp b{display:block; margin-top:7px; font-family:var(--disp); font-size:12px; font-weight:600;
+  letter-spacing:.05em; color:var(--ink)}
+.stD{display:block; margin-top:3px; font-size:10.5px; color:var(--dim)}
+.stamp.got .stD{color:var(--cAcc); font-weight:600}
+
 /* ---------- THE LAUNCH SCREEN ---------- */
 #splash{position:fixed; inset:0; z-index:200; display:flex; align-items:center;
   justify-content:center; padding:28px; text-align:center;
@@ -1861,9 +1884,13 @@ V.crew=function(){
   const cur=currentDay(); if(cur)setHue(cur.city);
   const sel=local.crewSel;
   if(!sel){
+    const t0=todayISO(), got=countryDays().filter(g=>g.days[0].date<=t0).length;
     return `<h1 class="ttl">The <em>five</em> of you</h1>
       <p class="lede">A page each &mdash; what you still have to pack, the pictures you have taken
         and the line you wrote about each day.</p>
+      <div class="sec">${secH('Countries',got+' of '+countryDays().length)}
+        <p class="muted" style="margin:0">One stamp for every country, earned the day you land in it.</p>
+        ${stampGrid()}</div>
       ${local.me?'':meChip()}
       <div class="sec">${CREW.map(c=>{
         const items=D.packing[c]||[], st=SHARED.pack[c]||{};
@@ -2377,6 +2404,92 @@ function day0Climate(d){
     </div><p class="tiny" style="margin-top:10px">Ten years of Open-Meteo records for 1 Jan to 14 Feb.</p></div></div>`;
 }
 
+/* ================= DOCS: every reference, and offline ================= */
+function blobIds(){
+  const ids=new Set();
+  (D.stays||[]).forEach(s=>{if(s.voucher)ids.add(s.voucher)});
+  [DAYPIC,CITYPIC].forEach(m=>{try{Object.keys(m||{}).forEach(k=>{const v=m[k];if(v&&v[0])ids.add(v[0])})}catch(e){}});
+  return [...ids];
+}
+async function cacheAll(btn){
+  const ids=blobIds(); let ok=0,i=0;
+  btn.disabled=true;
+  for(const id of ids){
+    i++; btn.textContent='Saving '+i+' of '+ids.length+'…';
+    try{const r=await fetch('_blob/'+id,{cache:'reload'}); if(r.ok)ok++}catch(e){}
+  }
+  local.offlineAt=new Date().toISOString(); local.offlineN=ok; local.offlineOf=ids.length;
+  saveLocal(); render();
+  toast(ok+' of '+ids.length+' saved to this phone.');
+}
+const refRow=(label,sub,ref,href,tel)=>`<div class="ln"><div class="l"><b>${label}</b>
+  ${sub?`<span>${sub}</span>`:''}</div>
+  <div class="r" style="display:flex;gap:6px;align-items:center">
+  ${ref?`<button class="btn refB" data-copy="${esc(ref)}">${esc(ref)}</button>`:''}
+  ${tel?`<a class="btn refB" href="tel:${esc(tel.replace(/\s/g,''))}">Call</a>`:''}
+  ${href?`<a class="btn primary refB" href="${href}" target="_blank" rel="noopener">PDF</a>`:''}
+  </div></div>`;
+
+V.docs=function(){
+  const tr=(D.travel||[]).filter(t=>t.ref||/\bref\s+[A-Z0-9]{5,7}/i.test(t.svc||''));
+  const grab=t=>{if(t.ref)return t.ref;const m=(t.svc||'').match(/\bref\s+([A-Z0-9]{5,7})/i);return m?m[1]:''};
+  const st=(D.stays||[]);
+  const ins=(D.sos||{}).insurance||{};
+  const n=local.offlineN||0, of=local.offlineOf||blobIds().length;
+  const done=local.offlineAt&&n>=of&&of>0;
+  return `<h1 class="ttl" style="margin-top:14px">Documents</h1>
+    <p class="muted" style="margin-top:6px">Every reference in one place. Tap a code to copy it.</p>
+
+    <div class="sec">${secH('On this phone',done?'ready':'not saved yet')}
+      <div class="panel">
+        <p class="pN">Vouchers and photos are pulled down the first time you open them. Save them now,
+          on wifi, and they will be there in a dead spot with no signal.</p>
+        ${local.offlineAt?`<p class="pN"><b>${n} of ${of}</b> saved ${esc(when(local.offlineAt))}.</p>`:''}
+        <button class="btn primary" data-cacheall="1" style="width:100%">
+          ${local.offlineAt?'Save again':'Save everything for offline'}</button></div></div>
+
+    <div class="sec">${secH('Trains and flights',tr.length+'')}
+      <div class="panel" style="padding:2px 16px">
+      ${tr.map(t=>refRow(esc(t.leg),esc(t.svc)+' &middot; '+shortD(t.date),grab(t),'','')).join('')}
+      </div>
+      <p class="tiny" style="margin-top:9px">The Nightjet goes in here once it is booked.</p></div>
+
+    <div class="sec">${secH('Where you sleep',st.length+'')}
+      <div class="panel" style="padding:2px 16px">
+      ${st.map(s=>refRow(esc(s.name),esc(s.addr||'')+' &middot; '+shortD(s.inn),
+          s.ref&&!/not /i.test(s.ref)?s.ref:'', s.voucher?'_blob/'+s.voucher:'', s.tel||'')).join('')}
+      </div></div>
+
+    <div class="sec">${secH('If it goes wrong')}
+      <div class="panel" style="padding:2px 16px">
+        ${refRow('nib travel insurance','Policy &middot; all five of you',ins.policy||'','',ins.emergency||'')}
+        ${refRow('Amy Morrison','Travel advisor, 24/7 while you travel','','','+61422948269')}
+      </div></div>
+
+    <div class="sec">${secH('Show this to a driver')}
+      ${st.filter(s=>s.addr&&!/not yet|not advised/i.test(s.addr)).map(s=>`
+        <div class="drv">
+          <span>${esc(shortD(s.inn))} &ndash; ${esc(shortD(s.out))}</span>
+          <b>${esc(s.name)}</b>
+          <p>${esc(s.addr)}</p>
+          ${s.tel?`<a class="btn refB" href="tel:${esc(s.tel.replace(/\s/g,''))}">${esc(s.tel)}</a>`:''}
+        </div>`).join('')}</div>`;
+};
+
+/* ---- Stamps: one per country, earned on the day you land ---- */
+function stampGrid(){
+  const t=todayISO();
+  const gs=countryDays();
+  return `<div class="stamps">${gs.map(g=>{
+    const first=g.days[0].date, got=first<=t;
+    return `<button class="stamp${got?' got':''}" data-place="${esc(g.co.key)}" data-tab="places"
+      style="--cAcc:${palOf(g.days[0].city)[3]}">
+      <span class="stF">${g.co.flag}</span>
+      <b>${esc(g.co.name)}</b>
+      <span class="stD">${got?'Landed '+shortD(first):shortD(first)}</span>
+    </button>`}).join('')}</div>`;
+}
+
 V.disney=function(){
   const X=DIS, start=new Date('2027-01-13T09:00:00+01:00');
   const days=Math.max(0,Math.ceil((start-Date.now())/864e5));
@@ -2453,6 +2566,7 @@ const TABS=[['home','Home','<path d="M3.5 10.5 12 3.5l8.5 7M5.5 9v11h13V9"/>'],
  ['stays','Beds','<path d="M3 18.5v-7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7M3 15h18M7 9.5V7a1.5 1.5 0 0 1 1.5-1.5h7A1.5 1.5 0 0 1 17 7v2.5"/>'],
  ['money','Money','<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M2.5 10h19"/>'],
  ['kit','Kit','<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>'],
+ ['docs','Docs','<path d="M6 3.5h8l4 4V20a.5.5 0 0 1-.5.5h-11A.5.5 0 0 1 6 20z"/><path d="M14 3.5V8h4M9 12.5h6M9 16h6"/>'],
  ['crew','Crew','<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.2 2.7-5.2 6-5.2s6 2 6 5.2"/><path d="M16 5.5a3.2 3.2 0 0 1 0 6.4M17.5 14.6c2 .7 3.5 2.5 3.5 5.4"/>']];
 let cur=(location.hash||'').replace('#','');
 if(!TABS.some(t=>t[0]===cur)&&cur!=='sos'&&cur!=='check')cur='home';
@@ -2627,11 +2741,12 @@ document.addEventListener('change',async e=>{
 });
 let pendingDay=null;
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kitmode],[data-shopadd],[data-shopwho],[data-shopdone],[data-shop],[data-kit],[data-pack],[data-need],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug],[data-place],[data-dopen],[data-dclose],[data-seeall],[data-crew],[data-diary],[data-job],[data-jobadd],[data-jobdone],[data-jobwho],[data-kitjump]');
+  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kitmode],[data-shopadd],[data-shopwho],[data-shopdone],[data-shop],[data-kit],[data-pack],[data-need],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug],[data-cacheall],[data-place],[data-dopen],[data-dclose],[data-seeall],[data-crew],[data-diary],[data-job],[data-jobadd],[data-jobdone],[data-jobwho],[data-kitjump]');
   if(!t)return; const s=t.dataset;
   if(s.tab)return go(s.tab);
   if(s.l!==undefined){local.look=s.l||null;saveLocal();return applyLook()}
   if(s.seeall!==undefined){local.seeAll=s.seeall==='1';saveLocal();return render()}
+  if(s.cacheall){return cacheAll(t)}
   if(s.dopen){local.disneyOpen=1;saveLocal();window.scrollTo({top:0});return render()}
   if(s.dclose){local.disneyOpen=0;saveLocal();window.scrollTo({top:0});return render()}
   if(s.place){local.placeSel=s.place;local.disneyOpen=0;saveLocal();window.scrollTo({top:0});
