@@ -148,7 +148,16 @@ main{max-width:1200px; margin:0 auto; position:relative;
   color:#8A5B00; letter-spacing:-.02em; animation:spRise .9s .3s cubic-bezier(.2,.8,.3,1) both}
 .spD span{display:block; margin-top:2px; font-size:10px; font-weight:600; letter-spacing:.3em;
   text-transform:uppercase; color:#6E6149}
-.spSpin{margin:28px auto 0; width:40px; height:40px;
+.spClock{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:18px auto 0;
+  max-width:300px; animation:spRise .9s .36s cubic-bezier(.2,.8,.3,1) both}
+.spClock div{background:rgba(255,255,255,.7); border:1px solid #E9DBBD; border-radius:6px;
+  padding:11px 2px}
+.spClock b{display:block; font-family:"Oswald",sans-serif; font-size:27px; font-weight:700;
+  line-height:1; color:#241A09; font-variant-numeric:tabular-nums; letter-spacing:-.02em}
+.spClock span{display:block; margin-top:5px; font-family:"Oswald",sans-serif; font-size:8.5px;
+  font-weight:600; letter-spacing:.17em; text-transform:uppercase; color:#6E6149}
+.spClock div:last-child b{color:#8A5B00}
+.spSpin{margin:22px auto 0; width:34px; height:34px;
   animation:spRise .9s .36s cubic-bezier(.2,.8,.3,1) both}
 .spSpin svg{width:100%; height:100%; animation:spTurn 1.3s linear infinite}
 .spSpin circle{fill:none; stroke:#8A5B00; stroke-width:3.5; stroke-linecap:round;
@@ -162,7 +171,7 @@ main{max-width:1200px; margin:0 auto; position:relative;
 @keyframes spSafe{to{opacity:0; visibility:hidden}}
 @keyframes spRise{from{opacity:0; transform:translateY(12px)}to{opacity:1; transform:none}}
 @media (prefers-reduced-motion:reduce){
-  .spMark svg,.spK,.spT,.spS,.spD,.spSpin,.spLoad{animation:none}
+  .spMark svg,.spK,.spT,.spS,.spD,.spClock,.spSpin,.spLoad{animation:none}
   .spSpin svg{animation:spTurn 2.6s linear infinite}}
 
 /* ---------- WHO ARE YOU ---------- */
@@ -972,6 +981,7 @@ body[data-view="disney"]{background:var(--dNight)}
   <h1 class="spT">Europe</h1>
   <p class="spS">The Annetts &middot; 46 days &middot; 10 countries</p>
   <p class="spD" id="spDays" hidden></p>
+  <div class="spClock" id="spClock" hidden></div>
   <div class="spSpin" role="status" aria-label="Loading">
     <svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20"/></svg>
   </div>
@@ -2469,10 +2479,19 @@ function render(){
       if(dd&&left>0){dd.hidden=false;dd.innerHTML=left+'<span>days to go</span>'}
       /* Hold it, then hide it. It is never removed, so reopening the app can
          bring it straight back - on iOS a resumed PWA never reloads the page. */
-      const hide=()=>{clearTimeout(window.__spT);sp.classList.add('gone')};
-      const show=()=>{clearTimeout(window.__spT);
+      const ck=document.getElementById('spClock');
+      const paint=()=>{if(!ck)return;
+        let ms=Date.parse(DEPART)-Date.now(); if(!(ms>0))ms=0;
+        const u=(n,l)=>'<div><b>'+String(n).padStart(2,'0')+'</b><span>'+l+'</span></div>';
+        ck.innerHTML=u(Math.floor(ms/36e5)%24,'hours')+u(Math.floor(ms/6e4)%60,'minutes')
+          +u(Math.floor(ms/1e3)%60,'seconds')};
+      const hide=()=>{clearTimeout(window.__spT);clearInterval(window.__spC);
+        sp.classList.add('gone')};
+      const show=()=>{clearTimeout(window.__spT);clearInterval(window.__spC);
         sp.style.animation='none'; sp.classList.remove('gone');
+        if(ck&&left>0){ck.hidden=false;paint();window.__spC=setInterval(paint,1000)}
         window.__spT=setTimeout(hide,10000)};
+      if(ck&&left>0){ck.hidden=false;paint();window.__spC=setInterval(paint,1000)}
       window.__splashShow=show;
       window.__spT=setTimeout(hide,10000);
       let away=0;
