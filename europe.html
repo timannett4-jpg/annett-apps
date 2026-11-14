@@ -778,6 +778,13 @@ body[data-look="day"] #routemap .lbl{fill:#fff; stroke:#111}
 .dl{display:block; width:100%; text-align:left; padding:13px 0;
   border-bottom:1px solid var(--rule)}
 .dl:last-child{border-bottom:0}
+.dlW{display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--rule)}
+.dlW:last-child{border-bottom:0}
+.dlW .dl{flex:1; min-width:0; border-bottom:0}
+.dlTick{flex:none; display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:0 12px;
+  border:1px solid var(--rule); background:var(--panel2); color:var(--ink);
+  font-family:var(--disp); font-size:10.5px; font-weight:600; letter-spacing:.12em; text-transform:uppercase}
+.dlTick svg{width:15px; height:15px; fill:none; stroke:var(--green); stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round}
 .dl .dlD{display:block; font-family:var(--mono); font-size:11.5px; font-weight:700;
   color:var(--amber); letter-spacing:.02em}
 .dl.late .dlD{color:var(--red)}
@@ -1402,6 +1409,7 @@ const money0=n=>'$'+Number(n).toLocaleString('en-AU',{maximumFractionDigits:0});
 const todayISO=()=>new Date().toISOString().slice(0,10);
 const clip=(s,n)=>{s=String(s||'');if(s.length<=n)return s;
   const c=s.slice(0,n),i=c.lastIndexOf(' ');return (i>n*0.6?c.slice(0,i):c).replace(/[,;:\s]+$/,'')+'\u2026'};
+const bkKey=w=>'tb-'+String(w||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60);
 function deadlines(){
   const out=[];
   D.travel.forEach(t=>{
@@ -1411,8 +1419,9 @@ function deadlines(){
       day:t.date,kind:'rail'});
   });
   (D.fixedDates||[]).forEach(f=>out.push(Object.assign({kind:'entry'},f)));
+  out.forEach(x=>{x.bk=bkKey(x.what)});
   out.sort((a,b)=>a.due<b.due?-1:1);
-  return out;
+  return out.filter(x=>!((SHARED.book||{})[x.bk]||{}).done);
 }
 function deadlineBlock(){
   const t=todayISO(), ds=deadlines();
@@ -1722,6 +1731,7 @@ V.home=function(){
   DAYS.forEach(d=>breaksFor(d).forEach(s=>sort.push({d,s})));
   const row=(cls,tag,title,body,jump)=>`<button class="dl${cls}" data-jump="${esc(jump)}">
     <span class="dlD">${tag}</span><b>${esc(title)}</b><p>${esc(body)}</p></button>`;
+  const bkWrap=(x,h)=>connected&&CANWRITE?`<div class="dlW">${h}<button class="dlTick" data-booked="${esc(x.bk)}" data-what="${esc(x.what)}" aria-label="Mark ${esc(x.what)} as booked"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 9 17.5 20 6.5"/></svg>Booked</button></div>`:h;
   const head=on
     ? `<p class="cdK">Day ${dayIndex(on)+1} of ${DAYS.length} &middot; ${esc(on.cityName)}</p>
        <div class="cdMark">${markOf(on.city)}</div>
@@ -1788,8 +1798,8 @@ V.home=function(){
     ${urgent?`<div class="alert crit" style="margin-top:13px">${urgent} thing${urgent>1?'s':''} ${urgent>1?'are':'is'} past due or broken. They are at the top of the lists below.</div>`:''}
     ${ds.length?`<div class="sec">${secH('To book',late.length?late.length+' overdue':soon.length+' ahead')}
       <div class="panel" style="padding:4px 16px">
-      ${late.map(x=>row(' late','Overdue &middot; '+shortD(x.due),x.what,x.why,x.day||DAYS[0].date)).join('')}
-      ${soon.map(x=>row('',shortD(x.due),x.what,x.why,x.day||DAYS[0].date)).join('')}</div></div>`:''}
+      ${late.map(x=>bkWrap(x,row(' late','Overdue &middot; '+shortD(x.due),x.what,x.why,x.day||DAYS[0].date))).join('')}
+      ${soon.map(x=>bkWrap(x,row('',shortD(x.due),x.what,x.why,x.day||DAYS[0].date))).join('')}</div></div>`:''}
     ${sort.length?`<div class="sec">${secH('To sort',sort.length+' open')}
       <div class="panel" style="padding:4px 16px">
       ${sort.sort((a,b)=>(a.s.st==='clash'?0:1)-(b.s.st==='clash'?0:1)).map(x=>
@@ -3059,7 +3069,7 @@ document.addEventListener('change',async e=>{
 });
 let pendingDay=null;
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kitmode],[data-shopadd],[data-shopwho],[data-shopdone],[data-shop],[data-kit],[data-pack],[data-need],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug],[data-before],[data-cacheall],[data-place],[data-seeall],[data-crew],[data-diary],[data-job],[data-jobadd],[data-jobwho],[data-kitjump],[data-bags],[data-feed],[data-tk],[data-meetedit],[data-meetsave],[data-matchadd],[data-matchdel]');
+  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kitmode],[data-shopadd],[data-shopwho],[data-shopdone],[data-shop],[data-kit],[data-pack],[data-need],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug],[data-before],[data-cacheall],[data-place],[data-seeall],[data-crew],[data-diary],[data-job],[data-jobadd],[data-jobwho],[data-kitjump],[data-bags],[data-booked],[data-feed],[data-tk],[data-meetedit],[data-meetsave],[data-matchadd],[data-matchdel]');
   if(!t||t===document.body||t===document.documentElement)return; const s=t.dataset;
   if(s.tab)return go(s.tab);
   if(s.l!==undefined){local.look=s.l||null;saveLocal();return applyLook()}
@@ -3099,6 +3109,15 @@ document.addEventListener('click',async e=>{
   if(s.crew!==undefined){local.crewSel=s.crew||null;saveLocal();window.scrollTo({top:0});return render()}
   if(s.kitjump){local.kitWho=s.kitjump;saveLocal();return go('kit')}
   if(s.bags){local.bagsOpen=!local.bagsOpen;saveLocal();return render()}
+  if(s.booked){
+    if(!DB||!CANWRITE)return toast('Not connected.');
+    const k=s.booked, what=s.what||'', r=t.getBoundingClientRect();
+    const put=async on=>{const nx=Object.assign({},SHARED.book||{});
+      nx[k]={done:on,what,person:me()||'',at:new Date().toISOString()}; SHARED.book=nx; render();
+      try{await DB.doc('bookings/'+k).set(nx[k])}catch(e){toast('Could not save that.')}};
+    burst(r.left+r.width/2,r.top+10);
+    toast('Booked, and off the list.',()=>put(false));
+    return put(true)}
   if(s.feed){local.feedAll=!local.feedAll;saveLocal();return render()}
   if(s.tk){pendingTk=s.tk;document.getElementById('tkInput').click();return}
   if(s.meetedit!==undefined){local.meetEdit=s.meetedit||null;saveLocal();return render()}
