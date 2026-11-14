@@ -747,6 +747,9 @@ body[data-look="day"] #routemap .lbl{fill:#fff; stroke:#111}
   bottom:calc(var(--bar) + 82px + env(safe-area-inset-bottom,0px)); padding:11px 18px;
   font-family:var(--disp); font-weight:600; font-size:13px; letter-spacing:.12em;
   text-transform:uppercase; color:#0A0A0A; background:var(--amber)}
+#toast.act{cursor:pointer; padding-right:14px}
+#toast .tUn{margin-left:10px; padding:3px 9px; border-radius:999px;
+  background:rgba(0,0,0,.82); color:var(--amber); letter-spacing:.1em}
 
 .shot{position:relative; margin:0; aspect-ratio:16/9; overflow:hidden; background:#000;
   display:block}
@@ -2123,7 +2126,7 @@ function jobsView(){
   if(!connected)return `<div class="panel" style="margin-top:14px"><p class="muted">The jobs list is
     shared, so it needs a connection.</p></div>`;
   const all=(SHARED.jobs||[]), t=todayISO();
-  const open=all.filter(x=>!x.done), done=all.filter(x=>x.done);
+  const open=all.filter(x=>!x.done), nDone=all.filter(x=>x.done).length;
   const bucket=x=>!x.due?3:(x.due<t?0:(x.due<=new Date(Date.now()+12096e5).toISOString().slice(0,10)?1:2));
   const names=['Overdue','In the next fortnight','Later','No date on it'];
   const groups=[0,1,2,3].map(i=>[names[i],open.filter(x=>bucket(x)===i)
@@ -2135,7 +2138,8 @@ function jobsView(){
         <button class="btn primary" data-jobadd="1">Add</button></div>
       <div class="chips" style="margin-top:10px">${['Anyone'].concat(CREW).map(w=>
         `<button class="chip${(local.jobWho||me()||'Anyone')===w?' on':''}" data-jobwho="${esc(w)}">${esc(w)}</button>`).join('')}</div>
-      <p class="tiny" style="margin-top:9px">${open.length} to do, ${done.length} done.</p></div>
+      <p class="tiny" style="margin-top:9px">${open.length} still to do${nDone?', '+nDone+' ticked off':''}.
+        Tick a job and it comes off the list.</p></div>
     ${groups.map(([t2,list])=>`<div class="sec">${secH(esc(t2),list.length+'')}
       <div class="panel" style="padding:4px 16px">
       ${list.map(x=>`<button class="ck jb${bucket(x)===0?' late':''}" data-job="${esc(x._id)}" aria-pressed="false">
@@ -2144,14 +2148,7 @@ function jobsView(){
         ${x.note?`<p>${esc(x.note)}</p>`:''}
         <p class="jbM">${x.due?shortD(x.due)+' &middot; ':''}${esc(x.who&&x.who!=='Anyone'?x.who:'anyone')}</p>
         </span></button>`).join('')}</div></div>`).join('')}
-    ${done.length?`<div class="sec">
-      <button class="btn" data-jobdone="1" style="width:100%">${local.jobDone?'Hide':'Show'} the ${done.length} done</button>
-      ${local.jobDone?`<div class="panel" style="padding:4px 16px;margin-top:9px">
-        ${done.map(x=>`<button class="ck" data-job="${esc(x._id)}" aria-pressed="true">
-          <span class="box"><svg viewBox="0 0 24 24"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span>
-          <span class="ckb"><b>${esc(x.text)}</b>
-          <p>Done by ${esc(x.donePerson||x.person||whoName(x.doneBy||x.by))} &middot; ${esc(when(x.doneAt||x.at))}</p></span></button>`).join('')}
-        </div>`:''}</div>`:''}`;
+`;
 }
 V.kit=function(){
   const cur=currentDay(); if(cur)setHue(cur.city);
@@ -2668,6 +2665,9 @@ function render(){
   if(!window.__splashDone){window.__splashDone=1;
     const sp=document.getElementById('splash');
     if(sp){
+      /* Archer's phone loads the slow way. Everyone else gets 10 seconds. */
+      const SLOW=me()==='Archer', HOLD=SLOW?30000:10000;
+      if(SLOW)sp.style.animation='spSafe .6s 33s forwards';
       const dd=document.getElementById('spDays');
       const left=Math.round((Date.parse(D.trip.start+'T00:00:00Z')-Date.parse(todayISO()+'T00:00:00Z'))/864e5);
       if(dd&&left>0){dd.hidden=false;dd.innerHTML=left+'<span>days to go</span>'}
@@ -2679,15 +2679,27 @@ function render(){
         const u=(n,l)=>'<div><b>'+String(n).padStart(2,'0')+'</b><span>'+l+'</span></div>';
         ck.innerHTML=u(Math.floor(ms/36e5)%24,'hours')+u(Math.floor(ms/6e4)%60,'minutes')
           +u(Math.floor(ms/1e3)%60,'seconds')};
+      /* Something has to move for half a minute, or it reads as broken. */
+      const ld=document.querySelector('.spLoad');
+      const LINES=['Loading your trip','Still loading your trip',
+        'Loading the slow bits','Almost there','Loading your trip'];
+      const stepLine=()=>{if(!ld)return;
+        window.__spL=(window.__spL||0)+1;
+        ld.textContent=LINES[Math.min(window.__spL,LINES.length-1)]};
+      const lineRun=()=>{clearInterval(window.__spLI);
+        if(!SLOW||!ld)return; window.__spL=0; ld.textContent=LINES[0];
+        window.__spLI=setInterval(stepLine,6000)};
       const hide=()=>{clearTimeout(window.__spT);clearInterval(window.__spC);
-        sp.classList.add('gone')};
+        clearInterval(window.__spLI); sp.classList.add('gone')};
       const show=()=>{clearTimeout(window.__spT);clearInterval(window.__spC);
         sp.style.animation='none'; sp.classList.remove('gone');
         if(ck&&left>0){ck.hidden=false;paint();window.__spC=setInterval(paint,1000)}
-        window.__spT=setTimeout(hide,10000)};
+        lineRun();
+        window.__spT=setTimeout(hide,HOLD)};
       if(ck&&left>0){ck.hidden=false;paint();window.__spC=setInterval(paint,1000)}
+      lineRun();
       window.__splashShow=show;
-      window.__spT=setTimeout(hide,10000);
+      window.__spT=setTimeout(hide,HOLD);
       let away=0;
       document.addEventListener('visibilitychange',()=>{
         if(document.visibilityState==='hidden'){away=Date.now();return}
@@ -2754,11 +2766,16 @@ async function addDoc(coll,data){
     await DB.collection(coll).add(Object.assign({by:id,person:me(),at:new Date().toISOString()},data))}
   catch(e){toast('Could not save that. Check your signal.')}
 }
-let tT;
-function toast(m){
+let tT,tU=null;
+function toast(m,undo){
   let el=document.getElementById('toast');
   if(!el){el=document.createElement('div');el.id='toast';document.body.appendChild(el)}
-  el.textContent=m;el.hidden=false;clearTimeout(tT);tT=setTimeout(()=>el.hidden=true,2600);
+  tU=undo||null;
+  el.innerHTML=esc(m)+(undo?' <b class="tUn">Undo</b>':'');
+  el.onclick=undo?function(){el.hidden=true;const f=tU;tU=null;if(f)f()}:null;
+  el.classList.toggle('act',!!undo);
+  el.hidden=false;clearTimeout(tT);
+  tT=setTimeout(()=>{el.hidden=true;tU=null},undo?6500:2600);
 }
 function burst(x,y){
   if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
@@ -2817,7 +2834,7 @@ document.addEventListener('change',async e=>{
 });
 let pendingDay=null;
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kitmode],[data-shopadd],[data-shopwho],[data-shopdone],[data-shop],[data-kit],[data-pack],[data-need],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug],[data-before],[data-cacheall],[data-place],[data-dopen],[data-dclose],[data-seeall],[data-crew],[data-diary],[data-job],[data-jobadd],[data-jobdone],[data-jobwho],[data-kitjump]');
+  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kitmode],[data-shopadd],[data-shopwho],[data-shopdone],[data-shop],[data-kit],[data-pack],[data-need],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug],[data-before],[data-cacheall],[data-place],[data-dopen],[data-dclose],[data-seeall],[data-crew],[data-diary],[data-job],[data-jobadd],[data-jobwho],[data-kitjump]');
   if(!t)return; const s=t.dataset;
   if(s.tab)return go(s.tab);
   if(s.l!==undefined){local.look=s.l||null;saveLocal();return applyLook()}
@@ -2859,7 +2876,6 @@ document.addEventListener('click',async e=>{
   if(s.crew!==undefined){local.crewSel=s.crew||null;saveLocal();window.scrollTo({top:0});return render()}
   if(s.kitjump){local.kitWho=s.kitjump;saveLocal();return go('kit')}
   if(s.jobwho){local.jobWho=s.jobwho;saveLocal();return render()}
-  if(s.jobdone){local.jobDone=!local.jobDone;saveLocal();return render()}
   if(s.jobadd){
     const tx=document.getElementById('jbTx'),du=document.getElementById('jbDue');
     if(!tx||!tx.value.trim())return toast('Type the job first.');
@@ -2869,16 +2885,19 @@ document.addEventListener('click',async e=>{
   if(s.job){
     const it=(SHARED.jobs||[]).find(x=>x._id===s.job); if(!it)return;
     if(!DB||!CANWRITE)return toast('Not connected.');
-    const nd=!it.done, r=t.getBoundingClientRect();
+    const r=t.getBoundingClientRect();
     const id=await(ME&&ME.id?ME.id():null);
-    it.done=nd; it.doneBy=nd?id:null; it.donePerson=nd?me():null;
-    it.doneAt=nd?new Date().toISOString():null;
-    if(nd)burst(r.left+20,r.top+16);
+    const save=async()=>{try{await DB.doc('jobs/'+s.job).set({text:it.text,due:it.due||'',
+      who:it.who||'Anyone',note:it.note||'',by:it.by,person:it.person||'',at:it.at,
+      done:it.done,doneBy:it.doneBy,donePerson:it.donePerson,doneAt:it.doneAt})}
+      catch(e){toast('Could not save that.')}};
+    it.done=true; it.doneBy=id; it.donePerson=me(); it.doneAt=new Date().toISOString();
+    burst(r.left+20,r.top+16);
     render();
-    try{await DB.doc('jobs/'+s.job).set({text:it.text,due:it.due||'',who:it.who||'Anyone',
-      by:it.by,person:it.person||'',at:it.at,done:nd,doneBy:it.doneBy,
-      donePerson:it.donePerson,doneAt:it.doneAt})}catch(e){toast('Could not save that.')}
-    return}
+    toast('Done, and off the list.',()=>{
+      it.done=false; it.doneBy=null; it.donePerson=null; it.doneAt=null;
+      render(); save()});
+    return save()}
   if(s.diary!==undefined){
     const tx=document.getElementById('dyTx');
     if(!tx||!tx.value.trim())return toast('Nothing to add yet.');
