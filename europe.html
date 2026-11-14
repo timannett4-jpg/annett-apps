@@ -140,6 +140,13 @@ main{max-width:1200px; margin:0 auto; position:relative;
   box-shadow:0 1px 4px rgba(0,0,0,.25), 0 0 0 1px rgba(0,0,0,.09)}
 .flagBig{width:62px; margin:0 auto 10px; font-size:0}
 .chip .flag.sm{display:inline-block; width:22px; vertical-align:-4px; margin-right:7px}
+.chip .cast{display:inline-block; width:18px; height:18px; vertical-align:-4px; margin-right:6px;
+  fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round}
+.chip.dChip{border-color:#C9A24A; color:#7A5A12}
+body[data-view="disney"] #view>.chips .chip{background:rgba(19,32,77,.72); color:#DADDF5;
+  border-color:#2B3D7E}
+body[data-view="disney"] #view>.chips .chip.dChip.on{background:#F3C45A; color:#0B1433;
+  border-color:#F3C45A; font-weight:700}
 .stF .flag{width:40px; margin:0 auto}
 .stamp:not(.got) .flag{filter:grayscale(1) opacity(.55)}
 
@@ -1689,8 +1696,8 @@ V.home=function(){
     ${(()=>{const st=arrivalsList(); if(!st.length)return'';
       return `<div class="sec">${secH('Where you will be',st.length+' stops')}
         <div class="panel" style="padding:2px 16px">${st.map(x=>{const ms=x.at-Date.now();
-          const xc=countryOf(x.city);
-          return `<button class="stopRow${ms>0?'':' done'}" data-place="${esc(xc?xc.key:x.name)}"
+          const xc=countryOf(x.city), xk=/^DISNEY/i.test(x.city||'')&&V.disney?'DISNEY':(xc?xc.key:x.name);
+          return `<button class="stopRow${ms>0?'':' done'}" data-place="${esc(xk)}"
             style="--cAcc:${palOf(x.city)[3]}">
             <span class="sm">${markOf(x.city)}</span>
             <span class="sn"><b>${esc(x.name)}</b><span>${shortD(x.date)} &middot; ${esc(x.t)} &middot; ${x.nights} night${x.nights>1?'s':''}</span></span>
@@ -2333,7 +2340,8 @@ function placeChips(list,sel){
 V.places=function(){
   const groups=countryDays();
   const ps=(local.placeSel||'').toUpperCase();
-  const g=groups.find(x=>x.co.key===local.placeSel)
+  const isDis=local.placeSel==='DISNEY'&&!!V.disney;
+  const g=(isDis&&groups.find(x=>x.co.key==='FR'))||groups.find(x=>x.co.key===local.placeSel)
     ||groups.find(x=>x.days.some(d=>(d.city||'').toUpperCase()===ps
         ||(d.cityName||'').split(/\s+to\s+/i).pop().toUpperCase()===ps))
     ||groups[0];
@@ -2341,12 +2349,18 @@ V.places=function(){
   const d0=legs.length?legs[0].days[0]:g.days[0];
   setHue(d0.city);
 
+  const hasDis=!!V.disney&&groups.some(x=>x.co.key==='FR'&&x.days.some(d=>/DISNEY/i.test(d.city)));
+  const disChip=`<button class="chip dChip${isDis?' on':''}" data-place="DISNEY"><svg class="cast" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V11l2-3 2 3v10M16 21V11l2-3 2 3v10M8 21v-8h8v8M10 13V7l2-4 2 4v6"/></svg>Disneyland</button>`;
   const chips=`<div class="chips" style="margin:13px 0 0">${groups.map(x=>
-    `<button class="chip${x===g?' on':''}" data-place="${esc(x.co.key)}"
-      style="--cAcc:${palOf(x.days[0].city)[3]}">${flagSvg(x.co.key,'sm')}${esc(x.co.name)}</button>`).join('')}</div>`;
+    `<button class="chip${x===g&&!isDis?' on':''}" data-place="${esc(x.co.key)}"
+      style="--cAcc:${palOf(x.days[0].city)[3]}">${flagSvg(x.co.key,'sm')}${esc(x.co.name)}</button>`
+      +(hasDis&&x.co.key==='FR'?disChip:'')).join('')}</div>`;
 
-  if(co.key==='FR'&&legs.some(l=>/DISNEY/i.test(l.city))&&local.disneyOpen&&V.disney)
-    return chips+`<button class="btn" data-dclose="1" style="margin-top:12px">&larr; Back to France</button>`+V.disney();
+  if(isDis&&hasDis){
+    /* The guide brings its own night sky, which is keyed off the view name. */
+    document.body.dataset.view='disney';
+    return chips+V.disney();
+  }
 
   const a=arrivalsList().find(x=>x.city===d0.city), ms=a?a.at-Date.now():0;
   const booked=[],toGet=[];
@@ -2371,6 +2385,8 @@ V.places=function(){
         ${spend?pill(money0(spend),'paid so far'):''}</div>
       ${ms>0?`<p class="cdLabel">Until you get there</p>
         <div class="cdCity" data-at="${a.at}">${cdUnits(ms)}</div>`:''}</div>
+
+    ${co.key==='FR'&&hasDis?`<button class="dToGuide" data-place="DISNEY"><b>Disneyland</b><span>13 to 16 January. The stay, the plan, every ride and the prices</span><i>Open &rarr;</i></button>`:''}
 
     ${(co.long||[]).length?`<div class="sec">${secH(esc(co.name))}
       <div class="panel read">${co.long.map(x=>`<p>${esc(x)}</p>`).join('')}</div></div>`:''}
@@ -2465,8 +2481,6 @@ V.places=function(){
         <div class="ln"><div class="l"><b>Emergency</b><span>${esc(co.emerg)}</span></div></div>
         <div class="ln"><div class="l"><b>Currency</b><span>${esc(co.cur)}${cash?' &middot; about A$'+cash.rate+' each':''}</span></div></div>
       </div></div>
-    ${co.key==='FR'&&V.disney?`<div class="sec"><button class="btn primary" data-dopen="1"
-       style="width:100%">Open the Disneyland guide</button></div>`:''}
     ${day0Climate(d0)}`;
 };
 
@@ -2646,6 +2660,7 @@ const TABS=[['home','Home','<path d="M3.5 10.5 12 3.5l8.5 7M5.5 9v11h13V9"/>'],
  ['docs','Docs','<path d="M6 3.5h8l4 4V20a.5.5 0 0 1-.5.5h-11A.5.5 0 0 1 6 20z"/><path d="M14 3.5V8h4M9 12.5h6M9 16h6"/>'],
  ['crew','Crew','<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.2 2.7-5.2 6-5.2s6 2 6 5.2"/><path d="M16 5.5a3.2 3.2 0 0 1 0 6.4M17.5 14.6c2 .7 3.5 2.5 3.5 5.4"/>']];
 let cur=(location.hash||'').replace('#','');
+if(cur==='disney'){local.placeSel='DISNEY';cur='places'}
 if(!TABS.some(t=>t[0]===cur)&&cur!=='sos'&&cur!=='check')cur='home';
 document.getElementById('navIn').innerHTML=TABS.map(([k,l,ic])=>
   `<button data-tab="${k}"><svg viewBox="0 0 24 24">${ic}</svg><span>${l}</span></button>`).join('');
@@ -2723,13 +2738,16 @@ function render(){
   document.getElementById('bTitle').textContent=d?d.cityName:'Europe 2027';
   document.getElementById('bSub').textContent=d?'Day '+(dayIndex(d)+1)+' of '+DAYS.length:'29 Dec – 12 Feb';
   clock(); if(cur==='money')conv();
+  if(cur==='places'){const oc=document.querySelector('#view>.chips .chip.on');
+    if(oc){const pr=oc.parentNode, a=oc.getBoundingClientRect(), b=pr.getBoundingClientRect();
+      pr.scrollLeft+=a.left-b.left-(b.width-a.width)/2}}
   const sd=document.querySelector('.sd.on');
   if(sd&&sd.parentNode)sd.parentNode.scrollLeft=Math.max(0,sd.offsetLeft-sd.parentNode.clientWidth/2+22);
   const rb=document.querySelector('.rib .rb.sel'),rw=document.querySelector('.ribWrap');
   if(rb&&rw){const x=rb.getBBox().x+rb.getBBox().width/2;
     rw.scrollLeft=Math.max(0,x-rw.clientWidth/2)}
 }
-function go(t){cur=t;try{history.replaceState(null,'','#'+t)}catch(e){}window.scrollTo(0,0);render()}
+function go(t){if(t==='disney'){local.placeSel='DISNEY';saveLocal();t='places'}cur=t;try{history.replaceState(null,'','#'+t)}catch(e){}window.scrollTo(0,0);render()}
 function clock(){const d=currentDay(),tz=d?d.tz:D.trip.homeTz;
   document.getElementById('clk').textContent=hhmm(localMins(tz))}
 setInterval(clock,20000);
@@ -2839,7 +2857,7 @@ document.addEventListener('change',async e=>{
 });
 let pendingDay=null;
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kitmode],[data-shopadd],[data-shopwho],[data-shopdone],[data-shop],[data-kit],[data-pack],[data-need],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug],[data-before],[data-cacheall],[data-place],[data-dopen],[data-dclose],[data-seeall],[data-crew],[data-diary],[data-job],[data-jobadd],[data-jobwho],[data-kitjump]');
+  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kitmode],[data-shopadd],[data-shopwho],[data-shopdone],[data-shop],[data-kit],[data-pack],[data-need],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug],[data-before],[data-cacheall],[data-place],[data-seeall],[data-crew],[data-diary],[data-job],[data-jobadd],[data-jobwho],[data-kitjump]');
   if(!t)return; const s=t.dataset;
   if(s.tab)return go(s.tab);
   if(s.l!==undefined){local.look=s.l||null;saveLocal();return applyLook()}
@@ -2853,9 +2871,7 @@ document.addEventListener('click',async e=>{
     try{await DB.doc('before/all').set(cur2)}catch(e){toast('Could not save that.')}
     return}
   if(s.cacheall){return cacheAll(t)}
-  if(s.dopen){local.disneyOpen=1;saveLocal();window.scrollTo({top:0});return render()}
-  if(s.dclose){local.disneyOpen=0;saveLocal();window.scrollTo({top:0});return render()}
-  if(s.place){local.placeSel=s.place;local.disneyOpen=0;saveLocal();window.scrollTo({top:0});
+  if(s.place){local.placeSel=s.place;saveLocal();window.scrollTo({top:0});
     if(cur!=='places')return go('places');
     return render()}
   if(s.kitmode){local.kitMode=s.kitmode;saveLocal();window.scrollTo(0,0);return render()}
