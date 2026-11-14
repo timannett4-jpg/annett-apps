@@ -190,25 +190,46 @@ main{max-width:1200px; margin:0 auto; position:relative;
   text-transform:uppercase; color:var(--dim); font-family:var(--disp)}
 .stopRow.done .sc{color:var(--dim)}
 
+/* ---------- THE COUNTDOWN, BRIGHT ---------- */
+.cdHero{position:relative; overflow:hidden; margin-top:13px; border:1px solid var(--rule);
+  border-radius:6px; padding:26px 16px 22px; text-align:center;
+  background:linear-gradient(165deg,var(--panel) 0%,var(--bg) 100%)}
+.cdHero::before{content:""; position:absolute; left:-15%; right:-15%; top:-160px; height:340px;
+  background:radial-gradient(50% 100% at 50% 100%,var(--cGlow),transparent 72%); pointer-events:none}
+.cdHero > *{position:relative}
+.cdK{margin:0; font-family:var(--disp); font-size:10.5px; font-weight:600; letter-spacing:.26em;
+  text-transform:uppercase; color:var(--cAcc)}
+.cdMark{margin:10px 0 2px}
+.cdMark svg{width:min(60%,200px); height:auto; stroke:var(--cAcc); fill:none; stroke-width:1.5;
+  stroke-linecap:round; stroke-linejoin:round; opacity:.55}
+.cdBig{margin:6px 0 0; font-family:var(--disp); font-weight:700; letter-spacing:-.035em;
+  font-size:clamp(78px,25vw,126px); line-height:.88; color:var(--cAcc);
+  font-variant-numeric:tabular-nums; text-shadow:0 6px 28px var(--cGlow)}
+.cdBigL{margin:5px 0 0; font-family:var(--disp); font-size:12px; font-weight:600; letter-spacing:.3em;
+  text-transform:uppercase; color:var(--dim)}
+.cdSub{margin:15px auto 0; max-width:30em; font-size:14px; line-height:1.55; color:var(--dim)}
+
 /* ---------- THE LIVE COUNTDOWN ---------- */
-.cdLive{display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin:16px 13px 4px}
-.cdU{background:#000; border:1px solid #1c1c1c; padding:13px 3px; text-align:center;
-  box-shadow:0 0 22px rgba(255,176,0,.07) inset}
-.cdU b{display:block; font-family:var(--mono); font-size:38px; font-weight:700; line-height:1;
-  color:var(--bAmber); font-variant-numeric:tabular-nums; letter-spacing:-.02em}
+.cdLive{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:18px auto 2px; max-width:340px}
+.cdU{background:var(--panel); border:1px solid var(--rule); border-radius:5px; padding:13px 3px;
+  text-align:center}
+.cdU b{display:block; font-family:var(--disp); font-size:36px; font-weight:700; line-height:1;
+  color:var(--ink); font-variant-numeric:tabular-nums; letter-spacing:-.02em}
 .cdU span{display:block; margin-top:7px; font-family:var(--disp); font-size:9.5px; font-weight:600;
-  letter-spacing:.16em; text-transform:uppercase; color:var(--bDim)}
-.cdU.s b{color:var(--bInk); animation:tick 1s ease-out infinite}
+  letter-spacing:.16em; text-transform:uppercase; color:var(--dim)}
+.cdU.s b{color:var(--cAcc); animation:tick 1s ease-out infinite}
 @keyframes tick{0%{opacity:.55}18%{opacity:1}100%{opacity:1}}
 @media (prefers-reduced-motion:reduce){.cdU.s b{animation:none}}
 .cdKick{margin:0; padding:14px 13px 0; font-family:var(--disp); font-size:10px; font-weight:600;
   letter-spacing:.26em; text-transform:uppercase; color:var(--bDim); text-align:center}
 .prog{height:4px; background:#1b1b1b; margin:13px 13px 1px; overflow:hidden}
 .prog i{display:block; height:100%; background:var(--bAmber); transition:width .4s ease}
-.nextUp{margin:11px 13px 2px; padding:10px 12px; background:#000; border-left:2px solid var(--bAmber)}
+.nextUp{margin:16px auto 0; max-width:340px; padding:11px 14px; border-radius:5px;
+  background:var(--panel); border:1px solid var(--rule); border-left:3px solid var(--cAcc);
+  text-align:left}
 .nextUp span{display:block; font-family:var(--disp); font-size:9px; font-weight:600; letter-spacing:.14em;
-  text-transform:uppercase; color:var(--bDim); margin-bottom:4px}
-.nextUp b{display:block; font-size:14.5px; color:var(--bInk); line-height:1.35}
+  text-transform:uppercase; color:var(--dim); margin-bottom:4px}
+.nextUp b{display:block; font-size:14.5px; color:var(--ink); line-height:1.35}
 
 /* ---------- THE BOARD ---------- */
 .board{background:var(--board); border:1px solid #000; border-radius:3px; overflow:hidden;
@@ -1518,23 +1539,24 @@ V.home=function(){
   const row=(cls,tag,title,body,jump)=>`<button class="dl${cls}" data-jump="${esc(jump)}">
     <span class="dlD">${tag}</span><b>${esc(title)}</b><p>${esc(body)}</p></button>`;
   const head=on
-    ? `<div class="boardTop"><span>Day ${dayIndex(on)+1} of ${DAYS.length}</span><span>${esc(on.cityName)}</span></div>
-       <div class="boardBody"><div class="boardMark">${markOf(on.city)}</div>
-         ${flap(String(DAYS.length-dayIndex(on)),true)}
-         <p class="boardSub">days left. You land back in Melbourne on ${pretty(D.trip.end)}.</p></div>`
-    : `<div class="boardTop"><span>Departures</span><span>Melbourne T2</span></div>
-       <p class="cdKick">Countdown to Europe</p>
-       <div class="boardBody"><div class="boardMark">${markOf((nx&&nx.city)||'LONDON')}</div>
-         ${flap(String(Math.max(days,0)),true)}
-         <p class="boardSub">days until EK 405 lifts out of Melbourne at 23:55 on ${pretty(D.trip.start)}.
-           Forty-six days later, ${pretty(D.trip.end)}, you land back here.</p></div>
+    ? `<p class="cdK">Day ${dayIndex(on)+1} of ${DAYS.length} &middot; ${esc(on.cityName)}</p>
+       <div class="cdMark">${markOf(on.city)}</div>
+       <p class="cdBig">${DAYS.length-dayIndex(on)}</p>
+       <p class="cdBigL">days left</p>
+       <p class="cdSub">You land back in Melbourne on ${pretty(D.trip.end)}.</p>`
+    : `<p class="cdK">Countdown to Europe</p>
+       <div class="cdMark">${markOf((nx&&nx.city)||'LONDON')}</div>
+       <p class="cdBig">${Math.max(days,0)}</p>
+       <p class="cdBigL">days to go</p>
+       <p class="cdSub">EK 405 lifts out of Melbourne at 23:55 on ${pretty(D.trip.start)}.
+         Forty-six days later, ${pretty(D.trip.end)}, you land back here.</p>
        <div class="cdLive" id="cdLive">${cdLiveHTML()}</div>`;
   const nextUp=on
     ? (on.slots[0]?`<div class="nextUp"><span>First thing today</span><b>${esc(on.slots[0].t)} &middot; ${esc(on.slots[0].w)}</b></div>`:'')
     : (ds[0]?`<div class="nextUp"><span>${ds[0].due<t0?'Overdue':'Next to book'}</span><b>${esc(ds[0].what)}</b></div>`:'');
   const prog=on?`<div class="prog"><i style="width:${Math.round((dayIndex(on)+1)/DAYS.length*100)}%"></i></div>`:'';
   const urgent=late.length+sort.filter(x=>x.s.st==='clash').length;
-  return `<div class="board">${head}${prog}${nextUp}</div>
+  return `<div class="cdHero">${head}${prog}${nextUp}</div>
     ${me()?`<p class="hi">${greet()}, <span>${esc(me())}</span>.</p>`:''}
     <div class="cnt"><div><b>46</b><span>days</span></div><div><b>10</b><span>countries</span></div>
       <div><b>12</b><span>beds</span></div><div><b>5</b><span>of you</span></div></div>
@@ -2139,6 +2161,30 @@ const dUl=(cls,ic,items)=>`<ul class="dList ${cls}">${items.map(x=>`<li>${dIc(ic
 const placeList=()=>chapters().filter(ch=>!TRANSIT.test((ch.days[0].city||'').toUpperCase()));
 const countryOf=city=>(D.countries||[]).find(c=>c.cities.indexOf((city||'').toUpperCase())>=0)||null;
 const curOf=code=>(D.cash||[]).find(c=>c.cur===code)||null;
+/* Every day belongs to a country. Transit days carry the previous day's
+   country, so the night train out of Rome still counts as Italy. */
+function countryDays(){
+  const out=new Map(); let last=null;
+  DAYS.forEach(d=>{
+    let co=countryOf(d.city);
+    if(!co && last && !/MELBOURNE|^HOME$/.test((d.city||'').toUpperCase())) co=last;
+    if(!co)return;
+    last=co;
+    if(!out.has(co.key))out.set(co.key,{co,days:[]});
+    out.get(co.key).days.push(d);
+  });
+  return [...out.values()];
+}
+/* The places inside a country, in order, each with its own arrival clock. */
+function legsOf(group){
+  const legs=[]; let cur=null;
+  group.days.forEach(d=>{
+    const base=d.cityName.split(/\s+to\s+/i).pop();
+    if(!cur||cur.base!==base){cur={base,city:d.city,days:[d]};legs.push(cur)}
+    else cur.days.push(d);
+  });
+  return legs.filter(l=>!TRANSIT.test((l.city||'').toUpperCase()));
+}
 
 function placeChips(list,sel){
   return `<div class="chips" style="margin:13px 0 0">${list.map(ch=>{
@@ -2148,92 +2194,118 @@ function placeChips(list,sel){
 }
 
 V.places=function(){
-  const list=placeList();
-  const sel=list.find(c=>c.base===local.placeSel)||list[0];
-  const d0=sel.days[0], city=d0.city, co=countryOf(city), cash=co?curOf(co.cur):null;
-  setHue(city);
-  if(/DISNEY/.test((city||'').toUpperCase())&&V.disney) return placeChips(list,sel)+V.disney();
+  const groups=countryDays();
+  const g=groups.find(x=>x.co.key===local.placeSel)||groups[0];
+  const co=g.co, legs=legsOf(g), cash=curOf(co.cur);
+  const d0=legs.length?legs[0].days[0]:g.days[0];
+  setHue(d0.city);
 
-  const a=arrivalsList().find(x=>x.city===city), ms=a?a.at-Date.now():0;
-  const nights=sel.days.length;
-  const booked=[];
-  sel.days.forEach(day=>day.slots.forEach(s=>{
-    if(s.p||/^(BOOKED|CONFIRMED|FARE SET)/.test(s.b||'')) booked.push({day,s});}));
-  const toGet=[];
-  sel.days.forEach(day=>day.slots.forEach(s=>{
-    if(s.st==='gap'||/BOOK|BUY|CHECK-IN|REGISTER|TBC|NOT BOOKED/i.test(s.b||'')) toGet.push({day,s});}));
-  const stays=(D.stays||[]).filter(s=>(s.cityKey||'').toUpperCase()===(city||'').toUpperCase());
-  const arr=(D.arrive||{})[d0.date], tr=(D.transit||{})[(city||'').toUpperCase()];
+  const chips=`<div class="chips" style="margin:13px 0 0">${groups.map(x=>
+    `<button class="chip${x===g?' on':''}" data-place="${esc(x.co.key)}"
+      style="--cAcc:${palOf(x.days[0].city)[3]}">${x.co.flag} ${esc(x.co.name)}</button>`).join('')}</div>`;
+
+  if(co.key==='FR'&&legs.some(l=>/DISNEY/i.test(l.city))&&local.disneyOpen&&V.disney)
+    return chips+`<button class="btn" data-dclose="1" style="margin-top:12px">&larr; Back to France</button>`+V.disney();
+
+  const a=arrivalsList().find(x=>x.city===d0.city), ms=a?a.at-Date.now():0;
+  const booked=[],toGet=[];
+  g.days.forEach(day=>day.slots.forEach(sl=>{
+    if(sl.p||/^(BOOKED|CONFIRMED|FARE SET)/.test(sl.b||'')) booked.push({day,s:sl});
+    else if(sl.st==='gap'||/BOOK|BUY|CHECK-IN|REGISTER|TBC|NOT BOOKED|LAURA TO/i.test(sl.b||'')) toGet.push({day,s:sl});
+  }));
+  const keys=legs.map(l=>(l.city||'').toUpperCase());
+  const stays=(D.stays||[]).filter(st=>keys.indexOf((st.cityKey||'').toUpperCase())>=0);
   const spend=booked.reduce((n,x)=>n+(+x.s.p||0),0);
-
   const pill=(b,i)=>`<div><b>${b}</b><i>${i}</i></div>`;
-  return placeChips(list,sel)
+
+  return chips
    +`<div class="hero">
-      ${co?`<div class="flagBig">${co.flag}</div>`:''}
-      <div class="heroMark">${markOf(city)}</div>
-      <p class="heroDate">${shortD(sel.days[0].date)} &ndash; ${shortD(sel.days[nights-1].date)} &middot; ${nights} night${nights>1?'s':''}</p>
-      <h1 class="heroCity">${esc(sel.base)}</h1>
-      ${co?`<p class="heroCo">${esc(co.name)}</p>`:''}
-      ${co?`<p class="heroSub">${esc(co.blurb)}</p>`:''}
+      <div class="flagBig">${co.flag}</div>
+      <div class="heroMark">${markOf(d0.city)}</div>
+      <p class="heroDate">${shortD(g.days[0].date)} &ndash; ${shortD(g.days[g.days.length-1].date)} &middot; ${g.days.length} day${g.days.length>1?'s':''}</p>
+      <h1 class="heroCity">${esc(co.name)}</h1>
+      <p class="heroCo">${legs.map(l=>esc(l.base)).join(' &middot; ')}</p>
+      <p class="heroSub">${esc(co.blurb)}</p>
       <div class="heroChips">${pill(booked.length,'booked')}${pill(toGet.length,'to sort')}
         ${spend?pill(money0(spend),'paid so far'):''}</div>
       ${ms>0?`<p class="cdLabel">Until you get there</p>
         <div class="cdCity" data-at="${a.at}">${cdUnits(ms)}</div>`:''}</div>
-    ${cityShot(sel.base,'wide')}
-    <div class="sec">${secH('Your days',nights+' day'+(nights>1?'s':''))}
+
+    ${legs.length>1?`<div class="sec">${secH('Where you go',legs.length+' stops')}
+      <div class="panel" style="padding:2px 16px">${legs.map(l=>{
+        const la=arrivalsList().find(x=>x.city===l.city), lm=la?la.at-Date.now():0;
+        return `<button class="stopRow" data-jump="${l.days[0].date}" style="--cAcc:${palOf(l.city)[3]}">
+          <span class="sm">${markOf(l.city)}</span>
+          <span class="sn"><b>${esc(l.base)}</b><span>${shortD(l.days[0].date)} &middot; ${l.days.length} day${l.days.length>1?'s':''}</span></span>
+          <span class="sc"${la?` data-at="${la.at}"`:''}>${lm>0?shortCd(lm)+'<em>to go</em>':'<em>arrived</em>'}</span>
+        </button>`}).join('')}</div></div>`:''}
+
+    ${booked.length?`<div class="sec">${secH('Tickets and bookings',booked.length+'')}
       <div class="panel" style="padding:2px 16px">
-      ${sel.days.map(day=>`<button class="stopRow" data-jump="${day.date}">
-        <span class="sn"><b>${shortD(day.date)} &middot; ${esc(day.dow||'')}</b>
-        <span>${esc(day.title||'')}</span></span>
-        <span class="sc">${day.slots.length}<em>things</em></span></button>`).join('')}</div></div>
-    ${stays.length?`<div class="sec">${secH('Where you are staying')}
+      ${booked.map(({day,s:sl})=>`<button class="stopRow" data-jump="${day.date}">
+        <span class="sn"><b>${esc(sl.w)}</b><span>${shortD(day.date)} &middot; ${esc(sl.t)}${sl.b?' &middot; '+esc(sl.b):''}</span></span>
+        <span class="sc">${sl.p?money0(sl.p):'<em>booked</em>'}</span></button>`).join('')}</div>
+      <p class="tiny" style="margin-top:9px">Accommodation vouchers open below. Tour vouchers are still
+        with Amy &mdash; once she sends the PDFs they can live here too.</p></div>`:''}
+
+    ${toGet.length?`<div class="sec">${secH('Still to sort',toGet.length+'')}
+      <div class="panel" style="padding:2px 16px">
+      ${toGet.map(({day,s:sl})=>`<button class="stopRow" data-jump="${day.date}">
+        <span class="sn"><b>${esc(sl.w)}</b><span>${shortD(day.date)} &middot; ${esc(sl.t)}</span></span>
+        <span class="sc"><em>${esc(sl.b||'to do')}</em></span></button>`).join('')}</div></div>`:''}
+
+    ${stays.length?`<div class="sec">${secH('Where you are staying',stays.length+'')}
       ${stays.map(st=>`<div class="panel" style="margin-bottom:10px">
         <h3 class="pH">${esc(st.name)}</h3>
         <p class="pS">${esc(st.addr)} &middot; ${st.nights} night${st.nights>1?'s':''}${st.ref?' &middot; '+esc(st.ref):''}</p>
         ${st.note?`<p class="pN">${esc(st.note)}</p>`:''}
         ${st.voucher?`<a class="btn primary vch" href="_blob/${st.voucher}" target="_blank" rel="noopener">Open the voucher</a>`:'<p class="tiny">No voucher saved for this one yet.</p>'}
       </div>`).join('')}</div>`:''}
-    ${booked.length?`<div class="sec">${secH('Tickets and bookings',booked.length+'')}
+
+    <div class="sec">${secH('Every day',g.days.length+'')}
       <div class="panel" style="padding:2px 16px">
-      ${booked.map(({day,s})=>`<button class="stopRow" data-jump="${day.date}">
-        <span class="sn"><b>${esc(s.w)}</b><span>${shortD(day.date)} &middot; ${esc(s.t)}${s.b?' &middot; '+esc(s.b):''}</span></span>
-        <span class="sc">${s.p?money0(s.p):'<em>booked</em>'}</span></button>`).join('')}</div>
-      <p class="tiny" style="margin-top:9px">Accommodation vouchers open above. Tour vouchers are still
-        with Amy &mdash; once she sends the PDFs they can live here too.</p></div>`:''}
-    ${toGet.length?`<div class="sec">${secH('Still to sort',toGet.length+'')}
-      <div class="panel" style="padding:2px 16px">
-      ${toGet.map(({day,s})=>`<button class="stopRow" data-jump="${day.date}">
-        <span class="sn"><b>${esc(s.w)}</b><span>${shortD(day.date)} &middot; ${esc(s.t)}</span></span>
-        <span class="sc"><em>${esc(s.b||'to do')}</em></span></button>`).join('')}</div></div>`:''}
+      ${g.days.map(day=>`<button class="stopRow" data-jump="${day.date}">
+        <span class="sn"><b>${shortD(day.date)} &middot; ${esc(day.cityName)}</b>
+        <span>${esc(day.title||'')}</span></span>
+        <span class="sc">${day.slots.length}<em>on</em></span></button>`).join('')}</div></div>
+
     ${cash?`<div class="sec">${secH('Money',cash.cur)}
       <div class="panel">
         <div class="fxRow"><div><b>1 ${esc(cash.cur)}</b><i>buys</i></div>
           <div><b>A$${cash.rate}</b><i>roughly</i></div>
           <div><b>${esc(cash.cur)} ${Math.round(100/cash.rate)}</b><i>is A$100</i></div></div>
-        <p class="pN">${esc(cash.note||'')}</p>
-        ${co?`<p class="pN"><b>Tipping.</b> ${esc(co.tip)}</p>`:''}
-      </div></div>`:''}
-    ${(arr||tr)?`<div class="sec">${secH('Getting about')}
-      ${arr?`<div class="panel" style="margin-bottom:10px">
-        <h3 class="pH">Getting in</h3>
-        <p class="pS">${esc(arr.station||'')}${arr.mins?' &middot; '+esc(arr.mins):''}</p>
-        ${arr.how?`<p class="pN">${esc(arr.how)}</p>`:''}
-        ${arr.note?`<p class="pN">${esc(arr.note)}</p>`:''}</div>`:''}
-      ${tr?`<div class="panel">
-        <h3 class="pH">Getting around</h3>
-        ${tr.buy?`<p class="pN"><b>Buy.</b> ${esc(tr.buy)}</p>`:''}
-        ${tr.where?`<p class="pN"><b>Where.</b> ${esc(tr.where)}</p>`:''}
-        ${tr.validate?`<p class="pN"><b>Validate.</b> ${esc(tr.validate)}</p>`:''}
-        ${tr.fine?`<p class="pN"><b>If you don't.</b> ${esc(tr.fine)}</p>`:''}</div>`:''}</div>`:''}
-    ${co?`<div class="sec">${secH('Good to know',esc(co.name))}
+        <p class="pN" style="margin-top:12px">${esc(cash.note||'')}</p>
+        <p class="pN"><b>Tipping.</b> ${esc(co.tip)}</p></div></div>`:''}
+
+    ${legs.map(l=>{
+      const arr=(D.arrive||{})[l.days[0].date], tr=(D.transit||{})[(l.city||'').toUpperCase()];
+      if(!arr&&!tr)return'';
+      return `<div class="sec">${secH('Getting about',esc(l.base))}
+        ${arr?`<div class="panel" style="margin-bottom:10px">
+          <h3 class="pH">Getting in</h3>
+          <p class="pS">${esc(arr.station||'')}${arr.mins?' &middot; '+esc(arr.mins):''}</p>
+          ${arr.how?`<p class="pN">${esc(arr.how)}</p>`:''}
+          ${arr.note?`<p class="pN">${esc(arr.note)}</p>`:''}</div>`:''}
+        ${tr?`<div class="panel">
+          <h3 class="pH">Getting around</h3>
+          ${tr.buy?`<p class="pN"><b>Buy.</b> ${esc(tr.buy)}</p>`:''}
+          ${tr.where?`<p class="pN"><b>Where.</b> ${esc(tr.where)}</p>`:''}
+          ${tr.validate?`<p class="pN"><b>Validate.</b> ${esc(tr.validate)}</p>`:''}
+          ${tr.fine?`<p class="pN"><b>If you don&rsquo;t.</b> ${esc(tr.fine)}</p>`:''}</div>`:''}
+      </div>`}).join('')}
+
+    <div class="sec">${secH('Good to know',esc(co.name))}
       <div class="panel" style="padding:2px 16px">
         <div class="ln"><div class="l"><b>Language</b><span>${esc(co.lang)}</span></div></div>
         <div class="ln"><div class="l"><b>Plugs</b><span>${esc(co.plug)}</span></div></div>
         <div class="ln"><div class="l"><b>Emergency</b><span>${esc(co.emerg)}</span></div></div>
         <div class="ln"><div class="l"><b>Currency</b><span>${esc(co.cur)}${cash?' &middot; about A$'+cash.rate+' each':''}</span></div></div>
-      </div></div>`:''}
+      </div></div>
+    ${co.key==='FR'&&V.disney?`<div class="sec"><button class="btn primary" data-dopen="1"
+       style="width:100%">Open the Disneyland guide</button></div>`:''}
     ${day0Climate(d0)}`;
 };
+
 function day0Climate(d){
   if(!d.clim)return'';
   return `<div class="sec">${secH('What it is like in January')}
@@ -2459,12 +2531,14 @@ document.addEventListener('change',async e=>{
 });
 let pendingDay=null;
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kitmode],[data-shopadd],[data-shopwho],[data-shopdone],[data-shop],[data-kit],[data-pack],[data-need],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug],[data-place],[data-seeall],[data-crew],[data-diary],[data-job],[data-jobadd],[data-jobdone],[data-jobwho],[data-kitjump]');
+  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kitmode],[data-shopadd],[data-shopwho],[data-shopdone],[data-shop],[data-kit],[data-pack],[data-need],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug],[data-place],[data-dopen],[data-dclose],[data-seeall],[data-crew],[data-diary],[data-job],[data-jobadd],[data-jobdone],[data-jobwho],[data-kitjump]');
   if(!t)return; const s=t.dataset;
   if(s.tab)return go(s.tab);
   if(s.l!==undefined){local.look=s.l||null;saveLocal();return applyLook()}
   if(s.seeall!==undefined){local.seeAll=s.seeall==='1';saveLocal();return render()}
-  if(s.place){local.placeSel=s.place;saveLocal();window.scrollTo({top:0});
+  if(s.dopen){local.disneyOpen=1;saveLocal();window.scrollTo({top:0});return render()}
+  if(s.dclose){local.disneyOpen=0;saveLocal();window.scrollTo({top:0});return render()}
+  if(s.place){local.placeSel=s.place;local.disneyOpen=0;saveLocal();window.scrollTo({top:0});
     if(cur!=='places')return go('places');
     return render()}
   if(s.kitmode){local.kitMode=s.kitmode;saveLocal();window.scrollTo(0,0);return render()}
