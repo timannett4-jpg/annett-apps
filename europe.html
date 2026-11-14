@@ -2467,9 +2467,21 @@ function render(){
       const dd=document.getElementById('spDays');
       const left=Math.round((Date.parse(D.trip.start+'T00:00:00Z')-Date.parse(todayISO()+'T00:00:00Z'))/864e5);
       if(dd&&left>0){dd.hidden=false;dd.innerHTML=left+'<span>days to go</span>'}
-      const clear=()=>{if(sp.classList.contains('gone'))return;
-        sp.classList.add('gone');setTimeout(()=>sp.remove(),650)};
-      setTimeout(clear,10000);
+      /* Hold it, then hide it. It is never removed, so reopening the app can
+         bring it straight back - on iOS a resumed PWA never reloads the page. */
+      const hide=()=>{clearTimeout(window.__spT);sp.classList.add('gone')};
+      const show=()=>{clearTimeout(window.__spT);
+        sp.style.animation='none'; sp.classList.remove('gone');
+        window.__spT=setTimeout(hide,10000)};
+      window.__splashShow=show;
+      window.__spT=setTimeout(hide,10000);
+      let away=0;
+      document.addEventListener('visibilitychange',()=>{
+        if(document.visibilityState==='hidden'){away=Date.now();return}
+        if(away&&Date.now()-away>60000)show();
+        away=0;
+      });
+      addEventListener('pageshow',ev=>{if(ev.persisted)show()});
     }}
   if(!local.me&&!window.__askedWho){window.__askedWho=1;setTimeout(whoOpen,10800)}
   if(!window.__cdTick)window.__cdTick=setInterval(()=>{
