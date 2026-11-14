@@ -148,15 +148,22 @@ main{max-width:1200px; margin:0 auto; position:relative;
   color:#8A5B00; letter-spacing:-.02em; animation:spRise .9s .3s cubic-bezier(.2,.8,.3,1) both}
 .spD span{display:block; margin-top:2px; font-size:10px; font-weight:600; letter-spacing:.3em;
   text-transform:uppercase; color:#6E6149}
-.spBar{margin:24px auto 0; width:124px; height:3px; border-radius:3px; background:#E9DBBD;
-  overflow:hidden}
-.spBar i{display:block; height:100%; width:40%; border-radius:3px; background:#8A5B00;
-  animation:spSlide 1.1s ease-in-out infinite}
+.spSpin{margin:28px auto 0; width:40px; height:40px;
+  animation:spRise .9s .36s cubic-bezier(.2,.8,.3,1) both}
+.spSpin svg{width:100%; height:100%; animation:spTurn 1.3s linear infinite}
+.spSpin circle{fill:none; stroke:#8A5B00; stroke-width:3.5; stroke-linecap:round;
+  stroke-dasharray:90 126; opacity:.85}
+.spLoad{margin:13px 0 0; font-family:"Oswald",sans-serif; font-size:10px; font-weight:600;
+  letter-spacing:.24em; text-transform:uppercase; color:#9A8E78;
+  animation:spRise .9s .5s cubic-bezier(.2,.8,.3,1) both}
+@keyframes spTurn{to{transform:rotate(360deg)}}
+/* Belt and braces: if the script never runs, the screen still clears itself. */
+#splash{animation:spSafe .6s 13s forwards}
+@keyframes spSafe{to{opacity:0; visibility:hidden}}
 @keyframes spRise{from{opacity:0; transform:translateY(12px)}to{opacity:1; transform:none}}
-@keyframes spSlide{0%{transform:translateX(-120%)}100%{transform:translateX(320%)}}
 @media (prefers-reduced-motion:reduce){
-  .spMark svg,.spK,.spT,.spS,.spD{animation:none}
-  .spBar i{animation:none; width:100%}}
+  .spMark svg,.spK,.spT,.spS,.spD,.spSpin,.spLoad{animation:none}
+  .spSpin svg{animation:spTurn 2.6s linear infinite}}
 
 /* ---------- WHO ARE YOU ---------- */
 #whoWrap{position:fixed; inset:0; z-index:60; background:rgba(0,0,0,.86);
@@ -965,7 +972,10 @@ body[data-view="disney"]{background:var(--dNight)}
   <h1 class="spT">Europe</h1>
   <p class="spS">The Annetts &middot; 46 days &middot; 10 countries</p>
   <p class="spD" id="spDays" hidden></p>
-  <div class="spBar"><i></i></div>
+  <div class="spSpin" role="status" aria-label="Loading">
+    <svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20"/></svg>
+  </div>
+  <p class="spLoad">Loading your trip</p>
 </div></div>
 <div id="whoWrap" hidden><div class="whoCard">
   <h2>Who&rsquo;s this?</h2>
@@ -2457,9 +2467,11 @@ function render(){
       const dd=document.getElementById('spDays');
       const left=Math.round((Date.parse(D.trip.start+'T00:00:00Z')-Date.parse(todayISO()+'T00:00:00Z'))/864e5);
       if(dd&&left>0){dd.hidden=false;dd.innerHTML=left+'<span>days to go</span>'}
-      setTimeout(()=>{sp.classList.add('gone');setTimeout(()=>sp.remove(),650)},1050);
+      const clear=()=>{if(sp.classList.contains('gone'))return;
+        sp.classList.add('gone');setTimeout(()=>sp.remove(),650)};
+      setTimeout(clear,10000);
     }}
-  if(!local.me&&!window.__askedWho){window.__askedWho=1;setTimeout(whoOpen,1750)}
+  if(!local.me&&!window.__askedWho){window.__askedWho=1;setTimeout(whoOpen,10800)}
   if(!window.__cdTick)window.__cdTick=setInterval(()=>{
     const e=document.getElementById('cdLive'); if(e)e.innerHTML=cdLiveHTML();
     document.querySelectorAll('.cdCity[data-at]').forEach(c=>{c.innerHTML=cdUnits(+c.dataset.at-Date.now())});
