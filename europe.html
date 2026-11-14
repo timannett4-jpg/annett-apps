@@ -43,15 +43,6 @@ addEventListener('error',function(e){var t=e.target;if(t&&t.tagName==='IMG'&&/_b
   --bar:60px;
   color-scheme:dark;
 }
-body[data-look="day"]{
-  --bg:#E9E9E6; --bg2:#E0E0DC; --panel:#FFFFFF; --panel2:#F3F3F0; --rule:#C9C9C4;
-  --board:#111111; --flapA:#2E2E2E; --flapB:#1D1D1D;
-  --ink:#101010; --dim:#4E4E4A; --faint:#7D7D77;
-  --amber:#8A5B00; --cream:#F2E8D0; --green:#0C7A42; --red:#B4201A; --orange:#8A5207;
-  --onLine:#FFFFFF; --fill:#111111;
-  --lineSoft:#F0E6CC; --boardInk:#F2E8D0;
-  color-scheme:light;
-}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--body);
@@ -362,7 +353,7 @@ main{max-width:1200px; margin:0 auto; position:relative;
 .ribWrap::-webkit-scrollbar{display:none}
 .rib{display:block; max-width:none}
 .rib .tk{font-family:var(--mono); font-size:13px; fill:var(--faint); text-anchor:middle}
-.rib .rb{fill:#1E1E1E; stroke:#000; stroke-width:1; cursor:pointer}
+.rib .rb{fill:#DADAD6; stroke:#BFBFBA; stroke-width:1; cursor:pointer}
 .rib .rb.alt{fill:#171717}
 .rib .rb.sel{fill:var(--amber)}
 .rib .rl{font-family:var(--disp); font-size:17px; font-weight:600; fill:var(--cream);
@@ -375,11 +366,11 @@ main{max-width:1200px; margin:0 auto; position:relative;
 .rib .hl{font-family:var(--disp); font-size:13px; fill:var(--faint); letter-spacing:.1em;
   text-transform:uppercase}
 .rib .nowL{stroke:var(--red); stroke-width:2}
-body[data-look="day"] .rib .rb{fill:#DADAD6; stroke:#BFBFBA}
+body[data-look="day"] .rib .rb{fill:#1E1E1E; stroke:#000}
 body[data-look="day"] .rib .rb.alt{fill:#CECEC9}
-body[data-look="day"] .rib .rb.sel{fill:#111}
-body[data-look="day"] .rib .rl{fill:#1A1A1A}
-body[data-look="day"] .rib .rl.sel{fill:#F2E8D0}
+body[data-look="day"] .rib .rb.sel{fill:#F2E8D0}
+body[data-look="day"] .rib .rl{fill:#F2E8D0}
+body[data-look="day"] .rib .rl.sel{fill:#111}
 
 /* ---------- stations / stops ---------- */
 .stn{margin-top:22px}
@@ -574,19 +565,19 @@ body[data-look="day"] .rib .rl.sel{fill:#F2E8D0}
 
 /* ---------- map ---------- */
 #routemap{display:block; width:100%; height:auto; margin-top:10px}
-#routemap .land{fill:#141414; stroke:#242424; stroke-width:1.2}
+#routemap .land{fill:#DCDCD8; stroke:#C2C2BD; stroke-width:1.2}
 #routemap .route{stroke:var(--amber); stroke-width:8; fill:none; stroke-linecap:round;
   stroke-linejoin:round}
 #routemap .air{stroke:#3A3A3A; stroke-width:3; fill:none; stroke-dasharray:2 10;
   stroke-linecap:round}
-#routemap .base{fill:#0A0A0A; stroke:var(--cream); stroke-width:5; cursor:pointer}
+#routemap .base{fill:#fff; stroke:#111; stroke-width:5; cursor:pointer}
 #routemap .base.sel{fill:var(--amber); stroke:var(--cream)}
 #routemap .lbl{font-family:var(--disp); font-size:23px; font-weight:600; fill:var(--cream);
   letter-spacing:.06em; text-transform:uppercase; pointer-events:none; paint-order:stroke;
   stroke:#0A0A0A; stroke-width:7px; stroke-linejoin:round}
-body[data-look="day"] #routemap .land{fill:#DCDCD8; stroke:#C2C2BD}
-body[data-look="day"] #routemap .base{fill:#fff; stroke:#111}
-body[data-look="day"] #routemap .lbl{fill:#111; stroke:#fff}
+body[data-look="day"] #routemap .land{fill:#141414; stroke:#242424}
+body[data-look="day"] #routemap .base{fill:#0A0A0A; stroke:var(--ink)}
+body[data-look="day"] #routemap .lbl{fill:#fff; stroke:#111}
 
 /* ---------- notes, photos, ask ---------- */
 .note{border-left:2px solid var(--amber); padding:3px 0 3px 12px; margin-top:12px;
@@ -970,7 +961,7 @@ const hueOf=c=>HUE[c]!=null?HUE[c]:210;
 const markOf=c=>'<svg viewBox="0 0 120 64" aria-hidden="true">'+(G[MARK[c]]||G.field)+'</svg>';
 /* A colour world per place. Deep, saturated, one accent each - the Disney page
    set the pattern and every other city now gets the same treatment. */
-const PAL={
+const PALD={
  'DEPART AUSTRALIA':['#0D1724','#132031','#1C2E44','#6FB6E8','#EAF2FA','#97AEC4'],
  'IN THE AIR':       ['#0D1724','#132031','#1C2E44','#6FB6E8','#EAF2FA','#97AEC4'],
  LONDON:             ['#0E1A26','#142433','#1E3246','#E8B04B','#EDF3F8','#9DB0C0'],
@@ -996,10 +987,41 @@ const PAL={
  'MELBOURNE AIRPORT':['#16201A','#1E2B23','#2A3B31','#7FD69B','#EDF6F0','#9EB8A7'],
  HOME:               ['#16201A','#1E2B23','#2A3B31','#7FD69B','#EDF6F0','#9EB8A7'],
 };
-const palOf=c=>PAL[c]||PAL[(c||'').toUpperCase()]||PAL.LONDON;
+/* Bright by default. Light, warm, one vivid accent per place. The dark set
+   above is kept for the Night look. */
+const PAL={
+ 'DEPART AUSTRALIA':['#EEF5FB','#FFFFFF','#CFE0EE','#19618F','#13212C','#5C7386'],
+ 'IN THE AIR':       ['#EEF5FB','#FFFFFF','#CFE0EE','#19618F','#13212C','#5C7386'],
+ LONDON:             ['#FBF4E6','#FFFFFF','#E9DBBD','#8A5B00','#231A09','#6E6149'],
+ 'REGIONAL ENGLAND': ['#EFF7EC','#FFFFFF','#D2E6CA','#2F7A3E','#152314','#5B7257'],
+ 'THE NIGHT FERRY':  ['#ECF6FA','#FFFFFF','#C9E3EE','#0D6A86','#0F2129','#577682'],
+ HOLLAND:            ['#FFF3E8','#FFFFFF','#F3DCC4','#B4540A','#2A1A0B','#7B6350'],
+ BELGIUM:            ['#FBEFF7','#FFFFFF','#EED4E6','#9C3D7E','#271428','#785E73'],
+ PARIS:              ['#F4F0FD','#FFFFFF','#DCD3F2','#6B3FA0','#1C1430','#655C86'],
+ DISNEYLAND:         ['#F2F1FD','#FFFFFF','#D8D6F3','#4A3BA8','#17153A','#5E5B8C'],
+ 'DISNEYLAND PARIS': ['#F2F1FD','#FFFFFF','#D8D6F3','#4A3BA8','#17153A','#5E5B8C'],
+ BERN:               ['#EBF8F6','#FFFFFF','#C9E8E2','#0F7A72','#0D2422','#557571'],
+ VENICE:             ['#EBF6FA','#FFFFFF','#C8E4EF','#0E6E86','#0C2129','#577682'],
+ FLORENCE:           ['#FDF3E5','#FFFFFF','#F0DCBE','#A15A00','#2A1D0C','#7A6750'],
+ ROME:               ['#FEF1EE','#FFFFFF','#F5D6CD','#C0392B','#2B1511','#7E5F58'],
+ 'THE NIGHT TRAIN':  ['#F3F1FB','#FFFFFF','#DAD5EF','#5A3FA8','#1A1630','#635D85'],
+ VIENNA:             ['#FBF5E3','#FFFFFF','#EDDFB6','#8A6A00','#241D06','#6F6646'],
+ KRAKOW:             ['#FDF0F3','#FFFFFF','#F3D3DB','#B3243F','#2A1016','#7C5A62'],
+ PRAGUE:             ['#F5F1FD','#FFFFFF','#DFD5F4','#6A3FB5','#1E1535','#675D8A'],
+ BERLIN:             ['#FBF4E8','#FFFFFF','#EADCC3','#9A5B00','#241B0C','#6F6450'],
+ POTSDAM:            ['#EDF8F1','#FFFFFF','#CCE8D7','#17784B','#0F2419','#56776A'],
+ 'THE COTSWOLDS':    ['#F5F9E9','#FFFFFF','#DEE9C4','#5C7A1E','#1D2410','#667255'],
+ LEAVESDEN:          ['#F7F0FB','#FFFFFF','#E6D6F0','#7A3FA0','#22132C','#705f7a'],
+ 'MELBOURNE AIRPORT':['#EEF8F1','#FFFFFF','#CFE8D8','#1B7A4D','#0F241A','#58776A'],
+ HOME:               ['#EEF8F1','#FFFFFF','#CFE8D8','#1B7A4D','#0F241A','#58776A'],
+};
+const night=()=>(local.look||'')==='day';
+const palOf=c=>{const T=night()?PALD:PAL;
+  return T[c]||T[(c||'').toUpperCase()]||T.LONDON;};
 /* Written on <html>, so the Daylight rules on <body> still win. */
 function setHue(c){
   const p=palOf(c), r=document.documentElement.style;
+  r.setProperty('color-scheme',night()?'dark':'light');
   r.setProperty('--bg',p[0]); r.setProperty('--bg2',p[1]);
   r.setProperty('--panel',p[1]); r.setProperty('--panel2',p[0]);
   r.setProperty('--rule',p[2]); r.setProperty('--line',p[3]);
@@ -1015,7 +1037,7 @@ const CREW=['Tim','Laura','Sienna','Erika','Archer'];
 const KEY='annett-eu-2027';
 let local={}; try{local=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){}
 const saveLocal=()=>{try{localStorage.setItem(KEY,JSON.stringify(local))}catch(e){}};
-const LOOKS=[['','Solari'],['day','Daylight']];
+const LOOKS=[['','Bright'],['day','Night']];
 function applyLook(){
   if(local.look&&!LOOKS.some(x=>x[0]===local.look)){local.look=null;saveLocal()}
   if(local.look) document.body.setAttribute('data-look',local.look);
@@ -1023,7 +1045,7 @@ function applyLook(){
   const w=document.getElementById('lookWrap');
   if(w) w.innerHTML=LOOKS.map(([k,l])=>
     `<button class="look${(local.look||'')===k?' on':''}" data-l="${k}" title="${l}" aria-label="${l}"></button>`).join('')
-    +`<span class="tiny" style="margin-left:4px">${esc((LOOKS.find(x=>x[0]===(local.look||''))||['','Solari'])[1])}</span>`;
+    +`<span class="tiny" style="margin-left:4px">${esc((LOOKS.find(x=>x[0]===(local.look||''))||['','Bright'])[1])}</span>`;
 }
 
 const GLY='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$,.&-/';
@@ -1541,7 +1563,7 @@ V.home=function(){
     ${(()=>{const st=arrivalsList(); if(!st.length)return'';
       return `<div class="sec">${secH('Where you will be',st.length+' stops')}
         <div class="panel" style="padding:2px 16px">${st.map(x=>{const ms=x.at-Date.now();
-          return `<button class="stopRow${ms>0?'':' done'}" data-jump="${x.date}"
+          return `<button class="stopRow${ms>0?'':' done'}" data-place="${esc(x.name)}"
             style="--cAcc:${palOf(x.city)[3]}">
             <span class="sm">${markOf(x.city)}</span>
             <span class="sn"><b>${esc(x.name)}</b><span>${shortD(x.date)} &middot; ${esc(x.t)} &middot; ${x.nights} night${x.nights>1?'s':''}</span></span>
@@ -2437,12 +2459,14 @@ document.addEventListener('change',async e=>{
 });
 let pendingDay=null;
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kitmode],[data-shopadd],[data-shopwho],[data-shopdone],[data-shop],[data-kit],[data-pack],[data-need],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug]');
+  const t=e.target.closest('[data-tab],[data-jump],[data-chap],[data-fix],[data-kitmode],[data-shopadd],[data-shopwho],[data-shopdone],[data-shop],[data-kit],[data-pack],[data-need],[data-chk],[data-copy],[data-hit],[data-base],[data-note],[data-spend],[data-photo],[data-l],[data-sug],[data-place],[data-seeall],[data-crew],[data-diary],[data-job],[data-jobadd],[data-jobdone],[data-jobwho],[data-kitjump]');
   if(!t)return; const s=t.dataset;
   if(s.tab)return go(s.tab);
   if(s.l!==undefined){local.look=s.l||null;saveLocal();return applyLook()}
   if(s.seeall!==undefined){local.seeAll=s.seeall==='1';saveLocal();return render()}
-  if(s.place){local.placeSel=s.place;saveLocal();window.scrollTo({top:0});return render()}
+  if(s.place){local.placeSel=s.place;saveLocal();window.scrollTo({top:0});
+    if(cur!=='places')return go('places');
+    return render()}
   if(s.kitmode){local.kitMode=s.kitmode;saveLocal();window.scrollTo(0,0);return render()}
   if(s.shopwho){local.shopWho=s.shopwho;saveLocal();return render()}
   if(s.shopdone){local.shopDone=!local.shopDone;saveLocal();return render()}
@@ -2463,6 +2487,34 @@ document.addEventListener('click',async e=>{
       done:nd,doneBy:it.doneBy,doneAt:it.doneAt})}catch(e){toast('Could not save that.')}
     return}
   if(s.kit){local.kitWho=s.kit;saveLocal();return render()}
+  if(s.crew!==undefined){local.crewSel=s.crew||null;saveLocal();window.scrollTo({top:0});return render()}
+  if(s.kitjump){local.kitWho=s.kitjump;saveLocal();return go('kit')}
+  if(s.jobwho){local.jobWho=s.jobwho;saveLocal();return render()}
+  if(s.jobdone){local.jobDone=!local.jobDone;saveLocal();return render()}
+  if(s.jobadd){
+    const tx=document.getElementById('jbTx'),du=document.getElementById('jbDue');
+    if(!tx||!tx.value.trim())return toast('Type the job first.');
+    const who=local.jobWho||me()||'Anyone';
+    const v=tx.value.trim(),d=du&&du.value||''; tx.value=''; if(du)du.value='';
+    return addDoc('jobs',{text:v,due:d,who,done:false})}
+  if(s.job){
+    const it=(SHARED.jobs||[]).find(x=>x._id===s.job); if(!it)return;
+    if(!DB||!CANWRITE)return toast('Not connected.');
+    const nd=!it.done, r=t.getBoundingClientRect();
+    const id=await(ME&&ME.id?ME.id():null);
+    it.done=nd; it.doneBy=nd?id:null; it.donePerson=nd?me():null;
+    it.doneAt=nd?new Date().toISOString():null;
+    if(nd)burst(r.left+20,r.top+16);
+    render();
+    try{await DB.doc('jobs/'+s.job).set({text:it.text,due:it.due||'',who:it.who||'Anyone',
+      by:it.by,person:it.person||'',at:it.at,done:nd,doneBy:it.doneBy,
+      donePerson:it.donePerson,doneAt:it.doneAt})}catch(e){toast('Could not save that.')}
+    return}
+  if(s.diary!==undefined){
+    const tx=document.getElementById('dyTx');
+    if(!tx||!tx.value.trim())return toast('Nothing to add yet.');
+    const v=tx.value.trim(); tx.value='';
+    return addDoc('diary',{day:s.diary,text:v})}
   if(s.base){local.mapSel=local.mapSel===s.base?null:s.base;saveLocal();return render()}
   if(s.fix){
     const cur=(SHARED.fixes[s.fix]||{}).state||'open';
