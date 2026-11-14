@@ -2462,6 +2462,11 @@ document.getElementById('navIn').innerHTML=TABS.map(([k,l,ic])=>
 function render(){
   const V_=document.getElementById('view');
   document.body.dataset.view=cur;
+  /* Set the colour world centrally. Half the views only called setHue when the
+     trip had started, so before departure they fell back to the old dark root. */
+  {const on=currentDay(),nx=arrivalsList().find(x=>x.at>Date.now());
+   const sel=(cur==='today'&&local.daySel)?DAYS.find(d=>d.date===local.daySel):null;
+   setHue((sel&&sel.city)||(on&&on.city)||(nx&&nx.city)||'LONDON');}
   V_.innerHTML=(V[cur]||V.home)();
   riffle(V_);
   const nf=DAYS.reduce((a,d)=>a+flagsFor(d).length,0);
