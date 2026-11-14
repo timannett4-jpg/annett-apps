@@ -1689,7 +1689,8 @@ V.home=function(){
     ${(()=>{const st=arrivalsList(); if(!st.length)return'';
       return `<div class="sec">${secH('Where you will be',st.length+' stops')}
         <div class="panel" style="padding:2px 16px">${st.map(x=>{const ms=x.at-Date.now();
-          return `<button class="stopRow${ms>0?'':' done'}" data-place="${esc(x.name)}"
+          const xc=countryOf(x.city);
+          return `<button class="stopRow${ms>0?'':' done'}" data-place="${esc(xc?xc.key:x.name)}"
             style="--cAcc:${palOf(x.city)[3]}">
             <span class="sm">${markOf(x.city)}</span>
             <span class="sn"><b>${esc(x.name)}</b><span>${shortD(x.date)} &middot; ${esc(x.t)} &middot; ${x.nights} night${x.nights>1?'s':''}</span></span>
@@ -2331,7 +2332,11 @@ function placeChips(list,sel){
 
 V.places=function(){
   const groups=countryDays();
-  const g=groups.find(x=>x.co.key===local.placeSel)||groups[0];
+  const ps=(local.placeSel||'').toUpperCase();
+  const g=groups.find(x=>x.co.key===local.placeSel)
+    ||groups.find(x=>x.days.some(d=>(d.city||'').toUpperCase()===ps
+        ||(d.cityName||'').split(/\s+to\s+/i).pop().toUpperCase()===ps))
+    ||groups[0];
   const co=g.co, legs=legsOf(g), cash=curOf(co.cur);
   const d0=legs.length?legs[0].days[0]:g.days[0];
   setHue(d0.city);
