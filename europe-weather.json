@@ -1,1 +1,14 @@
-{"checked":"","days":{}}
+{
+ "checked": "2026-11-15T10:10:05Z",
+ "days": {
+  "2026-11-16": {
+   "place": "Bern",
+   "hi": 11.7,
+   "lo": 7.8,
+   "sky": "Morning rain, mostly cloudy",
+   "src": "AccuWeather",
+   "at": "2026-11-15T10:10:05Z",
+   "rain": 64
+  }
+ }
+}
