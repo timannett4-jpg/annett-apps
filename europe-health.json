@@ -1,0 +1,69 @@
+{
+ "checked": "2026-11-15",
+ "items": [
+  {
+   "k": "flu",
+   "lv": "act",
+   "t": "Flu and winter viruses",
+   "where": "Every stop, the whole trip",
+   "s": "You travel at the peak. In Europe the flu season usually starts between mid-November and mid-December and peaks in January or February.",
+   "do": "Ask your GP whether a flu shot before you go is worthwhile for all five.",
+   "src": [
+    [
+     "WHO Europe",
+     "https://www.who.int/europe/news/item/23-10-2026-get-ready-for-this-year-s-influenza-season--vaccination-is-key"
+    ]
+   ]
+  },
+  {
+   "k": "hepa",
+   "lv": "act",
+   "t": "Hepatitis A in Czechia",
+   "where": "Prague, 31 Jan to 2 Feb",
+   "s": "The worst outbreak there in decades: 2,597 cases and 29 deaths in 2025 with Prague the epicentre, and 1,078 more cases from January to May 2026. Czech officials say there is no need to cancel.",
+   "do": "Wash hands before eating, and ask your GP about the hepatitis A vaccine.",
+   "src": [
+    [
+     "Polskie Radio",
+     "https://www.polskieradio.pl/395/7785/Artykul/3610594,hepatitis-a-cases-ease-slightly-in-czech-republic-but-outbreak-worst-in-decades"
+    ],
+    [
+     "TravelHealthPro",
+     "https://travelhealthpro.org.uk/countries/czechia"
+    ]
+   ]
+  },
+  {
+   "k": "measles",
+   "lv": "know",
+   "t": "Measles",
+   "where": "The UK and most of Europe",
+   "s": "Europe's surge is easing: 2,325 cases in the EU in the year to September 2026, and 66 in September. The UK lost its measles-free status in January. Most cases are in unvaccinated people.",
+   "do": "Check all five of you have had two doses of the measles vaccine.",
+   "src": [
+    [
+     "ECDC",
+     "https://www.ecdc.europa.eu/en/public-health-events/2011-eip-00003/2026-11-06"
+    ]
+   ]
+  },
+  {
+   "k": "ebola",
+   "lv": "watch",
+   "t": "Ebola in central Africa",
+   "where": "Not on your route",
+   "s": "A large outbreak in the Democratic Republic of the Congo, with 11,197 confirmed cases by 12 November. A handful of patients have been flown to Europe for treatment. The EU's disease agency rates the risk to people in Europe as very low.",
+   "do": "Nothing to do. It matters only if airports start health screening, and none was found on your route.",
+   "src": [
+    [
+     "ECDC",
+     "https://www.ecdc.europa.eu/en/ebola-disease-multi-country-outbreak-2026"
+    ],
+    [
+     "WHO",
+     "https://www.who.int/emergencies/disease-outbreak-news/item/2026-DON625"
+    ]
+   ]
+  }
+ ]
+}
