@@ -25,7 +25,9 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET' || u.hostname.endsWith('google.com') || u.hostname.endsWith('googleusercontent.com')) return;
   const m = u.pathname.match(/\/_blob\/([0-9a-f]{32})/);
   if (m) { e.respondWith(asset(new Request(u.origin + u.pathname), m[1]).catch(() => new Response('Offline', { status: 503 }))); return; }
-  e.respondWith(fetch(e.request).then(r => {
+  // Pages always ask the server first (skipping the browser's 10-minute copy) so app updates show on the next open.
+  const page = e.request.mode === 'navigate' || /\.html$/.test(u.pathname);
+  e.respondWith((page ? fetch(u.href, { cache: 'no-cache', credentials: 'same-origin' }) : fetch(e.request)).then(r => {
     if (r.ok || r.type === 'opaque') { const c = r.clone(); caches.open(CACHE).then(x => x.put(e.request, c)); }
     return r;
   }).catch(() => caches.match(e.request, { ignoreSearch: true })));

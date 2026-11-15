@@ -485,7 +485,42 @@ nav.tabs button[aria-current="true"]::before{content:"";position:absolute;top:0;
 .scanst small{display:block;font-weight:500;margin-top:2px}
 .field.need input{border-color:#e0a100;background:#fff8e6}
 .wnote{background:#fff8e6;border:1px solid #f6dfb5;color:#7a4b00;border-radius:12px;padding:10px 14px;font-size:.9rem;margin:0}
+
+/* ---------- launch screen (like the Europe app's) ---------- */
+#splash{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:28px;text-align:center;color:#fff;overflow:hidden;
+  background:radial-gradient(120% 80% at 50% 110%,#ff8a6b 0%,#c4487a 26%,#3a2f86 58%,#1d1a4a 100%);transition:opacity .5s ease,visibility .5s ease;animation:spSafe .6s 14s forwards}
+#splash.gone{opacity:0;visibility:hidden}
+#splash .stars{opacity:.7}
+.spSun{position:absolute;left:50%;bottom:-120px;width:260px;height:260px;margin-left:-130px;border-radius:50%;background:#ffc9a6;box-shadow:0 0 90px 40px rgba(255,150,120,.45);opacity:.85;animation:spSun 1.4s cubic-bezier(.2,.8,.3,1) both}
+.spIn{position:relative;max-width:360px;width:100%}
+.spMark{width:84px;height:84px;margin:0 auto;border-radius:24px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:0 18px 40px -16px rgba(0,0,0,.55);animation:spRise .8s cubic-bezier(.2,.8,.3,1) both}
+.spMark svg{width:46px;height:46px;stroke:currentColor;fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.spK{margin:22px 0 0;font-size:12px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#ffd7cc;animation:spRise .8s .08s cubic-bezier(.2,.8,.3,1) both}
+.spT{margin:6px 0 0;font-size:clamp(40px,12vw,56px);font-weight:800;letter-spacing:-.03em;line-height:1;animation:spRise .8s .14s cubic-bezier(.2,.8,.3,1) both}
+.spH{margin:14px 0 0;font-size:17px;font-weight:700;animation:spRise .8s .22s cubic-bezier(.2,.8,.3,1) both}
+.spDt{margin:3px 0 0;font-size:14px;color:#d9d5f5;animation:spRise .8s .26s cubic-bezier(.2,.8,.3,1) both}
+.spFaces{display:flex;justify-content:center;margin-top:18px;animation:spRise .8s .32s cubic-bezier(.2,.8,.3,1) both}
+.spFaces .av{width:30px;height:30px;font-size:.78rem;border:2px solid rgba(255,255,255,.9);margin:0 -4px}
+.spSpin{margin:26px auto 0;width:32px;height:32px;animation:spRise .8s .4s cubic-bezier(.2,.8,.3,1) both}
+.spSpin svg{width:100%;height:100%;animation:spTurn 1.2s linear infinite}
+.spSpin circle{fill:none;stroke:#fff;stroke-width:3.5;stroke-linecap:round;stroke-dasharray:90 126;opacity:.9}
+.spLoad{margin:12px 0 0;font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#d9d5f5;animation:spRise .8s .5s cubic-bezier(.2,.8,.3,1) both}
+@keyframes spTurn{to{transform:rotate(360deg)}}
+@keyframes spSafe{to{opacity:0;visibility:hidden}}
+@keyframes spRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes spSun{from{transform:translateY(60px);opacity:0}}
 </style>
+
+<div id="splash" aria-live="polite"><div class="stars"></div><div class="spSun"></div><div class="spIn">
+  <div class="spMark"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg></div>
+  <p class="spK">The Annett family</p>
+  <h1 class="spT">Family Hub</h1>
+  <p class="spH" id="spHi"></p>
+  <p class="spDt" id="spDt"></p>
+  <div class="spFaces" id="spFaces"></div>
+  <div class="spSpin" role="status" aria-label="Loading"><svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="20"/></svg></div>
+  <p class="spLoad" id="spLoad">Getting the family ready</p>
+</div></div>
 
 <div class="app">
   <aside>
@@ -654,6 +689,23 @@ async function write(fn){if(!S.db){toast('Not connected yet. Try again in a mome
   sub('regulars','regulars');sub('dinnerin','dinnerin');sub('notes','notes');sub('school','school');sub('birthdays','birthdays');sub('gifts','gifts');sub('homejobs','homejobs');sub('settings','settings');sub('recipes','recipes');sub('pantry','pantry');sub('lunches','lunches');sub('tasks','tasks');sub('weather','weather');sub('mealideas','mealideas');sub('tcomments','tcomments');sub('bills','bills');
 })();
 
+/* ---------- launch screen ---------- */
+const SPLASH=(()=>{const sp=document.getElementById('splash');if(!sp)return {done(){}};
+  const LINES=['Getting the family ready','Syncing everyone\'s calendars','Still syncing','Nearly there'];
+  let t0=Date.now(),li=0,lt=null,hideT=null,waiting=true;
+  const paint=()=>{const h=new Date().getHours();const nm=S.me?person(S.me).name:'';
+    $('#spHi').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+(nm?', '+nm:'');
+    const d=new Date();$('#spDt').textContent=DOWL[d.getDay()]+' '+d.getDate()+' '+MONL[d.getMonth()];
+    $('#spFaces').innerHTML=FAMILY.map(p=>`<span class="av" style="background:${colour(p.id)}">${esc(p.name[0])}</span>`).join('');
+    const ld=$('#spLoad');li=0;ld.textContent=LINES[0];clearInterval(lt);lt=setInterval(()=>{li=Math.min(li+1,LINES.length-1);ld.textContent=LINES[li]},3500)};
+  const hide=()=>{clearTimeout(hideT);clearInterval(lt);sp.classList.add('gone')};
+  const show=hold=>{t0=Date.now();sp.style.animation='none';sp.classList.remove('gone');paint();clearTimeout(hideT);hideT=setTimeout(hide,hold)};
+  paint();hideT=setTimeout(hide,12000);
+  /* Coming back to the app after a while: show it briefly while the new data syncs (iOS resumes, it doesn't reload). */
+  let away=0;document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){away=Date.now();return}if(away&&Date.now()-away>60000)show(1800);away=0});
+  addEventListener('pageshow',ev=>{if(ev.persisted)show(1800)});
+  return {done(){if(!waiting)return;waiting=false;clearTimeout(hideT);hideT=setTimeout(hide,Math.max(0,1500-(Date.now()-t0)))}}})();
+
 /* ---------- render ---------- */
 const VIEWS={};
 function render(){
@@ -661,8 +713,8 @@ function render(){
   const v=$('#view');
   const ae=document.activeElement,keep=ae&&(ae.id==='shopText'||ae.id==='shopQty')?{id:ae.id,v:ae.value}:null;
   if(!S.ready){v.innerHTML='<div class="empty">Opening the family hub…</div>';return}
-  if(S.offline){v.innerHTML='<div class="card" style="padding:18px"><div class="empty"><b>Not connected</b>The family hub needs its shared storage to work here.</div></div>';return}
-  (VIEWS[S.tab]||VIEWS.home)(v);
+  if(S.offline){SPLASH.done();v.innerHTML='<div class="card" style="padding:18px"><div class="empty"><b>Not connected</b>The family hub needs its shared storage to work here.</div></div>';return}
+  (VIEWS[S.tab]||VIEWS.home)(v);SPLASH.done();
   if(keep){const i=document.getElementById(keep.id);if(i){i.value=keep.v;i.focus()}}
 }
 
