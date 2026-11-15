@@ -555,6 +555,7 @@ textarea.ask { width: 100%; box-sizing: border-box; min-height: 74px; border: 1p
     'MT1': 'Makes your skin tan faster by boosting its natural colour.',
     'ARA-290': 'Calms irritated nerves and helps them heal. For nerve pain.',
     'BPC-157 + TB-500': 'Helps injured tendons, muscles and joints heal faster.',
+    'Cartalax': 'Nudges the cells that maintain joint cartilage to rebuild rather than wear down.',
   };
   const purposeOf = (p) => p.purpose || PURPOSE[p.compound] || '';
   const trackedCompounds = () => [...new Set(st.protocols.map((p) => p.compound))];
@@ -1410,6 +1411,7 @@ textarea.ask { width: 100%; box-sizing: border-box; min-height: 74px; border: 1p
     'MT1': { how: 'Tells skin pigment cells to make more of the darker, browner colour.', store: 'Powder in the freezer (fridge is fine for a few days). Once mixed: fridge at 2\u20138\u00b0C, out of the light, never frozen, and use within 2\u20134 weeks.', cycle: 'A loading phase, then occasional maintenance. Not a forever daily.', watch: 'Nausea is common at first. Pause and see a doctor if moles change.' },
     'ARA-290': { how: 'A piece of EPO that protects nerves and calms inflammation, without making extra blood.', store: 'Powder in the freezer (fridge is fine for a few days). Once mixed: fridge at 2\u20138\u00b0C, out of the light, never frozen, and use within 2\u20134 weeks.', cycle: 'Human trials ran about 4 weeks, then stopped to reassess.', watch: 'Mostly injection-site reactions in trials.' },
     'BPC-157 + TB-500': { how: 'Two repair peptides: one boosts blood supply to an injury, the other helps repair cells move in.', store: 'Powder in the freezer (fridge is fine for a few days). Once mixed: fridge at 2\u20138\u00b0C, out of the light, never frozen, and use within 2\u20134 weeks.', cycle: 'A few weeks, then a pause. Not a forever daily.', watch: 'Mostly animal research. Banned in sport.' },
+    'Cartalax': { how: 'A tiny three-amino-acid bioregulator (AED) aimed at cartilage cells, to favour rebuilding the joint cushion over breaking it down. Slow-acting, not a painkiller.', store: 'Powder in the freezer (fridge is fine for a few days). Mix 20mg with 2mL BAC water (20 units = 2mg). Once mixed: fridge at 2–8°C, out of the light, never frozen, and use within 2–4 weeks.', cycle: 'Peptomi: 20 units (2mg) once daily for 20–30 days, then a 30-day break. Any time of day.', watch: 'Injection-site redness. Lab and animal evidence only, so the dose is a community reference, not a tested one.' },
   };
   function guideModal(c) {
     const g = GUIDE[c] || {};
