@@ -2,68 +2,68 @@
  "checked": "2026-11-15",
  "items": [
   {
+   "do": "Ask your GP whether a flu shot before you go is worthwhile for all five.",
    "k": "flu",
    "lv": "act",
-   "t": "Flu and winter viruses",
-   "where": "Every stop, the whole trip",
    "s": "You travel at the peak. In Europe the flu season usually starts between mid-November and mid-December and peaks in January or February.",
-   "do": "Ask your GP whether a flu shot before you go is worthwhile for all five.",
    "src": [
     [
      "WHO Europe",
      "https://www.who.int/europe/news/item/23-10-2026-get-ready-for-this-year-s-influenza-season--vaccination-is-key"
     ]
-   ]
+   ],
+   "t": "Flu and winter viruses",
+   "where": "Every stop, the whole trip"
   },
   {
+   "do": "Wash hands before eating, and ask your GP about the hepatitis A vaccine.",
    "k": "hepa",
    "lv": "act",
-   "t": "Hepatitis A in Czechia",
-   "where": "Prague, 31 Jan to 2 Feb",
-   "s": "The worst outbreak there in decades: 2,597 cases and 29 deaths in 2025 with Prague the epicentre, and 1,078 more cases from January to May 2026. Czech officials say there is no need to cancel.",
-   "do": "Wash hands before eating, and ask your GP about the hepatitis A vaccine.",
+   "s": "The worst outbreak there in decades: 2,597 cases and 29 deaths in 2025 with Prague the epicentre. Another 1,304 cases and 6 deaths from January to June 2026, with monthly cases falling until May. Czech officials say there is no need to cancel.",
    "src": [
     [
      "Polskie Radio",
      "https://www.polskieradio.pl/395/7785/Artykul/3610594,hepatitis-a-cases-ease-slightly-in-czech-republic-but-outbreak-worst-in-decades"
     ],
     [
-     "TravelHealthPro",
-     "https://travelhealthpro.org.uk/countries/czechia"
+     "Czech health institute",
+     "https://szu.gov.cz/wp-content/uploads/2026/07/B15-VHA_-zprava-do-30.6.2026_varianta-2.pdf"
     ]
-   ]
+   ],
+   "t": "Hepatitis A in Czechia",
+   "where": "Prague, 31 Jan to 2 Feb"
   },
   {
+   "do": "Check all five of you have had two doses of the measles vaccine.",
    "k": "measles",
    "lv": "know",
-   "t": "Measles",
-   "where": "The UK and most of Europe",
    "s": "Europe's surge is easing: 2,325 cases in the EU in the year to September 2026, and 66 in September. The UK lost its measles-free status in January. Most cases are in unvaccinated people.",
-   "do": "Check all five of you have had two doses of the measles vaccine.",
    "src": [
     [
      "ECDC",
      "https://www.ecdc.europa.eu/en/public-health-events/2011-eip-00003/2026-11-06"
     ]
-   ]
+   ],
+   "t": "Measles",
+   "where": "The UK and most of Europe"
   },
   {
+   "do": "Nothing to do. You may meet health screening at Dubai airport.",
    "k": "ebola",
-   "lv": "watch",
-   "t": "Ebola in central Africa",
-   "where": "Not on your route",
-   "s": "A large outbreak in the Democratic Republic of the Congo, with 11,197 confirmed cases by 12 November. A handful of patients have been flown to Europe for treatment. The EU's disease agency rates the risk to people in Europe as very low.",
-   "do": "Nothing to do. It matters only if airports start health screening, and none was found on your route.",
+   "lv": "know",
+   "s": "A large outbreak in the Democratic Republic of Congo: 11,197 confirmed cases by 12 November. The EU's disease agency rates the risk in Europe as very low. Its 16 October report lists the United Arab Emirates and Italy among countries with entry restrictions or screening.",
    "src": [
     [
      "ECDC",
      "https://www.ecdc.europa.eu/en/ebola-disease-multi-country-outbreak-2026"
     ],
     [
-     "WHO",
-     "https://www.who.int/emergencies/disease-outbreak-news/item/2026-DON625"
+     "ECDC report, 16 Oct",
+     "https://www.ecdc.europa.eu/en/publications-data/communicable-disease-threats-report-10-16-october-week-42"
     ]
-   ]
+   ],
+   "t": "Ebola in central Africa",
+   "where": "Dubai airport, 30 Dec and 10-11 Feb"
   }
  ]
 }
