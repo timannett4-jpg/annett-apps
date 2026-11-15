@@ -395,6 +395,9 @@ nav.tabs button svg{width:22px;height:22px}
 .btn.small.on{background:var(--accent-soft);border-color:#ffcdc5;color:var(--accent-deep)}
 .lowrow{background:#fffaf3}
 .chip small{font-weight:500;opacity:.7}
+.rsec{display:flex;align-items:baseline;gap:8px;margin:6px 2px -4px}
+.rsec h2{margin:0;font-size:1.15rem;font-weight:800}
+.rsec span{color:var(--faint);font-weight:600;font-size:.9rem}
 
 /* bottom tabs (phone) */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);display:flex;padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
@@ -1534,21 +1537,31 @@ VIEWS.colours=function(v){
 
 /* ===== Recipe box ===== */
 const splitLines=s=>String(s||'').split('\n').map(x=>x.trim()).filter(Boolean);
+/* Sections: each recipe has a "section" (Meals, Sausages...). New sections appear as soon as a recipe uses one. */
+const SEC_ORDER=['Meals','Sausages','Salami & smallgoods','Breakfast','Sides & salads','Desserts','Baking','Sauces & marinades','Drinks'];
+const secOf=r=>String((r&&r.section)||'').trim()||'Other';
+function recSections(){const have=new Set(listOf(S.recipes).map(secOf));
+  return [...have].sort((a,b)=>{if(a==='Other')return 1;if(b==='Other')return -1;const ia=SEC_ORDER.indexOf(a),ib=SEC_ORDER.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b)})}
 VIEWS.recipes=function(v){
-  const q=(S.rq||'').toLowerCase();
-  const rs=listOf(S.recipes).filter(r=>!q||(r.title+' '+(r.ingredients||[]).join(' ')).toLowerCase().includes(q)).sort((a,b)=>a.title.localeCompare(b.title));
+  const q=(S.rq||'').toLowerCase();const secs=recSections();if(S.rsec&&!secs.includes(S.rsec))S.rsec='';
+  const all=listOf(S.recipes);
+  const rs=all.filter(r=>(!S.rsec||secOf(r)===S.rsec)&&(!q||(r.title+' '+secOf(r)+' '+(r.ingredients||[]).join(' ')).toLowerCase().includes(q))).sort((a,b)=>a.title.localeCompare(b.title));
   const lastMade=t=>{let best='';for(const [k,m] of Object.entries(S.meals))if(m&&m.recipe===t&&k<=today()&&k>best)best=k;return best};
-  v.innerHTML=`<div class="ph"><div><h1>Recipes</h1><p>The family's recipes. Put one on a night or send its ingredients to the shopping list.</p></div><button class="btn" id="newRec">${svg('plus')}New recipe</button></div>
+  const card=r=>{const lm=lastMade(r.id);return `<button class="reccard" data-rec="${esc(r.id)}"><b>${esc(r.title)}</b><span>${[(r.ingredients||[]).length+' ingredients',r.time?esc(r.time):'',r.serves?(/^\d+$/.test(r.serves)?'serves '+esc(r.serves):esc(r.serves)):''].filter(Boolean).join(', ')}</span><small><span class="pip" style="background:${colour(r.by)}"></span>${esc(person(r.by).name)}${lm?', last cooked '+niceK(lm):''}</small></button>`};
+  const groups=S.rsec?[[S.rsec,rs]]:secs.map(sc=>[sc,rs.filter(r=>secOf(r)===sc)]).filter(g=>g[1].length);
+  v.innerHTML=`<div class="ph"><div><h1>Recipes</h1><p>The family's recipes, in sections. Put one on a night or send its ingredients to the shopping list.</p></div><button class="btn" id="newRec">${svg('plus')}New recipe</button></div>
+  ${secs.length>1?`<div class="chips listtabs"><button class="chip" data-rsec="" aria-pressed="${!S.rsec}">All <span class="cnum">${all.length}</span></button>${secs.map(sc=>`<button class="chip" data-rsec="${esc(sc)}" aria-pressed="${S.rsec===sc}">${esc(sc)} <span class="cnum">${all.filter(r=>secOf(r)===sc).length}</span></button>`).join('')}</div>`:''}
   <div class="inline"><input id="rq" placeholder="Search recipes or ingredients" value="${esc(S.rq||'')}" autocomplete="off" aria-label="Search recipes"></div>
-  ${rs.length?`<div class="recgrid">${rs.map(r=>{const lm=lastMade(r.id);return `<button class="reccard" data-rec="${esc(r.id)}"><b>${esc(r.title)}</b><span>${[(r.ingredients||[]).length+' ingredients',r.time?esc(r.time):'',r.serves?(/^\d+$/.test(r.serves)?'serves '+esc(r.serves):esc(r.serves)):''].filter(Boolean).join(', ')}</span><small><span class="pip" style="background:${colour(r.by)}"></span>${esc(person(r.by).name)}${lm?', last cooked '+niceK(lm):''}</small></button>`}).join('')}</div>`:
+  ${rs.length?groups.map(([sc,list])=>`${groups.length>1||!S.rsec?`<div class="rsec"><h2>${esc(sc)}</h2><span>${list.length}</span></div>`:''}<div class="recgrid">${list.map(card).join('')}</div>`).join(''):
   `<section class="card" style="padding:18px"><div class="empty"><b>${q?'No recipes match':'No recipes yet'}</b>${q?'Try another word.':'Add the family favourites so they live next to the meal plan.'}</div></section>`}`;
-  $('#newRec').onclick=()=>editRecipe(null);
+  $('#newRec').onclick=()=>editRecipe(null,S.rsec);
+  v.querySelectorAll('[data-rsec]').forEach(b=>b.onclick=()=>{S.rsec=b.dataset.rsec;render()});
   const rq=$('#rq');rq.oninput=()=>{S.rq=rq.value;clearTimeout(rq.t);rq.t=setTimeout(()=>{render();const x=$('#rq');if(x){x.focus();x.setSelectionRange(x.value.length,x.value.length)}},250)};
   v.querySelectorAll('[data-rec]').forEach(b=>b.onclick=()=>showRecipe(b.dataset.rec));
 };
 function showRecipe(id){
   const r=S.recipes[id];if(!r)return;
-  openSheet(`<h2>${esc(r.title)}</h2><p class="sub">${[r.time?esc(r.time):'',r.serves?(/^\d+$/.test(r.serves)?'Serves '+esc(r.serves):esc(r.serves)):'','Added by '+esc(person(r.by).name)].filter(Boolean).join('. ')}</p>
+  openSheet(`<h2>${esc(r.title)}</h2><p class="sub">${[r.time?esc(r.time):'',r.serves?(/^\d+$/.test(r.serves)?'Serves '+esc(r.serves):esc(r.serves)):'',esc(secOf(r)),'Added by '+esc(person(r.by).name)].filter(Boolean).join('. ')}</p>
    <div class="field"><span>Ingredients</span><ul class="ing">${(r.ingredients||[]).map(i=>`<li>${esc(i)}</li>`).join('')||'<li>None listed</li>'}</ul></div>
    ${r.source?`<p class="hint" style="margin:0">${esc(r.source)}</p>`:''}
    ${r.method?`<div class="field"><span>Method</span><div class="method">${splitLines(r.method).map((m,i)=>`<p><b>${i+1}</b>${esc(m)}</p>`).join('')}</div></div>`:''}
@@ -1566,16 +1579,23 @@ async function ingToShop(ings,forMeal){
   for(const t of ings){if(have.has(t.toLowerCase()))continue;await write(db=>db.collection('shopping').doc(rid()).set({text:t.slice(0,120),list:'super',aisle:'Other',qty:'',note:'',addedBy:S.me,addedAt:nowIso(),done:false,doneBy:'',doneAt:'',forMeal}));n++}
   return n?'Added '+n+' to shopping':'Already on the shopping list';
 }
-function editRecipe(id){
-  if(needMe())return;const r=id?S.recipes[id]:{title:'',serves:'',time:'',ingredients:[],method:''};
+function editRecipe(id,sec0){
+  if(needMe())return;const r=id?S.recipes[id]:{title:'',serves:'',time:'',ingredients:[],method:'',section:sec0||''};
+  let sec=r.section&&r.section!=='Other'?r.section:'';const secs=[...new Set([...recSections().filter(x=>x!=='Other'),'Meals'])];
   openSheet(`<h2>${id?'Edit recipe':'New recipe'}</h2><form class="form" id="rF">
    <label class="field"><span>Name</span><input id="rT" value="${esc(r.title)}" placeholder="e.g. Laura's lasagne" autocomplete="off" required></label>
+   <div class="field"><span>Section</span><div class="chips wrap" id="rSecs">${secs.map(x=>`<button type="button" class="chip" data-sec="${esc(x)}" aria-pressed="${sec===x}">${esc(x)}</button>`).join('')}<button type="button" class="chip" id="rSecNew">${svg('plus')}New section</button></div>
+    <input id="rSecIn" placeholder="New section name, e.g. Desserts" autocomplete="off" hidden maxlength="30"></div>
    <div class="two"><label class="field"><span>Serves</span><input id="rS" value="${esc(r.serves||'')}" placeholder="e.g. 6" autocomplete="off"></label><label class="field"><span>Time</span><input id="rTi" value="${esc(r.time||'')}" placeholder="e.g. 1 hour" autocomplete="off"></label></div>
    <label class="field"><span>Ingredients, one per line</span><textarea id="rI" placeholder="500g beef mince&#10;Lasagne sheets&#10;Passata">${esc((r.ingredients||[]).join('\n'))}</textarea></label>
    <label class="field"><span>Method, one step per line (optional)</span><textarea id="rM" placeholder="Brown the mince&#10;Add the passata and simmer 20 minutes">${esc(r.method||'')}</textarea></label>
    <div class="actions">${id?'<button type="button" class="link danger" id="rX">Delete</button>':''}<span class="grow"></span><button class="btn">Save</button></div></form>`);
+  const secIn=$('#rSecIn');
+  pick('[data-sec]','data-sec',v=>{sec=v;secIn.hidden=true;secIn.value=''});
+  $('#rSecNew').onclick=()=>{document.querySelectorAll('[data-sec]').forEach(x=>x.setAttribute('aria-pressed','false'));secIn.hidden=false;secIn.focus()};
   $('#rF').onsubmit=async e=>{e.preventDefault();const t=$('#rT').value.trim();if(!t)return;
-    const rr={title:t.slice(0,80),serves:$('#rS').value.trim().slice(0,10),time:$('#rTi').value.trim().slice(0,30),ingredients:splitLines($('#rI').value).slice(0,60).map(x=>x.slice(0,120)),method:$('#rM').value.trim().slice(0,4000),by:id?(r.by||S.me):S.me,updatedBy:S.me,updatedAt:nowIso()};
+    const ns=secIn.value.trim().replace(/\s+/g,' ');const section=(ns?ns.charAt(0).toUpperCase()+ns.slice(1):sec)||'Meals';
+    const rr={...(id?r:{}),section:section.slice(0,30),title:t.slice(0,80),serves:$('#rS').value.trim().slice(0,10),time:$('#rTi').value.trim().slice(0,30),ingredients:splitLines($('#rI').value).slice(0,60).map(x=>x.slice(0,120)),method:$('#rM').value.trim().slice(0,4000),by:id?(r.by||S.me):S.me,updatedBy:S.me,updatedAt:nowIso()};
     const nid=id||rid();if(await write(db=>db.doc('recipes/'+nid).set(rr))){closeSheet();toast(id?'Saved':'Recipe added')}};
   const x=$('#rX');if(x)x.onclick=async()=>{if(await write(db=>db.doc('recipes/'+id).delete()))closeSheet()};
 }
