@@ -2531,7 +2531,10 @@ V.sos=function(){
 let HEALTH=D.health||null;
 function healthTake(h){
   if(!h||!h.checked||!Array.isArray(h.items))return;
-  if(HEALTH&&String(h.checked)<=String(HEALTH.checked||''))return;
+  /* A set from the database or the site's file replaces the built-in one unless it is older.
+     Same day counts: a second check on one day can still change the wording. */
+  if(HEALTH&&String(h.checked)<String(HEALTH.checked||''))return;
+  if(HEALTH&&JSON.stringify(h.items)===JSON.stringify(HEALTH.items)&&h.checked===HEALTH.checked)return;
   HEALTH=h; render();
 }
 function healthBlock(){
