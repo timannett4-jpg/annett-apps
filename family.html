@@ -395,6 +395,16 @@ nav.tabs button svg{width:22px;height:22px}
 .btn.small.on{background:var(--accent-soft);border-color:#ffcdc5;color:var(--accent-deep)}
 .lowrow{background:#fffaf3}
 .chip small{font-weight:500;opacity:.7}
+.rtiles{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.rtile{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px;display:grid;gap:10px;align-content:start;justify-items:start;text-align:left;min-height:150px;position:relative;box-shadow:0 10px 24px -20px rgba(36,33,90,.6)}
+.rtile:hover{border-color:var(--line2)}
+.rtile .ico{width:46px;height:46px;border-radius:14px;background:var(--accent-soft);color:var(--accent-deep);display:grid;place-items:center}
+.rtile .ico svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.rtile b{font-size:1.1rem;font-weight:800;line-height:1.2}
+.rtile small{color:var(--muted);font-size:.82rem;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.rtile .mc{position:absolute;top:16px;right:16px;background:var(--side);color:#fff;border-radius:999px;padding:2px 10px;font-size:.8rem;font-weight:800}
+.rback{display:inline-flex;align-items:center;gap:4px;color:var(--accent-deep);font-weight:700;padding:6px 0;margin-bottom:-8px}
+.rback svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .rsec{display:flex;align-items:baseline;gap:8px;margin:6px 2px -4px}
 .rsec h2{margin:0;font-size:1.15rem;font-weight:800}
 .rsec span{color:var(--faint);font-weight:600;font-size:.9rem}
@@ -591,6 +601,11 @@ const I={
  left:'<path d="M15 6l-6 6 6 6"/>', right:'<path d="M9 6l6 6-6 6"/>',
  check:'<path d="M6 12.5l4 4L18 8"/>',
  bill:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+ sausage:'<path d="M6.5 17.5c-2-2-1.5-5 1-7.5l3-3c2.5-2.5 5.5-3 7.5-1s1.5 5-1 7.5l-3 3c-2.5 2.5-5.5 3-7.5 1z"/><path d="M5 19l-1.5 1.5M19 5l1.5-1.5"/>',
+ salami:'<circle cx="12" cy="12" r="8.5"/><circle cx="9" cy="9.5" r="1"/><circle cx="14.5" cy="9" r="1"/><circle cx="13.5" cy="14.5" r="1"/><circle cx="8.8" cy="14.2" r="1"/>',
+ egg:'<path d="M12 3c4 0 7 6.5 7 10.5a7 7 0 0 1-14 0C5 9.5 8 3 12 3z"/>',
+ cake:'<path d="M4 20h16v-7H4z"/><path d="M4 16c2 1.5 4 1.5 6 0s4-1.5 6 0 3 1 4 .5"/><path d="M12 13V9M12 6.5v.5"/>',
+ leaf:'<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19l8-8"/>',
  cam:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
  user:'<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.8 4-5.5 7.5-5.5s6.3 1.7 7.5 5.5"/>'
 };
@@ -641,7 +656,7 @@ function paintNav(){
   $('#tabs').innerHTML=PHONE.map(p=>b(...p,1)).join('');
   document.querySelectorAll('#sideNav [data-tab],#tabs [data-tab]').forEach(x=>x.onclick=()=>setTab(x.dataset.tab));
 }
-function setTab(t){S.tab=t;store.set('fh-tab2',t);render();scrollTo(0,0)}
+function setTab(t){if(t!==S.tab){S.rsec='';S.rq=''}S.tab=t;store.set('fh-tab2',t);render();scrollTo(0,0)}
 
 /* ---------- colours (each person picks their own) ---------- */
 function paintColours(){const c=S.settings.colours||{},r=document.documentElement.style;for(const p of FAMILY){if(c[p.id]&&/^#[0-9a-f]{6}$/i.test(c[p.id]))r.setProperty('--'+p.id,c[p.id]);else r.removeProperty('--'+p.id)}}
@@ -1168,7 +1183,7 @@ VIEWS.shop=function(v){
   groups.forEach(g=>g.list.sort((x,y)=>(x.addedAt||'').localeCompare(y.addedAt||'')));
   const usuals=listOf(S.regulars).filter(r=>(r.list||'super')===S.list).sort((a,b)=>a.text.localeCompare(b.text));
   const onList=new Set(open.map(i=>i.text.toLowerCase()));
-  v.innerHTML=`<div class="ph"><div><h1>Shopping</h1><p>${open.length?open.length+' thing'+(open.length===1?'':'s')+' to buy at '+listName(S.list):'Nothing to buy at '+listName(S.list)}</p></div>${bought.length?'<button class="btn ghost" id="clearBought">Clear bought</button>':''}</div>
+  v.innerHTML=`<div class="ph"><div><h1>Shopping</h1><p>${open.length?open.length+' thing'+(open.length===1?'':'s')+' to buy at '+listName(S.list):'Nothing to buy at '+listName(S.list)}</p></div></div>
   <div class="chips listtabs">${LISTS.map(([k,n])=>`<button class="chip" data-list="${k}" aria-pressed="${S.list===k}">${n}${counts[k]?` <b class="cnum">${counts[k]}</b>`:''}</button>`).join('')}</div>
   <section class="card"><form class="composer" id="addShop"><div class="inline"><input id="shopText" placeholder="Add something, e.g. Milk" autocomplete="off" enterkeyhint="done" aria-label="Item"><input id="shopQty" class="qty" placeholder="Qty" autocomplete="off" aria-label="How many"><button class="btn big">Add</button></div>${S.list==='super'?aisleChips(S.aisle):''}</form>
     <div class="usuals"><div class="uh"><b>Usuals</b><span>Tap to add</span><button class="link" id="editUsuals">${S.editUsuals?'Done':'Edit'}</button></div>
@@ -1176,7 +1191,7 @@ VIEWS.shop=function(v){
   ${S.list==='super'&&open.length?wooliesCard(open):''}
   ${groups.length?`<section class="card">${groups.map(g=>`${g.a?`<div class="glabel">${esc(g.a)}<span>${g.list.length}</span></div>`:''}${g.list.map(itemRow).join('')}`).join('')}</section>`:
    `<section class="card"><div style="padding:18px"><div class="empty"><b>All bought</b>Add something above. It shows on everyone's phone within a minute.</div></div></section>`}
-  ${bought.length?`<section class="card"><div class="glabel">Bought<span>${bought.length}</span></div>${bought.slice(0,30).map(itemRow).join('')}</section>`:''}`;
+`;
   v.querySelectorAll('[data-list]').forEach(b=>b.onclick=()=>{S.list=b.dataset.list;store.set('fh-list',S.list);render()});
   pick('#addShop [data-aisle]','data-aisle',x=>{S.aisle=x;store.set('fh-aisle',x)});
   $('#addShop').onsubmit=async e=>{e.preventDefault();if(needMe())return;const t=$('#shopText').value.trim();if(!t)return;const q=$('#shopQty').value.trim();$('#shopText').value='';$('#shopQty').value='';await addShop(t,S.list,S.aisle,q);$('#shopText').focus()};
@@ -1185,13 +1200,16 @@ VIEWS.shop=function(v){
     if(S.editUsuals){await write(db=>db.doc('regulars/'+b.dataset.usual).delete());return}
     if(needMe())return;if(onList.has(u.text.toLowerCase())){toast(u.text+' is already on the list');return}
     if(await addShop(u.text,u.list||'super',u.aisle||'Other',u.qty||''))toast('Added '+u.text)});
-  tapRows('[data-shop]',function(e){if(e.target.closest('.icon'))return;if(needMe())return;const id=this.dataset.shop,i=S.shop[id];
-    write(db=>db.doc('shopping/'+id).set(Object.assign({},i,i.done?{done:false,doneBy:'',doneAt:''}:{done:true,doneBy:S.me,doneAt:nowIso()})))});
+  /* Ticking an item means it's bought: it comes off the list straight away (Undo for a few seconds). */
+  tapRows('[data-shop]',async function(e){if(e.target.closest('.icon'))return;if(needMe())return;const id=this.dataset.shop,i=S.shop[id];if(!i)return;
+    this.classList.add('done');const keep=Object.assign({},i);
+    if(await write(db=>db.doc('shopping/'+id).delete()))undoToast('Bought '+i.text,()=>write(db=>db.doc('shopping/'+id).set(Object.assign(keep,{done:false,doneBy:'',doneAt:''}))))});
   v.querySelectorAll('.icon[data-del]').forEach(b=>b.onclick=()=>write(db=>db.doc('shopping/'+b.dataset.del).delete()));
   v.querySelectorAll('.icon[data-edit]').forEach(b=>b.onclick=()=>editItem(b.dataset.edit));
   const wb=$('#wooliesGo');if(wb)wb.onclick=()=>wooliesSheet(open);const wc=$('#wooliesGot');if(wc)wc.onclick=wooliesCollected;
-  const cb=$('#clearBought');if(cb)cb.onclick=async()=>{for(const i of bought)await write(db=>db.doc('shopping/'+i.id).delete());toast('Cleared '+bought.length+' bought item'+(bought.length===1?'':'s'))};
 };
+function undoToast(t,undo){const e=$('#toast');e.innerHTML=esc(t)+' <button type="button" class="link" style="color:#ffb3a8;padding:0 0 0 10px">Undo</button>';e.hidden=false;
+  e.querySelector('button').onclick=()=>{clearTimeout(toast.t);e.hidden=true;undo()};clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,5000)}
 /* ===== Woolworths Click & Collect: hand the Supermarket list to Claude in Chrome on the laptop =====
    Woolworths has no ordering link for outside apps, so this builds a ready-made request and opens it in Claude.
    Claude in Chrome (already installed on Tim's laptop) logs in, fills the cart and stops before checkout.
@@ -1595,20 +1613,29 @@ const SEC_ORDER=['Meals','Sausages','Salami & smallgoods','Breakfast','Sides & s
 const secOf=r=>String((r&&r.section)||'').trim()||'Other';
 function recSections(){const have=new Set(listOf(S.recipes).map(secOf));
   return [...have].sort((a,b)=>{if(a==='Other')return 1;if(b==='Other')return -1;const ia=SEC_ORDER.indexOf(a),ib=SEC_ORDER.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b)})}
+const secIcon=sc=>{const s=sc.toLowerCase();return /sausage/.test(s)?'sausage':/salami|smallgood|cure|charcut/.test(s)?'salami':/breakfast|brunch|egg/.test(s)?'egg':/dessert|bak|cake|sweet/.test(s)?'cake':/salad|side|veg/.test(s)?'leaf':/meal|dinner|lunch|slow/.test(s)?'meal':'book'};
+/* Recipes open on a grid of category tiles. Tap a tile to see that category. Search looks across every category. */
 VIEWS.recipes=function(v){
   const q=(S.rq||'').toLowerCase();const secs=recSections();if(S.rsec&&!secs.includes(S.rsec))S.rsec='';
   const all=listOf(S.recipes);
-  const rs=all.filter(r=>(!S.rsec||secOf(r)===S.rsec)&&(!q||(r.title+' '+secOf(r)+' '+(r.ingredients||[]).join(' ')).toLowerCase().includes(q))).sort((a,b)=>a.title.localeCompare(b.title));
+  const rs=all.filter(r=>(q||!S.rsec||secOf(r)===S.rsec)&&(!q||(r.title+' '+secOf(r)+' '+(r.ingredients||[]).join(' ')).toLowerCase().includes(q))).sort((a,b)=>a.title.localeCompare(b.title));
   const lastMade=t=>{let best='';for(const [k,m] of Object.entries(S.meals))if(m&&m.recipe===t&&k<=today()&&k>best)best=k;return best};
   const card=r=>{const lm=lastMade(r.id);return `<button class="reccard" data-rec="${esc(r.id)}"><b>${esc(r.title)}</b><span>${[(r.ingredients||[]).length+' ingredients',r.time?esc(r.time):'',r.serves?(/^\d+$/.test(r.serves)?'serves '+esc(r.serves):esc(r.serves)):''].filter(Boolean).join(', ')}</span><small><span class="pip" style="background:${colour(r.by)}"></span>${esc(person(r.by).name)}${lm?', last cooked '+niceK(lm):''}</small></button>`};
-  const groups=S.rsec?[[S.rsec,rs]]:secs.map(sc=>[sc,rs.filter(r=>secOf(r)===sc)]).filter(g=>g[1].length);
-  v.innerHTML=`<div class="ph"><div><h1>Recipes</h1><p>The family's recipes, in sections. Put one on a night or send its ingredients to the shopping list.</p></div><button class="btn" id="newRec">${svg('plus')}New recipe</button></div>
-  ${secs.length>1?`<div class="chips listtabs"><button class="chip" data-rsec="" aria-pressed="${!S.rsec}">All <span class="cnum">${all.length}</span></button>${secs.map(sc=>`<button class="chip" data-rsec="${esc(sc)}" aria-pressed="${S.rsec===sc}">${esc(sc)} <span class="cnum">${all.filter(r=>secOf(r)===sc).length}</span></button>`).join('')}</div>`:''}
-  <div class="inline"><input id="rq" placeholder="Search recipes or ingredients" value="${esc(S.rq||'')}" autocomplete="off" aria-label="Search recipes"></div>
-  ${rs.length?groups.map(([sc,list])=>`${groups.length>1||!S.rsec?`<div class="rsec"><h2>${esc(sc)}</h2><span>${list.length}</span></div>`:''}<div class="recgrid">${list.map(card).join('')}</div>`).join(''):
-  `<section class="card" style="padding:18px"><div class="empty"><b>${q?'No recipes match':'No recipes yet'}</b>${q?'Try another word.':'Add the family favourites so they live next to the meal plan.'}</div></section>`}`;
-  $('#newRec').onclick=()=>editRecipe(null,S.rsec);
-  v.querySelectorAll('[data-rsec]').forEach(b=>b.onclick=()=>{S.rsec=b.dataset.rsec;render()});
+  const tile=sc=>{const list=all.filter(r=>secOf(r)===sc).sort((a,b)=>a.title.localeCompare(b.title));
+    return `<button class="rtile" data-rsec="${esc(sc)}"><span class="ico">${svg(secIcon(sc))}</span><span class="mc">${list.length}</span><b>${esc(sc)}</b><small>${esc(list.slice(0,3).map(r=>r.title).join(', '))}${list.length>3?' and more':''}</small></button>`};
+  const search=`<div class="inline"><input id="rq" placeholder="${S.rsec&&!q?'Search '+esc(S.rsec):'Search all recipes or ingredients'}" value="${esc(S.rq||'')}" autocomplete="off" aria-label="Search recipes"></div>`;
+  const none=`<section class="card" style="padding:18px"><div class="empty"><b>${q?'No recipes match':'No recipes here yet'}</b>${q?'Try another word.':'Tap New recipe to add one.'}</div></section>`;
+  if(!S.rsec&&!q){
+    v.innerHTML=`<div class="ph"><div><h1>Recipes</h1><p>Pick a category. Put a recipe on a night or send its ingredients to the shopping list.</p></div><button class="btn" id="newRec">${svg('plus')}New recipe</button></div>
+    ${search}${secs.length?`<div class="rtiles">${secs.map(tile).join('')}</div>`:`<section class="card" style="padding:18px"><div class="empty"><b>No recipes yet</b>Add the family favourites so they live next to the meal plan.</div></section>`}`;
+  }else{
+    v.innerHTML=`<button class="rback" id="rBack">${svg('left')}All categories</button>
+    <div class="ph"><div><h1>${q?'Search':esc(S.rsec)}</h1><p>${rs.length} recipe${rs.length===1?'':'s'}${q?' matching "'+esc(S.rq)+'"':''}</p></div><button class="btn" id="newRec">${svg('plus')}New recipe</button></div>
+    ${search}${rs.length?`<div class="recgrid">${rs.map(r=>q?card(r).replace('</b>','</b><span>'+esc(secOf(r))+'</span>'):card(r)).join('')}</div>`:none}`;
+    $('#rBack').onclick=()=>{S.rsec='';S.rq='';render();scrollTo(0,0)};
+  }
+  $('#newRec').onclick=()=>editRecipe(null,q?'':S.rsec);
+  v.querySelectorAll('[data-rsec]').forEach(b=>b.onclick=()=>{S.rsec=b.dataset.rsec;render();scrollTo(0,0)});
   const rq=$('#rq');rq.oninput=()=>{S.rq=rq.value;clearTimeout(rq.t);rq.t=setTimeout(()=>{render();const x=$('#rq');if(x){x.focus();x.setSelectionRange(x.value.length,x.value.length)}},250)};
   v.querySelectorAll('[data-rec]').forEach(b=>b.onclick=()=>showRecipe(b.dataset.rec));
 };
