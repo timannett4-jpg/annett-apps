@@ -1,4 +1,4 @@
-// Annett Apps offline cache (farm, bdm, laura, europe).
+// Annett Apps offline cache (farm, bdm, laura, europe, usa and the rest).
 // Pages: network first so updates arrive, cache when offline.
 // Photos and documents (_blob/<id>): served from this device's cache, fetched from your Google Drive sync when missing.
 const CACHE = 'annett-apps-v1', ASSETS = 'annett-assets', CONFIG = 'annett-config';

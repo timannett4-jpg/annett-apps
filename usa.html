@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Annett USA 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700;800;900&family=Overpass+Mono:wght@500;700&display=swap">
+<style>
+/* VOICE (red, white and blue): road-trip companion for two; practical first, a bit of fun.
+   IDEA: American highway signage — green guide signs, interstate shields, mile markers.
+   PICTURE: the route itself drawn as a highway strip with shields and exit signs.
+   COLOUR and TYPE: sign green dominant, white, interstate red accent; Overpass (Highway Gothic heir).
+   LAYOUT: sticky sign header, one view at a time, bottom tab bar like the Europe app. */
+:root{color-scheme:light dark;
+ --bg:light-dark(#ffffff,#0a1222);--card:light-dark(#ffffff,#111c33);--card2:light-dark(#f1f4f9,#16244a);
+ --ink:light-dark(#0f1b33,#eef2fa);--dim:light-dark(#55617a,#a9b6d0);--rule:light-dark(#dde3ec,#24345a);
+ --sign:#0b2a5b;--sign2:#071d40;--onsign:#fff;--red:#c8102e;--blue:#1f4e8c;--warn:#f2b600;
+ --ok:light-dark(#1f6f43,#5fd38f);--hold:light-dark(#9a6a00,#f2c14e);--todo:light-dark(#b3122e,#ff7b8c);
+ --f:"Overpass",system-ui,-apple-system,"Segoe UI",sans-serif;--m:"Overpass Mono",ui-monospace,Menlo,monospace}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--f);overflow-x:clip;-webkit-font-smoothing:antialiased;
+ padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))}
+h1,h2,h3{margin:0;line-height:1.08;text-wrap:balance}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;touch-action:manipulation}
+a{color:light-dark(#1f4e8c,#8fb3ff)}
+:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* header: overhead guide sign */
+#hdr{position:sticky;top:0;z-index:20;background:var(--sign);color:var(--onsign);
+ padding:calc(env(safe-area-inset-top,0px) + 10px) max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left));
+ border-bottom:5px solid var(--red);box-shadow:0 3px 0 #fff,0 6px 0 var(--sign2)}
+.hIn{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.hT{flex:1}
+.hT b{display:block;font-weight:900;font-size:19px;letter-spacing:.02em}
+.hT span{display:block;font-size:13px;opacity:.85}
+.logo{flex:none;width:44px;height:44px}
+.logo img{display:block;width:44px;height:44px;border-radius:10px;border:2px solid #fff;object-fit:cover}
+.who{border:2px solid #fff;border-radius:8px;padding:6px 10px;font-weight:700;font-size:14px;min-height:40px}
+.clk{font-family:var(--m);font-size:13px;text-align:right;line-height:1.2;opacity:.9}
+
+main{max-width:1100px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-left)) 30px}
+.sec{margin-top:26px}
+.sec>h2{font-size:22px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.lead{color:var(--dim);margin-bottom:12px;max-width:68ch}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:14px 16px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
+.small{font-size:14px;color:var(--dim)}
+.note{font-size:13px;color:var(--dim);margin-top:8px}
+.pill{display:inline-block;font-size:12px;font-weight:800;border-radius:999px;padding:2px 9px;white-space:nowrap}
+
+/* guide sign component */
+.gsign{background:var(--sign);color:#fff;border-radius:12px;border-top:6px solid var(--red);
+ padding:12px 16px;margin:2px}
+.gsign .k{font-size:12px;font-weight:800;letter-spacing:.06em;opacity:.85}
+.gsign .v{font-size:clamp(24px,6vw,40px);font-weight:900;line-height:1}
+.gsign .s{font-size:14px;opacity:.9;margin-top:4px}
+
+/* interstate shield */
+.shield{display:inline-grid;place-items:center;width:40px;height:42px;flex:none;
+ background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 42'%3E%3Cpath d='M3 2h34c1 0 2 1 2 2 0 20-7 30-19 36C8 34 1 24 1 4c0-1 1-2 2-2z' fill='%23fff'/%3E%3Cpath d='M5 4h30c.6 0 1 .4 1 1 0 3-.2 5-.5 7H4.5C4.2 10 4 8 4 5c0-.6.4-1 1-1z' fill='%23c8102e'/%3E%3Cpath d='M4.6 13h30.8C33 27 27 33 20 37 13 33 7 27 4.6 13z' fill='%231f4e8c'/%3E%3C/svg%3E");
+ color:#fff;font-weight:900;font-size:14px;padding-top:8px}
+
+/* home hero */
+.hero{display:grid;gap:14px;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:stretch}
+@media(max-width:760px){.hero{grid-template-columns:1fr}}
+.count{display:flex;gap:10px;flex-wrap:wrap}
+.count .gsign{flex:1;min-width:130px}
+.legs{display:flex;flex-direction:column;gap:8px}
+.leg{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--card);border:1px solid var(--rule)}
+.leg .d{font-family:var(--m);font-size:13px;color:var(--dim);width:92px;flex:none}
+.leg b{font-weight:800}
+.leg .n{margin-left:auto;font-family:var(--m);font-size:13px;color:var(--dim);white-space:nowrap}
+
+/* route strip */
+.road{position:relative;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:6px 0;overflow:hidden}
+.stop{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:start;padding:10px 14px;position:relative}
+.stop .lane{position:relative;align-self:stretch;display:flex;justify-content:center}
+.stop .lane::before{content:"";position:absolute;top:-10px;bottom:-10px;width:22px;background:#3a3f3c;border-radius:3px}
+.stop .lane::after{content:"";position:absolute;top:-10px;bottom:-10px;width:3px;background:repeating-linear-gradient(#f2b600 0 10px,transparent 10px 20px)}
+.stop.sea .lane::before{background:#2f6fa6}.stop.sea .lane::after{background:repeating-linear-gradient(#fff 0 4px,transparent 4px 14px)}
+.stop.air .lane::before{background:transparent;border-left:3px dashed var(--dim);width:0}.stop.air .lane::after{display:none}
+.stop .dot{position:relative;z-index:1;margin-top:4px}
+.stop .city{display:inline-block;background:var(--sign);color:#fff;border-left:5px solid var(--red);
+ border-radius:7px;padding:4px 10px;font-weight:900;font-size:18px}
+.stop .meta{font-size:14px;color:var(--dim);margin-top:5px}
+.stop .meta b{color:var(--ink)}
+.pin{width:20px;height:20px;border-radius:50%;background:#fff;border:5px solid var(--red)}
+
+/* plan */
+.days{display:flex;flex-direction:column;gap:12px}
+.day{background:var(--card);border:1px solid var(--rule);border-radius:12px;overflow:hidden}
+.dayH{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--card2);border-bottom:1px solid var(--rule)}
+.dnum{font-family:var(--m);font-weight:700;font-size:12px;color:var(--dim);width:44px;flex:none;text-align:center;line-height:1.15}
+.dnum b{display:block;font-size:20px;color:var(--ink);font-family:var(--f);font-weight:900}
+.dayH h3{font-size:17px;font-weight:800}
+.dayH .c{font-size:12px;font-weight:800;color:#fff;background:var(--sign);padding:2px 8px;border-radius:5px;white-space:nowrap;margin-left:auto}
+.dayH .c.sea{background:#2f6fa6}.dayH .c.air{background:#6b7489}.dayH .c.drive{background:var(--red)}
+.items{list-style:none;margin:0;padding:6px 14px 12px}
+.items li{display:grid;grid-template-columns:72px minmax(0,1fr);gap:10px;padding:7px 0;border-bottom:1px dashed var(--rule)}
+.items li:last-child{border-bottom:0}
+.items .t{font-family:var(--m);font-size:13px;color:var(--dim);white-space:nowrap;padding-top:2px}
+.sleep{font-size:13px;color:var(--dim);padding:0 14px 12px}
+.today .day{border:2px solid var(--red)}
+.filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--rule);background:var(--card);border-radius:999px;padding:7px 12px;font-weight:700;font-size:14px;min-height:40px}
+.chip[aria-pressed=true]{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* places */
+.place h3{font-size:24px;font-weight:900}
+.place .tag{color:var(--dim);margin:4px 0 12px}
+.cols{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr))}
+.list{margin:6px 0 0;padding-left:18px}
+.list li{margin:5px 0}
+.kicker{font-weight:800;font-size:14px;color:light-dark(var(--red),#ff8a9a);margin-bottom:2px}
+
+/* status rows */
+.row{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--rule)}
+.row:last-child{border-bottom:0}
+.row .w{flex:1}
+.row .w b{display:block;font-weight:700}
+.row .w span{display:block;font-size:13px;color:var(--dim)}
+.st{min-width:84px;min-height:40px;border-radius:8px;font-weight:800;font-size:13px;border:2px solid currentColor;padding:4px 8px}
+.st[data-s=todo]{color:var(--todo)}.st[data-s=held]{color:var(--hold)}.st[data-s=done]{color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}
+.bar{height:10px;border-radius:5px;background:var(--card2);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--red)}
+
+/* kit */
+.pk{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--rule)}
+.pk:last-child{border-bottom:0}
+.pk .w{flex:1}
+.tick{width:44px;height:40px;border-radius:8px;border:2px solid var(--rule);font-weight:800;font-size:12px;color:var(--dim)}
+.tick[aria-pressed=true]{background:var(--sign);border-color:var(--sign);color:#fff}
+
+/* forms */
+.f{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.f input,.f select{border:1px solid var(--rule);background:var(--bg);border-radius:8px;padding:9px 10px;font-size:16px;min-height:44px}
+.f input{flex:1 1 140px}
+.btn{background:var(--red);color:#fff;border-radius:8px;padding:9px 16px;font-weight:800;min-height:44px}
+.btn.ghost{background:transparent;color:inherit;border:1px solid var(--rule)}
+.big{font-size:clamp(28px,7vw,44px);font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
+.money td,.money th{padding:8px 6px;border-bottom:1px solid var(--rule);text-align:left;font-size:15px}
+.money td.n,.money th.n{text-align:right;font-family:var(--m);white-space:nowrap}
+table{border-collapse:collapse;width:100%}
+.del{color:var(--dim);font-size:13px;min-height:36px;padding:0 8px}
+
+/* nav */
+#nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--rule);
+ padding-bottom:env(safe-area-inset-bottom,0px)}
+.navIn{max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(9,minmax(0,1fr))}
+#nav button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;font-size:11px;font-weight:700;color:var(--dim);min-height:56px}
+#nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#nav button[aria-current=page]{color:light-dark(var(--red),#ff8a9a)}
+#nav button[aria-current=page] span{border-bottom:2px solid currentColor}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:40;
+ background:#111;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;max-width:90vw}
+.sync{font-size:12px;color:var(--dim);margin-top:4px}
+#whoDlg{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:20px}
+#whoDlg .card{max-width:360px;width:100%;text-align:center}
+#whoDlg .f{justify-content:center}
+@media(max-width:600px){.items li{grid-template-columns:76px minmax(0,1fr)}.items .t{font-size:12px}.leg .d{width:74px}.hT span{display:none}}
+</style>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="USA 2027">
+<meta name="theme-color" content="#0b2a5b">
+<link rel="manifest" href="usa.webmanifest">
+<link rel="icon" type="image/png" href="usa-icon-192.png">
+<link rel="apple-touch-icon" href="usa-icon-180.png">
+<script>window.ANNETT_APP="usa";</script>
+<script src="claude-shim.js"></script>
+</head><body>
+<header id="hdr"><div class="hIn">
+ <span class="logo" aria-hidden="true"><img src="data:image/jpeg;base64,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" alt="" width="44" height="44"></span>
+ <div class="hT"><b>USA 2027</b><span>Tim &amp; Laura &middot; Chicago to Orlando</span></div>
+ <div class="clk" id="clk"></div>
+ <button class="who" id="whoBtn" aria-label="Change who is using the app"></button>
+</div></header>
+<main id="view"></main>
+<nav id="nav" aria-label="Sections"><div class="navIn" id="navIn"></div></nav>
+<div id="toast" hidden></div>
+<div id="whoDlg" hidden><div class="card"><h2 style="font-size:22px">Who&rsquo;s this?</h2>
+ <p class="small" style="margin-top:6px">So ticks and spending land under your name.</p>
+ <div class="f"><button class="btn" data-me="Tim">Tim</button><button class="btn" data-me="Laura">Laura</button></div></div></div>
+
+<script id="trip" type="application/json">
+{"start":"2027-05-20","end":"2027-06-19",
+"days":[
+{"d":"2027-05-20","c":"FLY","k":"air","t":"Melbourne to Chicago","i":[["Flight","Qantas to LA (or Dallas), then American Airlines on to Chicago. Amy is arranging; see Money for the options."],["Arrive","You land in the US the same calendar day you leave. Immigration and customs at the first US airport, then re-drop bags."],["Late","Taxi or rideshare to the hotel (about 40 min to the Loop)."]],"s":"Chicago"},
+{"d":"2027-05-21","c":"CHICAGO","t":"The Loop and the river","i":[["Morning","Millennium Park, Cloud Gate (the Bean) and Crown Fountain. Slow start for jet lag."],["11:00","Art Institute of Chicago, if you're up for it."],["Afternoon","Chicago Architecture Center river cruise, about 90 min. Book ahead; the best way to see the city."],["Dinner","Deep-dish pizza: Lou Malnati's or Pequod's (caramelised crust)."]],"s":"Chicago"},
+{"d":"2027-05-22","c":"CHICAGO","t":"Up high and out on the lake","i":[["Morning","Willis Tower Skydeck (the glass Ledge) or 360 Chicago with TILT."],["Midday","Riverwalk, then Navy Pier and the lakefront."],["Afternoon","Cubs at Wrigley Field if they're home: check the schedule once it's out."],["Night","Blues: Buddy Guy's Legends or Kingston Mines."]],"s":"Chicago"},
+{"d":"2027-05-23","c":"CHICAGO","t":"Lakefront Sunday","i":[["Morning","Bike or walk the Lakefront Trail to Lincoln Park and the free zoo."],["Afternoon","Magnificent Mile shopping; Chicago-style hot dog (no ketchup)."],["Evening","Early night and pack the car bags. Collect the one-way hire car tonight or first thing."]],"s":"Chicago"},
+{"d":"2027-05-24","c":"ON THE ROAD","k":"drive","t":"Drive Chicago to Nashville","i":[["08:00","Pick up the hire car (one-way, drop in New Orleans)."],["Drive","About 760 km, 7.5 h on I-65 South via Indianapolis and Louisville."],["Lunch","Indianapolis, roughly halfway."],["Note","Clocks jump forward an hour in Indiana and Kentucky (Eastern), then back at the Tennessee line."],["Night","Lower Broadway honky-tonks: live music from late morning to late night, no cover at most."]],"s":"Nashville"},
+{"d":"2027-05-25","c":"NASHVILLE","t":"Music City","i":[["Morning","Country Music Hall of Fame and Museum."],["Afternoon","Ryman Auditorium tour."],["Lunch","Hot chicken: Hattie B's or Prince's (start mild)."],["Evening","Grand Ole Opry show if one is on tonight (check the Opry calendar), otherwise Bluebird Cafe (books out fast)."]],"s":"Nashville"},
+{"d":"2027-05-26","c":"ON THE ROAD","k":"drive","t":"Drive Nashville to Memphis","i":[["09:00","About 340 km, 3 h on I-40 West."],["Afternoon","Sun Studio tour, where Elvis cut his first record."],["17:00","Peabody Hotel duck march (11:00 in, 17:00 out)."],["Night","Beale Street, then ribs at Rendezvous or Central BBQ."]],"s":"Memphis"},
+{"d":"2027-05-27","c":"MEMPHIS","t":"Graceland day","i":[["09:00","Graceland: mansion tour plus Elvis Presley's Memphis across the road (cars, jumpsuits, the planes). Book the bigger package and give it most of the day."],["Afternoon","National Civil Rights Museum at the Lorraine Motel, if there's energy left."],["Night","Stay put; long drive tomorrow."]],"s":"Memphis"},
+{"d":"2027-05-28","c":"ON THE ROAD","k":"drive","t":"Drive Memphis to New Orleans","i":[["08:30","About 630 km, 6 h on I-55 South through Mississippi."],["Lunch","Jackson, Mississippi."],["Afternoon","Return the hire car in New Orleans. You won't need one in the city."],["Dinner","French Quarter; a quiet one, cruise tomorrow."]],"s":"New Orleans, near the port"},
+{"d":"2027-05-29","c":"CRUISE","k":"sea","t":"Board Carnival Dream","i":[["Check-in","Erato Street Cruise Terminal, 1100 Port of New Orleans Place. Arrive at your Carnival check-in slot (be there 30 min early)."],["Afternoon","Sail away down the Mississippi. Aft balcony: best seat for the wake."],["Evening","Find the muster station, book dining and shows in the Carnival HUB app."]],"s":"Carnival Dream, aft balcony"},
+{"d":"2027-05-30","c":"CRUISE","k":"sea","t":"Day at sea","i":[["All day","Sea day. Pools, the waterworks, Serenity adults-only deck."],["Evening","Likely an Elegant Night: pack one dressy outfit each."]],"s":"Carnival Dream"},
+{"d":"2027-05-31","c":"CRUISE","k":"sea","t":"Port day: Cozumel or Progreso","i":[["Port","First port of call. Check the order in the Carnival app; the flyer lists both but not which comes first."],["Note","US Memorial Day; ship will be busy."]],"s":"Carnival Dream"},
+{"d":"2027-06-01","c":"CRUISE","k":"sea","t":"Port day: the other one","i":[["Port","Cozumel: snorkelling, beach clubs. Progreso: Chichen Itza or Uxmal Mayan ruins (long day), or the beach."],["Rule","Back on board by the all-aboard time. Ship's excursions are guaranteed to wait; private ones aren't."]],"s":"Carnival Dream"},
+{"d":"2027-06-02","c":"CRUISE","k":"sea","t":"Day at sea","i":[["All day","Last sea day. Settle the sail-and-sign account, put bags out tonight."]],"s":"Carnival Dream"},
+{"d":"2027-06-03","c":"NEW ORLEANS","t":"Back in the Big Easy","i":[["Early","Disembark Erato Street. Taxi to the hotel and drop bags."],["Morning","Beignets and cafe au lait at Cafe du Monde."],["Afternoon","National WWII Museum (easily half a day)."],["Night","Dinner and a wander in the French Quarter."]],"s":"New Orleans"},
+{"d":"2027-06-04","c":"NEW ORLEANS","t":"Streetcars and jazz","i":[["Morning","St Charles streetcar to the Garden District; Magazine Street."],["Lunch","Po'boys at Parkway Bakery or Domilise's."],["Night","Frenchmen Street jazz clubs (Spotted Cat, d.b.a.)."]],"s":"New Orleans"},
+{"d":"2027-06-05","c":"NEW ORLEANS","t":"Swamp and Preservation Hall","i":[["Morning","Swamp tour by boat (alligators). Go early; it's hot by noon."],["Dinner","Commander's Palace or Galatoire's (dress up a bit)."],["Night","Preservation Hall set (book tickets)."]],"s":"New Orleans"},
+{"d":"2027-06-06","c":"FLY","k":"air","t":"New Orleans to New York","i":[["Midday","Fly MSY to New York (LaGuardia or JFK), about 3 h. Book as a paid domestic flight."],["Evening","Check in, Times Square at night."]],"s":"New York"},
+{"d":"2027-06-07","c":"NEW YORK","t":"Lady Liberty and downtown","i":[["Morning","Statue of Liberty and Ellis Island ferry from Battery Park (book pedestal or crown tickets early)."],["Afternoon","9/11 Memorial and Museum; Oculus; One World Observatory optional."],["Evening","Wall Street, Stone Street for dinner."]],"s":"New York"},
+{"d":"2027-06-08","c":"NEW YORK","t":"Central Park and Broadway","i":[["Morning","Hire bikes or walk Central Park (Bethesda Fountain, Bow Bridge)."],["Afternoon","The Met, or the American Museum of Natural History."],["Evening","Broadway show. Book once you've chosen."]],"s":"New York"},
+{"d":"2027-06-09","c":"NEW YORK","t":"Views and the High Line","i":[["Morning","Top of the Rock or SUMMIT One Vanderbilt; Grand Central."],["Afternoon","High Line, Chelsea Market, Hudson Yards and Edge."],["Night","Dinner in the West Village."]],"s":"New York"},
+{"d":"2027-06-10","c":"NEW YORK","t":"Brooklyn","i":[["Morning","Walk the Brooklyn Bridge into DUMBO."],["Lunch","Pizza at Juliana's or Grimaldi's."],["Evening","Yankees or Mets game if either is home (check), or a free evening."]],"s":"New York"},
+{"d":"2027-06-11","c":"FLY","k":"air","t":"New York to Orlando","i":[["Midday","Fly to Orlando (MCO), about 2.5 h."],["Evening","Check in, then Disney Springs for dinner."]],"s":"Orlando"},
+{"d":"2027-06-12","c":"ORLANDO","t":"Magic Kingdom","i":[["Rope drop","Be at the gate before opening. Seven Dwarfs, TRON, Space Mountain early."],["Heat","Midday break back at the hotel pool."],["Night","Fireworks over the castle."]],"s":"Orlando"},
+{"d":"2027-06-13","c":"ORLANDO","t":"Epic Universe","i":[["Early","Ministry of Magic (Harry Potter) and Super Nintendo World first."],["Day","How to Train Your Dragon, Dark Universe, Stardust Racers."],["Tip","Coasters here make you leave loose items in free lockers."]],"s":"Orlando"},
+{"d":"2027-06-14","c":"ORLANDO","t":"Hollywood Studios","i":[["Rope drop","Star Wars: Rise of the Resistance, Slinky Dog Dash."],["Day","Tower of Terror, Rock 'n' Roller Coaster, Galaxy's Edge."],["Night","Fantasmic! if it's on."]],"s":"Orlando"},
+{"d":"2027-06-15","c":"ORLANDO","t":"Universal Studios and Islands of Adventure","i":[["Morning","Islands of Adventure: VelociCoaster, Hagrid's (queue early)."],["Midday","Hogwarts Express across to Universal Studios (needs park-to-park)."],["Afternoon","Diagon Alley, Gringotts, Revenge of the Mummy."]],"s":"Orlando"},
+{"d":"2027-06-16","c":"ORLANDO","t":"EPCOT","i":[["Morning","Guardians of the Galaxy: Cosmic Rewind, Test Track."],["Afternoon","World Showcase: drink and snack around the world."],["Night","Fireworks over the lagoon, then pack."]],"s":"Orlando"},
+{"d":"2027-06-17","c":"FLY","k":"air","t":"Orlando to home","i":[["Morning","American Airlines Orlando to LA (or Dallas)."],["Evening","Qantas home to Melbourne. Amy is arranging; see Money for the options."]],"s":"In the air"},
+{"d":"2027-06-18","c":"FLY","k":"air","t":"Over the Pacific","i":[["All day","You lose this date crossing the date line."]],"s":"In the air"},
+{"d":"2027-06-19","c":"HOME","k":"air","t":"Land in Melbourne","i":[["Early","Arrive Melbourne. Time once Amy books it."]],"s":"Home"}
+],
+"stays":[
+{"id":"st-chi","c":"Chicago","n":"20 to 24 May","nights":4,"tip":"The Loop or River North, so the river cruise, the Bean and the lake are walkable."},
+{"id":"st-nash","c":"Nashville","n":"24 to 26 May","nights":2,"tip":"Downtown near Lower Broadway, with parking for the hire car."},
+{"id":"st-mem","c":"Memphis","n":"26 to 28 May","nights":2,"tip":"The Guest House at Graceland puts you right at the gates; or downtown near Beale Street and the Peabody."},
+{"id":"st-nola1","c":"New Orleans (pre-cruise)","n":"28 to 29 May","nights":1,"tip":"Warehouse District, a short taxi to the Erato Street terminal."},
+{"id":"st-cruise","c":"Carnival Dream","n":"29 May to 3 June","nights":5,"tip":"Aft balcony cabin. Booked.","booked":true},
+{"id":"st-nola2","c":"New Orleans","n":"3 to 6 June","nights":3,"tip":"French Quarter or the Garden District edge, for walking and streetcars."},
+{"id":"st-nyc","c":"New York","n":"6 to 11 June","nights":5,"tip":"Midtown for subway lines and Broadway."},
+{"id":"st-orl","c":"Orlando","n":"11 to 17 June","nights":6,"tip":"Disney and Universal both on the list, so pick a hotel between them, or a Universal hotel for early entry to Epic Universe and a car or rideshare to Disney."}
+],
+"book":[
+{"g":"Flights","id":"b-amy","t":"Brief Amy on the flight options","s":"Options and points are in the Money tab"},
+{"g":"Flights","id":"b-out","t":"Melbourne to Chicago, 20 May","s":"Amy to arrange"},
+{"g":"Flights","id":"b-home","t":"Orlando to Melbourne, 17 June","s":"Amy to arrange"},
+{"g":"Flights","id":"b-msy","t":"New Orleans to New York, 6 June","s":"Amy to arrange"},
+{"g":"Flights","id":"b-mco","t":"New York to Orlando, 11 June","s":"Amy to arrange"},
+{"g":"Road","id":"b-car","t":"One-way hire car Chicago to New Orleans","s":"24 to 28 May. Check the one-way drop fee and add a second driver"},
+{"g":"Cruise","id":"b-cruise","t":"Carnival Dream, aft balcony","s":"29 May to 3 June","def":"done"},
+{"g":"Cruise","id":"b-checkin","t":"Carnival online check-in and arrival slot","s":"Opens closer to sailing"},
+{"g":"Cruise","id":"b-shore","t":"Shore excursions: Cozumel and Progreso","s":"Ship's own tours wait for you if late"},
+{"g":"Do","id":"b-arch","t":"Chicago architecture river cruise","s":"21 May"},
+{"g":"Do","id":"b-opry","t":"Grand Ole Opry or Bluebird Cafe","s":"25 May"},
+{"g":"Do","id":"b-grace","t":"Graceland tickets","s":"27 May, full package"},
+{"g":"Do","id":"b-sun","t":"Sun Studio tour","s":"26 May"},
+{"g":"Do","id":"b-swamp","t":"Swamp tour","s":"5 June morning"},
+{"g":"Do","id":"b-pres","t":"Preservation Hall","s":"5 June"},
+{"g":"Do","id":"b-statue","t":"Statue of Liberty pedestal or crown","s":"7 June, book well ahead"},
+{"g":"Do","id":"b-911","t":"9/11 Museum","s":"7 June"},
+{"g":"Do","id":"b-bway","t":"Broadway show","s":"8 June"},
+{"g":"Do","id":"b-top","t":"Top of the Rock or SUMMIT","s":"9 June"},
+{"g":"Parks","id":"b-disney","t":"Walt Disney World 3-day tickets","s":"Magic Kingdom, Hollywood Studios, EPCOT"},
+{"g":"Parks","id":"b-uni","t":"Universal park-to-park tickets with Epic Universe","s":"Studios plus Islands one day, Epic another"},
+{"g":"Parks","id":"b-ll","t":"Lightning Lane and Express Pass decisions","s":"Summer crowds: worth a look"},
+{"g":"Dining","id":"b-cmd","t":"Commander's Palace dinner","s":"5 June"}
+],
+"docs":[
+{"id":"d-esta","t":"ESTA for both","s":"Apply on the official US government ESTA site only, at least 72 hours before; it lasts two years."},
+{"id":"d-pass","t":"Passports valid well past 19 June 2027","s":"Needed for the Mexico ports too."},
+{"id":"d-ins","t":"Travel insurance with cruise cover","s":"US medical costs are huge; make sure the cruise and Mexico are covered."},
+{"id":"d-idp","t":"International Driving Permit","s":"Recommended with your Australian licence for the hire car."},
+{"id":"d-apps","t":"Apps installed and logged in","s":"Carnival HUB, My Disney Experience, Universal Orlando, Qantas, American Airlines."},
+{"id":"d-copies","t":"Copies of passports and bookings","s":"Photos on both phones plus a printed set."},
+{"id":"d-card","t":"Travel card or no-fee credit card","s":"Tipping is expected: 18 to 20% at restaurants."},
+{"id":"d-leave","t":"Leave dates in for both of you","s":"Out 20 May, back 19 June."}
+],
+"pack":[
+{"g":"Weather","i":["Light jacket for Chicago (cool by the lake)","Shorts and breathable tops (South and Orlando are hot and humid)","Compact umbrella or poncho (Florida afternoon storms)","Hat and sunglasses","Reef-safe sunscreen"]},
+{"g":"Cruise","i":["One dressy outfit for Elegant Night","Swimmers, two each","Lanyard for the cruise card","Non-surge power board (surge protectors get confiscated)","Seasickness tablets"]},
+{"g":"Parks","i":["Comfortable broken-in walking shoes","Refillable water bottle","Glasses strap for rides","Cooling towel","Portable battery pack","Small cross-body bag (fits Universal lockers)"]},
+{"g":"Tech","i":["US plug adapters (Type A/B)","Phone chargers and cables","AirTags in each bag","eSIM or US roaming sorted"]},
+{"g":"Documents","i":["Passports","Driver licence and IDP","Printed ESTA approvals","Insurance policy details","Cruise boarding passes"]}
+],
+"places":[
+{"k":"chi","n":"Chicago","tag":"4 nights. Architecture, lake, blues and pizza.","do":["Chicago Architecture Center river cruise","Millennium Park and Cloud Gate","Willis Tower Skydeck Ledge or 360 Chicago","Art Institute of Chicago","Navy Pier and the Riverwalk","Wrigley Field if the Cubs are home"],"eat":["Deep dish: Lou Malnati's, Pequod's, Giordano's","Chicago hot dog: Portillo's","Italian beef: Al's #1 or Portillo's","Garrett Popcorn (Chicago Mix)"],"tips":["The L train from O'Hare (Blue Line) is cheap and avoids traffic.","Late May can still be cool by the lake: bring a layer.","Memorial Day weekend is the week after, so you miss the peak crowds."]},
+{"k":"nash","n":"Nashville","tag":"2 nights. Country music, honky-tonks, hot chicken.","do":["Country Music Hall of Fame and Museum","Ryman Auditorium tour","Grand Ole Opry (check dates)","Lower Broadway honky-tonks: Robert's Western World, Tootsie's","Johnny Cash Museum"],"eat":["Hot chicken: Hattie B's, Prince's","Biscuits: Loveless Cafe","Meat-and-three: Arnold's Country Kitchen"],"tips":["Most honky-tonks have no cover; tip the band.","Hot chicken heat levels are no joke: order mild or medium first."]},
+{"k":"mem","n":"Memphis and Graceland","tag":"2 nights. Elvis, blues and barbecue.","do":["Graceland mansion and Elvis Presley's Memphis complex","Elvis's planes: Lisa Marie and Hound Dog II","Sun Studio","Peabody duck march (11:00 and 17:00)","Beale Street","National Civil Rights Museum"],"eat":["Dry-rub ribs: Rendezvous","Pulled pork: Central BBQ","Gus's Fried Chicken"],"tips":["Graceland is about 15 min south of downtown.","Give Graceland a full day: the mansion is only part of it.","The Guest House at Graceland is the closest stay."]},
+{"k":"nola","n":"New Orleans","tag":"1 night before, 3 after the cruise. Jazz, food, streetcars.","do":["French Quarter and Jackson Square","National WWII Museum","St Charles streetcar to the Garden District","Frenchmen Street jazz","Preservation Hall","Swamp tour"],"eat":["Beignets: Cafe du Monde","Po'boys: Parkway Bakery","Gumbo and Creole: Commander's Palace","Muffuletta: Central Grocery"],"tips":["June is hot and humid; plan outdoor stuff early.","Bourbon Street is loud and messy at night; Frenchmen Street is the music.","Carnival boards at Erato Street, a short taxi from the Warehouse District."]},
+{"k":"cruise","n":"Carnival Dream","tag":"5 nights, 29 May to 3 June. New Orleans, Cozumel, Progreso.","do":["Aft balcony: wake views at sail-away","Serenity adults-only deck","Comedy club and the main shows","Steakhouse night (extra cost)","Cozumel: snorkelling or a beach club","Progreso: Mayan ruins (Uxmal is closer than Chichen Itza)"],"eat":["Guy's Burger Joint (free)","BlueIguana Cantina (free)","Main dining room most nights","Pizza 24/7"],"tips":["Daily gratuities are added to your onboard account; check Carnival's current rate.","Drinks are not included unless you buy a package (both adults must buy it).","Take a non-surge power board; surge protectors are confiscated.","Keep passports for the Mexican ports."]},
+{"k":"nyc","n":"New York","tag":"5 nights. Statue, skyline, Broadway, parks.","do":["Statue of Liberty and Ellis Island","9/11 Memorial and Museum","Central Park","The Met","Top of the Rock or SUMMIT","High Line and Chelsea Market","Brooklyn Bridge and DUMBO","Broadway show"],"eat":["Pizza: Joe's, Juliana's","Bagels: Russ and Daughters","Pastrami: Katz's","Cheesecake: Junior's"],"tips":["Tap a contactless card or phone at the subway gate (OMNY); fares cap weekly.","Book the Statue pedestal or crown well ahead.","Broadway: TodayTix app for deals and lotteries."]},
+{"k":"orl","n":"Orlando parks","tag":"6 nights. Disney and Universal, including Epic Universe.","do":["Magic Kingdom: TRON, Seven Dwarfs, Space Mountain","EPCOT: Guardians of the Galaxy, Test Track","Hollywood Studios: Rise of the Resistance, Slinky Dog","Epic Universe: Ministry of Magic, Super Nintendo World, Stardust Racers","Islands of Adventure: VelociCoaster, Hagrid's","Universal Studios: Diagon Alley, Gringotts"],"eat":["Dole Whip at Magic Kingdom","Butterbeer in the Wizarding Worlds","EPCOT World Showcase snacking","Disney Springs for dinner"],"tips":["June is peak heat and busy: rope drop, then a pool break mid-afternoon.","Universal's big coasters make you use free lockers for loose items; metal detectors at some.","Glasses: wear a strap on coasters and water rides.","Afternoon thunderstorms are near daily; outdoor rides pause for lightning.","Hogwarts Express between the Universal parks needs a park-to-park ticket."]}
+],
+"fly":{"bal":300000,
+"route":[["Via LA","Melbourne to LA in business (130,100) plus LA to Chicago in economy (20,700)","150,800"],["Via Dallas","Melbourne to Dallas in business (151,800) plus Dallas to Chicago in economy (13,800)","165,600"]],
+"opts":[
+{"n":"Business both ways on points","pts":"About 603,000 via LA (662,000 via Dallas)","fit":"over","what":"Business on both long Qantas flights for both of you, economy on the short American connections, all on points.","good":"Best trip, and every flight is protected on one booking each way.","catch":"About 300,000 more points than you have."},
+{"n":"Business one way on points, pay for the other way","pts":"260,200 for the two long flights","fit":"fits","tag":"Pick","what":"Two business seats on the long Qantas flight in one direction (2 x 130,100). Pay cash for the US connection and for the other direction in economy or premium economy.","good":"A guaranteed bed on one long flight. Most people choose the flight home: it's the longest, overnight, and you're tired after four weeks.","catch":"The other long flight is in economy or premium economy."},
+{"n":"Pay flexible economy both ways, upgrade with points","pts":"64,800 per person per flight, about 259,000 for four","fit":"fits","what":"Buy flexible economy fares, then use points to request upgrades to business.","good":"Could get you business both ways on the points you have.","catch":"Flexible fares are expensive, and upgrades go on a waitlist. They may not clear until the airport, or at all."},
+{"n":"Pay a cheaper economy fare, upgrade with points","pts":"117,700 per person per flight","fit":"poor","what":"Buy a standard economy fare, then use points to request upgrades to business.","good":"You earn points and status credits on a paid fare.","catch":"Saves only about 12,000 points per flight compared with a business seat on points, you pay a full fare on top, and the upgrade still isn't guaranteed. Poor value."},
+{"n":"Earn more points before booking","pts":"About 220,000 to 300,000 more needed","fit":"later","what":"Top up, usually with credit card sign-up bonuses, then book business both ways.","good":"Keeps the full business-class plan.","catch":"Takes months, and May 2027 seats can be booked now, so the best seats may go."},
+{"n":"Points for the two flights within the US","pts":"About 55,200 for both of you","fit":"fits","what":"New Orleans to New York and New York to Orlando in economy, 13,800 points each per person, on American Airlines.","good":"Good use of leftover points.","catch":"Only makes sense if the points aren't needed for the long flights."}],
+"notes":["Prices are Qantas's published reward tables since 5 August 2025, per person one way, plus taxes. Live prices and seat availability show when Amy searches.","A booking that mixes business and economy is priced at the lower of each flight in its own class added up, or the whole trip in the higher class.","Qantas's cash taxes on a Melbourne to Dallas business return are about A$1,301 per person.","Melbourne to Dallas flies about 3 times a week; Melbourne to LA has more flights, so dates are easier to find.","Getting two business seats on the same flight is the hard part, so being a day or two flexible helps."]},
+"budget":[
+{"t":"Carnival Dream, aft balcony, two people","usd":2348,"known":true,"s":"From the quote; includes taxes and fees, not gratuities"}
+]}
+</script>
+
+<script>
+{
+"use strict";
+const T=JSON.parse(document.getElementById('trip').textContent);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const pd=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(Date.UTC(y,m-1,d))};
+const lab=s=>{const x=pd(s);return DOW[x.getUTCDay()]+' '+x.getUTCDate()+' '+MON[x.getUTCMonth()]};
+const TZ={CHICAGO:-5,NASHVILLE:-5,MEMPHIS:-5,'NEW ORLEANS':-5,'ON THE ROAD':-5,CRUISE:-5,'NEW YORK':-4,ORLANDO:-4,FLY:-5,HOME:10};
+const ymdAt=(off)=>{const x=new Date(Date.now()+off*3600e3);return x.toISOString().slice(0,10)};
+
+let local={};try{local=JSON.parse(localStorage.getItem('usa27')||'{}')||{}}catch(e){}
+const save=()=>{try{localStorage.setItem('usa27',JSON.stringify(local))}catch(e){}};
+const me=()=>local.me||'';
+const S={book:{},pack:{},spend:[],notes:[]};
+let DB=null,USER=null,live=false,loaded=false;
+
+const ICON={home:'<path d="M3.5 10.5 12 3.5l8.5 7M5.5 9v11h13V9"/>',today:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+plan:'<rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 2.5v3M16 2.5v3"/>',
+places:'<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+map:'<path d="M9 3 3 5.5v15L9 18l6 3 6-2.5v-15L15 6 9 3z"/><path d="M9 3v15M15 6v15"/>',
+stays:'<path d="M3 18.5v-7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7M3 15h18M7 9.5V7a1.5 1.5 0 0 1 1.5-1.5h7A1.5 1.5 0 0 1 17 7v2.5"/>',
+money:'<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/>',
+kit:'<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>',
+docs:'<path d="M6 3.5h8l4 4V20a.5.5 0 0 1-.5.5h-11A.5.5 0 0 1 6 20z"/><path d="M14 3.5V8h4M9 12.5h6M9 16h6"/>'};
+const TABS=[['home','Home'],['today','Today'],['plan','Plan'],['places','Places'],['map','Route'],['stays','Beds'],['money','Money'],['kit','Kit'],['docs','Docs']];
+let cur=(location.hash||'').slice(1);if(!TABS.some(t=>t[0]===cur))cur='home';
+document.getElementById('navIn').innerHTML=TABS.map(([k,l])=>`<button data-tab="${k}"><svg viewBox="0 0 24 24">${ICON[k]}</svg><span>${l}</span></button>`).join('');
+
+/* --- helpers --- */
+const status=id=>{const b=T.book.find(x=>x.id===id)||T.docs.find(x=>x.id===id);const st=T.stays.find(x=>x.id===id);return (S.book[id]&&S.book[id].s)||(b&&b.def)||(st&&st.booked&&'done')||'todo'};
+const SL={todo:'To do',held:'Underway',done:'Done'};
+const nextS={todo:'held',held:'done',done:'todo'};
+function stBtn(id){const s=status(id);return `<button class="st" data-st="${id}" data-s="${s}" aria-label="Status: ${SL[s]}. Tap to change">${SL[s]}</button>`}
+function trip(){
+  const startMel=new Date(Date.UTC(2027,4,20,0,0)); // 20 May, Melbourne morning
+  const now=Date.now();
+  if(now<startMel.getTime())return{phase:'before',days:Math.ceil((startMel-now)/864e5)};
+  const day=T.days.find(d=>d.d===ymdAt(TZ[d.c]??-5));
+  if(day)return{phase:'during',day};
+  return{phase:'after'};
+}
+function dayCard(d,i){
+  const n=pd(d.d);const k=d.k||'';
+  return `<article class="day" id="d-${d.d}"><div class="dayH"><div class="dnum">Day<b>${i+1}</b></div>
+  <div><h3>${esc(d.t)}</h3><div class="small">${lab(d.d)}</div></div><span class="c ${k}">${esc(d.c)}</span></div>
+  <ul class="items">${d.i.map(([t,x])=>`<li><span class="t">${esc(t)}</span><span>${esc(x)}</span></li>`).join('')}</ul>
+  <p class="sleep">Sleep: <b>${esc(d.s)}</b></p></article>`;
+}
+const LEGS=[["20 May","Fly out","Melbourne to Chicago",""],["20 to 24 May","Chicago","4 nights","4"],["24 May","Drive","to Nashville, 7.5 h",""],["24 to 26 May","Nashville","2 nights","2"],["26 to 28 May","Memphis","Graceland","2"],["28 May","New Orleans","night before the cruise","1"],["29 May to 3 Jun","Carnival Dream","Cozumel and Progreso","5"],["3 to 6 Jun","New Orleans","3 nights","3"],["6 to 11 Jun","New York","5 nights","5"],["11 to 17 Jun","Orlando","Disney and Universal","6"],["17 to 19 Jun","Fly home","Orlando to Melbourne",""]];
+
+/* --- views --- */
+function vHome(){
+  const t=trip();
+  const all=T.book.length,done=T.book.filter(b=>status(b.id)==='done').length;
+  const top=t.phase==='before'?`<div class="gsign"><div class="k">WHEELS UP IN</div><div class="v">${t.days} days</div><div class="s">Out of Melbourne, Thu 20 May 2027</div></div>`
+   :t.phase==='during'?`<div class="gsign"><div class="k">TODAY &middot; ${esc(t.day.c)}</div><div class="v">${esc(t.day.t)}</div><div class="s">${lab(t.day.d)}</div></div>`
+   :`<div class="gsign"><div class="k">WELCOME HOME</div><div class="v">That was the USA</div></div>`;
+  return `<div class="hero"><div>
+   <div class="count">${top}<div class="gsign"><div class="k">TRIP</div><div class="v">31 days</div><div class="s">20 May to 19 Jun 2027</div></div></div>
+   <div class="card" style="margin-top:12px"><div class="kicker">Bookings</div><div class="big">${done} of ${all}</div>
+   <div class="bar"><i style="width:${Math.round(done/all*100)}%"></i></div>
+   <p class="small" style="margin-top:8px">The cruise is in. Next up: brief Amy on the flights. Business seats on points go fast.</p>
+   <div class="f"><button class="btn" data-go="docs">See what to book</button></div></div>
+  </div><div class="legs">${LEGS.map(l=>`<div class="leg"><span class="d">${l[0]}</span><div><b>${l[1]}</b><div class="small">${l[2]}</div></div>${l[3]?`<span class="n">${l[3]} nt</span>`:''}</div>`).join('')}</div></div>
+  <section class="sec"><h2>Notes for each other</h2>
+   <div class="card"><form class="f" id="noteF" style="margin-top:0"><input id="noteIn" placeholder="Idea, link or reminder" aria-label="New note"><button class="btn">Add</button></form>
+   <div id="notes">${S.notes.length?S.notes.map(n=>`<div class="row"><div class="w"><b>${esc(n.text)}</b><span>${esc(n.who||'')} &middot; ${esc((n.at||'').slice(0,10))}</span></div><button class="del" data-delnote="${esc(n._id)}">Remove</button></div>`).join(''):`<p class="small" style="margin-top:10px">${live?'Nothing yet. Anything either of you adds shows up on both phones.':'Notes sync between your phones once the app connects.'}</p>`}</div></div>
+  </section>`;
+}
+function vToday(){
+  const t=trip();
+  if(t.phase==='during'){const i=T.days.indexOf(t.day);
+    const nx=T.days[i+1];
+    return `<div class="today">${dayCard(t.day,i)}</div>${nx?`<section class="sec"><h2>Tomorrow</h2>${dayCard(nx,i+1)}</section>`:''}`}
+  if(t.phase==='after')return `<div class="card"><h2>Trip complete</h2><p class="small">Every day is still in Plan.</p></div>`;
+  const open=T.book.filter(b=>status(b.id)!=='done').slice(0,6);
+  return `<div class="gsign"><div class="k">BEFORE YOU GO</div><div class="v">${t.days} days to go</div><div class="s">This page turns into each day's plan once you land.</div></div>
+  <section class="sec"><h2>Still to book</h2><div class="card">${open.map(b=>`<div class="row"><div class="w"><b>${esc(b.t)}</b><span>${esc(b.s)}</span></div>${stBtn(b.id)}</div>`).join('')}</div></section>
+  <section class="sec"><h2>Day one</h2>${dayCard(T.days[0],0)}</section>`;
+}
+function vPlan(){
+  const groups=['All','Road trip','Cruise','New Orleans','New York','Orlando'];
+  const f=local.pf||'All';
+  const keep=d=>f==='All'||(f==='Road trip'&&['CHICAGO','NASHVILLE','MEMPHIS','ON THE ROAD'].includes(d.c))||(f==='Cruise'&&d.c==='CRUISE')||(f==='New Orleans'&&d.c==='NEW ORLEANS')||(f==='New York'&&d.c==='NEW YORK')||(f==='Orlando'&&d.c==='ORLANDO');
+  return `<h2 style="font-size:26px;font-weight:900;margin-bottom:6px">Day by day</h2>
+  <p class="lead">Built around the cruise. Days in Chicago, New York and Orlando can move; cruise dates can't.</p>
+  <div class="filter">${groups.map(g=>`<button class="chip" data-pf="${g}" aria-pressed="${g===f}">${g}</button>`).join('')}</div>
+  <div class="days">${T.days.map((d,i)=>keep(d)?dayCard(d,i):'').join('')}</div>`;
+}
+function vPlaces(){
+  const k=local.pl||'chi';const p=T.places.find(x=>x.k===k)||T.places[0];
+  return `<div class="filter">${T.places.map(x=>`<button class="chip" data-pl="${x.k}" aria-pressed="${x.k===p.k}">${esc(x.n)}</button>`).join('')}</div>
+  <div class="place"><h3>${esc(p.n)}</h3><p class="tag">${esc(p.tag)}</p>
+  <div class="cols"><div class="card"><div class="kicker">See and do</div><ul class="list">${p.do.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+  <div class="card"><div class="kicker">Eat</div><ul class="list">${p.eat.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+  <div class="card"><div class="kicker">Good to know</div><ul class="list">${p.tips.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div></div>`;
+}
+function vMap(){
+  const R=[
+   ['air','MELBOURNE','Qantas business to LA or Dallas, then American to Chicago','20 May'],
+   ['road','CHICAGO','4 nights','<span class="shield">65</span>'],
+   ['road','NASHVILLE','<b>760 km, about 7.5 h</b> on I-65 South via Indianapolis. 2 nights','<span class="shield">40</span>'],
+   ['road','MEMPHIS','<b>340 km, about 3 h</b> on I-40 West. Graceland. 2 nights','<span class="shield">55</span>'],
+   ['road','NEW ORLEANS','<b>630 km, about 6 h</b> on I-55 South. Drop the car. 1 night',''],
+   ['sea','COZUMEL','Carnival Dream, from 29 May','5 nt'],
+   ['sea','PROGRESO','Yucatan. Port order to confirm',''],
+   ['sea','NEW ORLEANS','Back 3 June. 3 nights',''],
+   ['air','NEW YORK','Fly 6 June, about 3 h. 5 nights',''],
+   ['air','ORLANDO','Fly 11 June, about 2.5 h. 6 nights',''],
+   ['air','MELBOURNE','American to LA or Dallas, Qantas home. Land 19 June','']];
+  return `<h2 style="font-size:26px;font-weight:900;margin-bottom:6px">The route</h2>
+  <p class="lead">About 1,730 km of driving over three days, five nights at sea, and two short flights.</p>
+  <div class="road">${R.map(([k,c,m,x])=>`<div class="stop ${k==='sea'?'sea':k==='air'?'air':''}"><div class="lane"><div class="dot"><span class="pin" style="display:block"></span></div></div>
+   <div><span class="city">${c}</span><div class="meta">${m}</div>${x&&x.includes('shield')?`<div class="meta" style="display:flex;align-items:center;gap:8px;margin-top:8px">${x}<span>next leg</span></div>`:''}</div></div>`).join('')}</div>
+  <p class="note">Drive times are without stops. Indiana and Kentucky run on Eastern time, so the clock jumps an hour on day 5.</p>`;
+}
+function vStays(){
+  const total=T.stays.reduce((a,s)=>a+s.nights,0);
+  return `<h2 style="font-size:26px;font-weight:900;margin-bottom:6px">Beds</h2><p class="lead">${total} nights in eight places, plus one night in the air.</p>
+  <div class="grid">${T.stays.map(s=>`<div class="card"><div style="display:flex;gap:10px;align-items:flex-start"><div style="flex:1"><div class="kicker">${esc(s.n)} &middot; ${s.nights} nt</div><h3 style="font-size:20px;font-weight:800">${esc(s.c)}</h3></div>${stBtn(s.id)}</div>
+   <p class="small" style="margin-top:6px">${esc(s.tip)}</p></div>`).join('')}</div>`;
+}
+function vMoney(){
+  const rate=local.rate||0.68;
+  const spent=S.spend.reduce((a,x)=>a+(+x.usd||0),0);
+  const known=T.budget.reduce((a,b)=>a+b.usd,0);
+  const F=T.fly;const fitL={fits:['Fits 300k','var(--ok)'],over:['Over budget','var(--todo)'],poor:['Poor value','var(--hold)'],later:['Takes time','var(--hold)']};
+  const fly=`<h2 style="font-size:26px;font-weight:900;margin-bottom:6px">Flight options</h2>
+  <p class="lead">Amy is arranging the flights. You have about ${F.bal.toLocaleString()} Qantas Points between you. Business only on the long Qantas flights; economy on the short US connections.</p>
+  <div class="card"><div class="kicker">Points per person, one way, Melbourne to Chicago</div><table class="money">${F.route.map(r=>`<tr><td><b>${esc(r[0])}</b><div class="small">${esc(r[1])}</div></td><td class="n">${r[2]}</td></tr>`).join('')}</table><p class="note">Home from Orlando costs about the same each way. LA is cheaper and has more flights.</p></div>
+  <div class="grid" style="margin-top:12px">${F.opts.map(o=>{const f=fitL[o.fit];return `<div class="card"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill" style="color:${f[1]};border:2px solid ${f[1]}">${f[0]}</span>${o.tag?`<span class="pill" style="background:var(--red);color:#fff">Our pick</span>`:''}</div>
+   <h3 style="font-size:19px;font-weight:800;margin-top:8px">${esc(o.n)}</h3><div class="kicker" style="margin-top:2px">${esc(o.pts)}</div>
+   <p style="margin-top:6px">${esc(o.what)}</p><p class="small" style="margin-top:6px"><b>Good:</b> ${esc(o.good)}</p><p class="small" style="margin-top:4px"><b>Catch:</b> ${esc(o.catch)}</p></div>`}).join('')}</div>
+  <div class="card" style="margin-top:12px"><div class="kicker">Good to know</div><ul class="list">${F.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul></div>`;
+  return fly+`<h2 style="font-size:26px;font-weight:900;margin:30px 0 6px">Money</h2>
+  <div class="grid"><div class="card"><div class="kicker">Spent on the trip so far</div><div class="big">US$${spent.toLocaleString('en-US',{maximumFractionDigits:0})}</div><div class="small">about A$${Math.round(spent/rate).toLocaleString()}</div></div>
+  <div class="card"><div class="kicker">Converter</div><div class="f" style="margin-top:4px"><input id="cvU" inputmode="decimal" placeholder="US$" aria-label="US dollars"><input id="rate" inputmode="decimal" value="${rate}" aria-label="AUD to USD rate" style="flex:0 1 90px"></div>
+  <div class="big" id="cvO" style="font-size:28px;margin-top:8px">A$0</div><p class="note">Rate is US$ per A$1: set it to today's rate. Remember 18 to 20% tips at restaurants, and sales tax is added at the till.</p></div></div>
+  <section class="sec"><h2>Log a spend</h2><div class="card"><form class="f" id="spF" style="margin-top:0"><input id="spW" placeholder="What" aria-label="What"><input id="spA" inputmode="decimal" placeholder="US$" aria-label="Amount in US dollars" style="flex:0 1 110px"><button class="btn">Add</button></form>
+  ${S.spend.length?`<table class="money" style="margin-top:10px"><tr><th>What</th><th>Who</th><th class="n">US$</th><th></th></tr>${S.spend.map(x=>`<tr><td>${esc(x.what)}</td><td>${esc(x.who||'')}</td><td class="n">${(+x.usd).toFixed(2)}</td><td><button class="del" data-delsp="${esc(x._id)}">Remove</button></td></tr>`).join('')}</table>`:`<p class="small" style="margin-top:10px">${live?'Nothing logged yet.':'Spending syncs once the app connects.'}</p>`}</div></section>
+  <section class="sec"><h2>Known costs</h2><div class="card"><table class="money"><tr><th>Item</th><th class="n">Cost</th></tr>${T.budget.map(b=>`<tr><td>${esc(b.t)}<div class="small">${esc(b.s)}</div></td><td class="n">$${b.usd.toLocaleString()}</td></tr>`).join('')}
+  <tr><td>Flights<div class="small">Amy is arranging; see the options above.</div></td><td class="n">TBC</td></tr></table>
+  <p class="note">Only the cruise is a real number so far. I'll add each booking here as it's made.</p></div></section>`;
+}
+function vKit(){
+  const who=['Tim','Laura'];
+  const pid=(g,i)=>(g+'-'+i).toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,60);
+  return `<h2 style="font-size:26px;font-weight:900;margin-bottom:6px">Packing</h2><p class="lead">Tick your own column. Both phones see the ticks.</p>
+  ${T.pack.map(g=>`<section class="sec" style="margin-top:16px"><h2 style="font-size:19px">${esc(g.g)}</h2><div class="card">${g.i.map(it=>{const id=pid(g.g,it);
+   return `<div class="pk"><span class="w">${esc(it)}</span>${who.map(w=>{const on=!!(S.pack[id+'~'+w]&&S.pack[id+'~'+w].on);return `<button class="tick" data-pk="${id}~${w}" aria-pressed="${on}" aria-label="${w}: ${esc(it)}">${w[0]}</button>`}).join('')}</div>`}).join('')}</div></section>`).join('')}`;
+}
+function vDocs(){
+  const grp=[...new Set(T.book.map(b=>b.g))];
+  return `<h2 style="font-size:26px;font-weight:900;margin-bottom:6px">Docs and bookings</h2>
+  <p class="lead">Tap a status to move it on: To do, Underway, Done. Both of you see the change.</p>
+  <section class="sec" style="margin-top:12px"><h2>Before you fly</h2><div class="card">${T.docs.map(d=>`<div class="row"><div class="w"><b>${esc(d.t)}</b><span>${esc(d.s)}</span></div>${stBtn(d.id)}</div>`).join('')}</div></section>
+  ${grp.map(g=>`<section class="sec"><h2>${esc(g)}</h2><div class="card">${T.book.filter(b=>b.g===g).map(b=>`<div class="row"><div class="w"><b>${esc(b.t)}</b><span>${esc(b.s)}</span></div>${stBtn(b.id)}</div>`).join('')}</div></section>`).join('')}
+  <section class="sec"><h2>Flights</h2><div class="card"><p>Amy is arranging all the flights. The options, points and catches are in the <button class="btn ghost" data-go="money" style="min-height:36px;padding:4px 10px">Money tab</button>.</p></div></section>`;
+}
+const VIEWS={home:vHome,today:vToday,plan:vPlan,places:vPlaces,map:vMap,stays:vStays,money:vMoney,kit:vKit,docs:vDocs};
+
+function render(){
+  document.getElementById('view').innerHTML=VIEWS[cur]()+`<p class="sync">${live?'Synced between your phones.':loaded?'Offline: changes stay on this screen.':'Connecting&hellip;'}</p>`;
+  document.querySelectorAll('#nav button').forEach(b=>{if(b.dataset.tab===cur)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+  document.getElementById('whoBtn').textContent=me()||'Who?';
+  const cv=document.getElementById('cvU');
+  if(cv){const r=document.getElementById('rate'),o=document.getElementById('cvO');
+    const u=()=>{const rr=parseFloat(r.value)||0.68;o.textContent='A$'+((parseFloat(cv.value)||0)/rr).toFixed(2)};
+    cv.addEventListener('input',u);r.addEventListener('change',()=>{local.rate=parseFloat(r.value)||0.68;save();u()});u()}
+}
+function go(t){cur=t;try{history.replaceState(null,'','#'+t)}catch(e){location.hash=t}render();scrollTo(0,0)}
+addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(VIEWS[h]&&h!==cur){cur=h;render()}});
+
+let tt;function toast(m){const e=document.getElementById('toast');e.textContent=m;e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>e.hidden=true,2400)}
+function clock(){const t=trip();const off=t.phase==='during'?(TZ[t.day.c]??-5):-5;
+  const x=new Date(Date.now()+off*3600e3);document.getElementById('clk').innerHTML=`${String(x.getUTCHours()).padStart(2,'0')}:${String(x.getUTCMinutes()).padStart(2,'0')}<br>${off===-4?'Eastern':'Central'}`}
+clock();setInterval(clock,30000);
+
+/* --- writes --- */
+const busy={};
+async function put(coll,id,data){
+  if(!DB){toast('Not connected, so this won’t sync yet.');return}
+  if(busy[coll+id])return;busy[coll+id]=1;
+  try{await DB.collection(coll).doc(id).set(data)}catch(e){toast('Could not save that. Check your signal.')}
+  delete busy[coll+id];
+}
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('button');if(!b)return;const s=b.dataset;
+  if(s.tab)return go(s.tab);
+  if(s.go)return go(s.go);
+  if(s.me){local.me=s.me;save();document.getElementById('whoDlg').hidden=true;render();return}
+  if(b.id==='whoBtn'){document.getElementById('whoDlg').hidden=false;return}
+  if(s.pf){local.pf=s.pf;save();render();return}
+  if(s.pl){local.pl=s.pl;save();render();return}
+  if(s.st){const n=nextS[status(s.st)];S.book[s.st]={s:n};render();put('book',s.st,{s:n,by:me(),at:new Date().toISOString()});return}
+  if(s.pk){const on=!(S.pack[s.pk]&&S.pack[s.pk].on);S.pack[s.pk]={on};b.setAttribute('aria-pressed',on);put('pack',s.pk,{on});return}
+  if(s.delnote&&DB){try{await DB.collection('notes').doc(s.delnote).delete()}catch(er){toast('Could not remove that.')}return}
+  if(s.delsp&&DB){try{await DB.collection('spend').doc(s.delsp).delete()}catch(er){toast('Could not remove that.')}return}
+});
+document.addEventListener('submit',async e=>{
+  e.preventDefault();
+  if(!DB){toast('Not connected, so this won’t sync yet.');return}
+  if(e.target.id==='noteF'){const v=document.getElementById('noteIn').value.trim();if(!v)return;
+    try{await DB.collection('notes').add({text:v.slice(0,500),who:me(),at:new Date().toISOString()})}catch(er){toast('Could not save that.')}}
+  if(e.target.id==='spF'){const w=document.getElementById('spW').value.trim(),a=parseFloat(document.getElementById('spA').value);
+    if(!w||!(a>0)){toast('Add what it was and the amount.');return}
+    try{await DB.collection('spend').add({what:w.slice(0,120),usd:Math.round(a*100)/100,who:me(),at:new Date().toISOString()})}catch(er){toast('Could not save that.')}}
+});
+
+/* --- connect --- */
+async function boot(){
+  try{DB=window.claude&&await claude.use('db')}catch(e){DB=null}
+  try{USER=window.claude&&await claude.use('user')}catch(e){USER=null}
+  loaded=true;
+  if(!DB){render();return}
+  const tm=setTimeout(()=>{if(!live){render()}},10000);
+  const ok=()=>{if(!live){live=true;clearTimeout(tm)}};
+  const err=()=>{clearTimeout(tm);render()};
+  DB.collection('book').onSnapshot(s=>{S.book={};s.docs.forEach(d=>S.book[d.id]=d.data());ok();render()},err);
+  DB.collection('pack').onSnapshot(s=>{S.pack={};s.docs.forEach(d=>S.pack[d.id]=d.data());ok();if(cur==='kit')render()},err);
+  DB.collection('notes').orderBy('at','desc').limit(200).onSnapshot(s=>{S.notes=s.docs.map(d=>Object.assign({_id:d.id},d.data()));ok();if(cur==='home')render()},err);
+  DB.collection('spend').orderBy('at','desc').limit(500).onSnapshot(s=>{S.spend=s.docs.map(d=>Object.assign({_id:d.id},d.data()));ok();if(cur==='money')render()},err);
+  render();
+}
+render();
+if(!me())document.getElementById('whoDlg').hidden=false;
+boot();
+}
+</script>
+</body></html>

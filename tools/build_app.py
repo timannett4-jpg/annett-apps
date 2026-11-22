@@ -1,10 +1,10 @@
 """Rebuild an installable app page on this site from its Claude dashboard.
 usage: python3 tools/build_app.py <app> <saved artifact index.html>
-apps: europe, bdm, laura, farm, peptide, family, mealplan, hockey. Writes <app>.html in the repo root.
+apps: europe, bdm, laura, farm, peptide, family, mealplan, hockey, usa. Writes <app>.html in the repo root.
 Only the page is rebuilt; manifests, icons, claude-shim.js and the service workers stay as they are.
 Used by the scheduled "Apps auto-update" task."""
 import sys, re, os
-APPS = {"europe": "Europe", "bdm": "BDM", "laura": "Laura's Desk", "farm": "Home Paddock", "peptide": "Peptides", "family": "Family", "mealplan": "Meals"}
+APPS = {"europe": "Europe", "bdm": "BDM", "laura": "Laura's Desk", "farm": "Home Paddock", "peptide": "Peptides", "family": "Family", "mealplan": "Meals", "usa": "USA 2027"}
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def generic(s, app, short):
@@ -148,10 +148,28 @@ def hockey(src):
     html = HOCKEY_HEAD + body.rstrip() + '\n' + HOCKEY_SYNC + '</body>\n</html>\n'
     return html.replace("`“${name}” is in Open on this device.`", "`“${name}” is saved in Open.`")
 
+def inject(s, app, short):
+    """For pages that keep their own <head> (USA): add the install and sync tags to it."""
+    s = re.sub(r'<link rel="(?:icon|apple-touch-icon)"[^>]*>\s*', '', s)
+    s = re.sub(r'<meta name="apple-mobile-web-app-[a-z-]+"[^>]*>\s*', '', s)
+    s = s.replace('<meta name="claude:viewport-fit-sides" content="cover">', '')
+    tags = ('<meta name="apple-mobile-web-app-capable" content="yes">\n'
+            '<meta name="mobile-web-app-capable" content="yes">\n'
+            '<meta name="apple-mobile-web-app-status-bar-style" content="default">\n'
+            '<meta name="apple-mobile-web-app-title" content="{S}">\n'
+            '<meta name="theme-color" content="#0b2a5b">\n'
+            '<link rel="manifest" href="{A}.webmanifest">\n'
+            '<link rel="icon" type="image/png" href="{A}-icon-192.png">\n'
+            '<link rel="apple-touch-icon" href="{A}-icon-180.png">\n'
+            '<script>window.ANNETT_APP="{A}";</script>\n'
+            '<script src="claude-shim.js"></script>\n').replace('{S}', short).replace('{A}', app)
+    i = s.lower().index('</head>')
+    return s[:i] + tags + s[i:]
+
 if __name__ == '__main__':
     app, src = sys.argv[1], sys.argv[2]
     s = open(src, encoding='utf8').read()
-    html = hockey(s) if app == 'hockey' else generic(s, app, APPS[app])
+    html = hockey(s) if app == 'hockey' else inject(s, app, APPS[app]) if app == 'usa' else generic(s, app, APPS[app])
     out = os.path.join(ROOT, app + '.html')
     open(out, 'w', encoding='utf8').write(html)
     print(out, len(html))
