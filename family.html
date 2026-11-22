@@ -498,7 +498,7 @@ nav.tabs button[aria-current="true"]::before{content:"";position:absolute;top:0;
 
 /* ---------- launch screen (like the Europe app's) ---------- */
 #splash{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:28px;text-align:center;color:#fff;overflow:hidden;
-  background:radial-gradient(120% 80% at 50% 110%,#ff8a6b 0%,#c4487a 26%,#3a2f86 58%,#1d1a4a 100%);transition:opacity .5s ease,visibility .5s ease;animation:spSafe .6s 13s forwards}
+  background:radial-gradient(120% 80% at 50% 110%,#ff8a6b 0%,#c4487a 26%,#3a2f86 58%,#1d1a4a 100%);transition:opacity .5s ease,visibility .5s ease;animation:spSafe .6s 8s forwards}
 #splash.gone{opacity:0;visibility:hidden}
 #splash .stars{opacity:.7}
 .spSun{position:absolute;left:50%;bottom:-120px;width:260px;height:260px;margin-left:-130px;border-radius:50%;background:#ffc9a6;box-shadow:0 0 90px 40px rgba(255,150,120,.45);opacity:.85;animation:spSun 1.4s cubic-bezier(.2,.8,.3,1) both}
@@ -715,11 +715,11 @@ const SPLASH=(()=>{const sp=document.getElementById('splash');if(!sp)return {don
     const ld=$('#spLoad');li=0;ld.textContent=LINES[0];clearInterval(lt);lt=setInterval(()=>{li=Math.min(li+1,LINES.length-1);ld.textContent=LINES[li]},3500)};
   const hide=()=>{clearTimeout(hideT);clearInterval(lt);sp.classList.add('gone')};
   const show=hold=>{t0=Date.now();sp.style.animation='none';sp.classList.remove('gone');paint();clearTimeout(hideT);hideT=setTimeout(hide,hold)};
-  paint();hideT=setTimeout(hide,10000);
+  paint();hideT=setTimeout(hide,5000);
   /* Coming back to the app after a while: show it briefly while the new data syncs (iOS resumes, it doesn't reload). */
-  let away=0;document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){away=Date.now();return}if(away&&Date.now()-away>60000)show(10000);away=0});
-  addEventListener('pageshow',ev=>{if(ev.persisted)show(10000)});
-  /* Held for 10 seconds every time, like the Europe app. */
+  let away=0;document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){away=Date.now();return}if(away&&Date.now()-away>60000)show(5000);away=0});
+  addEventListener('pageshow',ev=>{if(ev.persisted)show(5000)});
+  /* Held for 5 seconds every time, like the Europe app. */
   return {done(){}}})();
 
 /* ---------- render ---------- */

@@ -235,7 +235,7 @@ body[data-view="disney"] #view>.chips .chip.dChip.on{background:#F3C45A; color:#
   animation:spRise .9s .5s cubic-bezier(.2,.8,.3,1) both}
 @keyframes spTurn{to{transform:rotate(360deg)}}
 /* Belt and braces: if the script never runs, the screen still clears itself. */
-#splash{animation:spSafe .6s 13s forwards}
+#splash{animation:spSafe .6s 8s forwards}
 @keyframes spSafe{to{opacity:0; visibility:hidden}}
 @keyframes spRise{from{opacity:0; transform:translateY(12px)}to{opacity:1; transform:none}}
 @media (prefers-reduced-motion:reduce){
@@ -3208,8 +3208,8 @@ function render(){
   if(!window.__splashDone){window.__splashDone=1;
     const sp=document.getElementById('splash');
     if(sp){
-      /* Archer's phone loads the slow way. Everyone else gets 10 seconds. */
-      const SLOW=me()==='Archer', HOLD=SLOW?30000:10000;
+      /* Everyone gets 5 seconds. */
+      const SLOW=false, HOLD=5000;
       if(SLOW)sp.style.animation='spSafe .6s 33s forwards';
       const dd=document.getElementById('spDays');
       const left=Math.round((Date.parse(D.trip.start+'T00:00:00Z')-Date.parse(todayISO()+'T00:00:00Z'))/864e5);
@@ -3251,7 +3251,7 @@ function render(){
       });
       addEventListener('pageshow',ev=>{if(ev.persisted)show()});
     }}
-  if(!local.me&&!window.__askedWho){window.__askedWho=1;setTimeout(whoOpen,10800)}
+  if(!local.me&&!window.__askedWho){window.__askedWho=1;setTimeout(whoOpen,5800)}
   if(!window.__cdTick)window.__cdTick=setInterval(()=>{
     const e=document.getElementById('cdLive'); if(e)e.innerHTML=cdLiveHTML();
     document.querySelectorAll('.cdCity[data-at]').forEach(c=>{c.innerHTML=cdUnits(+c.dataset.at-Date.now())});
