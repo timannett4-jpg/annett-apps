@@ -2709,16 +2709,16 @@ function countOn(d){const t=d.mgmtType||"";
   if(t==="Management takeover"||t==="Transfer of ownership"){if(occOf(d)==="vacant")return d.leaseStartDate||"";return occBase(d)||d.leaseStartDate||""}
   return d.leaseStartDate||""}
 function rawCommDate(d){
-  if(d.lost||d.noCommission) return "";
+  if(d.lost||d.noCommission||d.noCount) return "";
   return countOn(d);
 }
 function commDate(d){
-  if(d.lost||d.noCommission) return ""; // noCommission: not paid to Tim (e.g. while away)
+  if(d.lost||d.noCommission||d.noCount) return ""; // noCommission: not paid to Tim (e.g. while away)
   if(paidBy()[d.id]) return ""; // house already paid on an earlier deal
   return countOn(d);
 }
 const moveIns=ym=>deals.filter(d=>{const c=commDate(d);return c&&c.slice(0,7)===ym});
-function suOk(d){return !d.lost||!!d.signedDate} /* a deal lost AFTER sign-up still counts as a sign-up (Tim, 13 Oct) */
+function suOk(d){return !d.noCount&&(!d.lost||!!d.signedDate)} /* a deal lost AFTER sign-up still counts as a sign-up (Tim, 13 Oct) */
 function stageOf(d){if(d.lost)return"lost";if(d.leaseStartDate&&d.leaseStartDate<=TODAY)return"movedin";if(d.leasedDate||d.leaseStartDate)return"leased";if(d.listedDate)return"listed";if(d.signedDate)return"signed";if(d.proposalDate)return"proposal";if(d.appraisalDate)return"appraisal";return"lead"}
 function last(d){return[d.leaseStartDate,d.leasedDate,d.listedDate,d.signedDate,d.proposalDate,d.appraisalDate,(d.updatedAt||"").slice(0,10)].filter(Boolean).sort().pop()||""}
 function fmtD(s){return s?new Date(s+"T00:00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short"}):""}
@@ -2820,7 +2820,7 @@ function renderSuKpi(ms,m){
 /* Financial-year target: 240 sign-ups (20 a month) */
 function fyRow(){
   const fs=fyStart(THIS_M), fyMs=Array.from({length:12},(_,i)=>addM(fs,i));
-  const got=deals.filter(d=>live(d)&&inMs(d.signedDate,fyMs)).length;
+  const got=deals.filter(d=>live(d)&&!d.noCount&&inMs(d.signedDate,fyMs)).length;
   const idx=fyMs.indexOf(THIS_M), d=new Date(), dim=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
   const pace=Math.round(SU_FY*(idx+d.getDate()/dim)/12), diff=got-pace, left=12-idx;
   const perM=Math.ceil(Math.max(0,SU_FY-got)/left), fy=`FY${String(+fs.slice(0,4)+1).slice(2)}`;
@@ -4094,7 +4094,7 @@ function refreshSheet(){
   const st=stageOf(d);
   const tel=d.ownerPhone?`<a href="tel:${esc(d.ownerPhone.replace(/\s/g,""))}">${esc(d.ownerPhone)}</a>`:"";
   const mail=d.ownerEmail?`<a href="mailto:${esc(d.ownerEmail)}">${esc(d.ownerEmail)}</a>`:"";
-  $("#dshHead").innerHTML=`<div class="dtop"><div><div class="sub2">${esc([typeShort(d.mgmtType),d.suburb].filter(Boolean).join(" · "))}</div><h3 id="dshTitle">${esc(d.address||"Untitled")}</h3><span class="chip c-${st}"><i></i>${STAGE[st]}${d.archived?" · archived":""}${d.noCommission?" · not paid to you":""}${paidBy()[d.id]?" · house already paid":""}</span>${paidBy()[d.id]?`<div class="sub2" style="margin-top:6px">Not counted: commission was already paid on this house (${esc(paidBy()[d.id].mgmtType||"")} ${fmtD(rawCommDate(paidBy()[d.id]))}). ${canWrite?`<button class="link" data-act="countagain">Count it anyway</button>`:""}</div>`:d.countAgain?`<div class="sub2" style="margin-top:6px">Counted again by your choice. ${canWrite?`<button class="link" data-act="countonce">Undo</button>`:""}</div>`:""}${(d.mgmtType==="Management takeover"||d.mgmtType==="Transfer of ownership")?(()=>{const o=occOf(d),tko=d.mgmtType==="Management takeover";return `<div class="sub2" style="margin-top:6px">${o==="vacant"?"Vacant: counts when the tenant moves in":"Tenanted: counts on "+(tko?"sign-up":"settlement")}${d.occupancy?"":" (worked out)"}. ${canWrite?`<button class="link" data-act="occ">It was ${o==="vacant"?"tenanted":"vacant"}</button>`:""}</div>`})():""}</div><button class="x" data-act="close" aria-label="Close">×</button></div>
+  $("#dshHead").innerHTML=`<div class="dtop"><div><div class="sub2">${esc([typeShort(d.mgmtType),d.suburb].filter(Boolean).join(" · "))}</div><h3 id="dshTitle">${esc(d.address||"Untitled")}</h3><span class="chip c-${st}"><i></i>${STAGE[st]}${d.archived?" · archived":""}${d.noCommission?" · not paid to you":""}${paidBy()[d.id]?" · house already paid":""}</span>${paidBy()[d.id]?`<div class="sub2" style="margin-top:6px">Not counted: commission was already paid on this house (${esc(paidBy()[d.id].mgmtType||"")} ${fmtD(rawCommDate(paidBy()[d.id]))}). ${canWrite?`<button class="link" data-act="countagain">Count it anyway</button>`:""}</div>`:d.countAgain?`<div class="sub2" style="margin-top:6px">Counted again by your choice. ${canWrite?`<button class="link" data-act="countonce">Undo</button>`:""}</div>`:""}${canWrite?`<div class="sub2" style="margin-top:6px">${d.noCount?`Not counted in your numbers (part of another property). <button class="link" data-act="nocount">Count it</button>`:`<button class="link" data-act="nocount">Don't count this one in my numbers</button>`}</div>`:""}${(d.mgmtType==="Management takeover"||d.mgmtType==="Transfer of ownership")?(()=>{const o=occOf(d),tko=d.mgmtType==="Management takeover";return `<div class="sub2" style="margin-top:6px">${o==="vacant"?"Vacant: counts when the tenant moves in":"Tenanted: counts on "+(tko?"sign-up":"settlement")}${d.occupancy?"":" (worked out)"}. ${canWrite?`<button class="link" data-act="occ">It was ${o==="vacant"?"tenanted":"vacant"}</button>`:""}</div>`})():""}</div><button class="x" data-act="close" aria-label="Close">×</button></div>
    <div class="dgrid">
      <div class="dbox"><h4>Owner</h4><div class="big2">${esc(d.owner||"No name yet")}</div>${tel?`<div>${tel}</div>`:""}${mail?`<div>${mail}</div>`:""}${!tel&&!mail?`<div class="sub2">No phone or email yet</div>`:""}${(d.altContacts||[]).map((a,i)=>`<div class="alt"><div class="sub2">${esc(a.source||"Another source")} has a different ${a.field==="ownerPhone"?"phone":"email"}:</div><div class="av">${esc(a.value)}</div>${canWrite?`<div class="acts"><button data-act="altuse" data-i="${i}">Use this one</button><button data-act="altkeep" data-i="${i}">Keep current</button></div>`:""}</div>`).join("")}</div>
      <div class="dbox"><h4>Key dates</h4>${kd(d)}</div>
@@ -4144,6 +4144,7 @@ $("#dsh").addEventListener("click",async e=>{
       await db.collection("activity").add({dealId:d.id,type:"note",text:act==="altuse"?`${a.field==="ownerPhone"?"Phone":"Email"} changed to ${a.value} (from ${a.source||"another source"})`:`Kept current ${a.field==="ownerPhone"?"phone":"email"}; ignored ${a.value} from ${a.source||"another source"}`,at:now,by:"tim"});
       toast(act==="altuse"?"Contact updated":"Kept the current one")}
     else if(act==="occ"){const o=occOf(d)==="vacant"?"tenanted":"vacant";await db.collection("deals").doc(d.id).update({occupancy:o,updatedAt:now});toast(o==="vacant"?"Marked vacant: counts when the tenant moves in":"Marked tenanted: counts on "+(d.mgmtType==="Management takeover"?"sign-up":"settlement"))}
+    else if(act==="nocount"){await db.collection("deals").doc(d.id).update({noCount:!d.noCount,updatedAt:now});try{await logAct(d.id,"note",d.noCount?"Counted in the numbers again":"Not counted in the numbers (part of another property)")}catch(e){}toast(d.noCount?"Counted again":"Won't count in your numbers")}
     else if(act==="countagain"||act==="countonce"){await db.collection("deals").doc(d.id).update({countAgain:act==="countagain",updatedAt:now});toast(act==="countagain"?"Counted again":"Back to one commission per house")}
     else if(act==="archive"){await db.collection("deals").doc(d.id).update({archived:!d.archived,updatedAt:now});toast(d.archived?"Back in the pipeline":"Archived")}
     else if(act==="edit"){$("#dsh").close();openForm(d.id)}
@@ -5662,7 +5663,7 @@ function sfData(){const HA=sfHist("appraisalDate"),HP=sfHist("proposalDate"),bas
     const a=daysBetween(start,TODAY);if(a>180)return;const dec=x=>a>90?x*.4:x;
     items.push({d,why:st==="proposal"?`Proposal sent ${a} days ago`:`Appraised ${a} days ago`,pM:dec(sfP(h,a,wM,fb*Math.min(1,wM/45))),p30:dec(sfP(h,a,30,fb*.6)),p60:dec(sfP(h,a,60,fb))})});
   const sum=k=>items.reduce((t,x)=>t+x[k],0),sd=k=>Math.sqrt(items.reduce((t,x)=>t+x[k]*(1-x[k]),0));
-  const signedM=deals.filter(d=>d.signedDate&&d.signedDate.slice(0,7)===THIS_M&&!d.lost).length;
+  const signedM=deals.filter(d=>d.signedDate&&d.signedDate.slice(0,7)===THIS_M&&!d.lost&&!d.noCount).length;
   return {items,HA:HA.length,signedM,wM,M:[sum("pM"),sd("pM")],D30:[sum("p30"),sd("p30")],D60:[sum("p60"),sd("p60")]}}
 function renderSignFc(){const el=$("#signFc");if(!el)return;const s=sfData();
   if(!s.items.length){el.innerHTML=`<header><h2>Signing forecast</h2><span class="cap">Nothing open in the pipeline yet</span></header>`;return}
@@ -5930,7 +5931,7 @@ const TRK=[{g:"su",l:"Sign-ups",sel:["#suKpi","#path"]},{g:"fc",l:"Forecast",sel
   {g:"wn",l:"What wins",sel:["#winsCard"]},{g:"pl",l:"Pipeline",sel:["#v-track > .duo"]},{g:"lz",l:"Leased",sel:["#leasedCard"]},{g:"tk",l:"Takeovers",sel:["#tkoCard"]},
   {g:"tr",l:"Trends & sources",sel:["#kpis","#v-track > .card.chart","#strip","#v-track > .two"]},{g:"ls",l:"Lists",sel:["#todayLists","#trkExtra","#relLists"]}];
 function trkStat(g){const M=THIS_M;
-  if(g==="su"){const n=deals.filter(d=>notRowan(d)&&d.signedDate&&d.signedDate.slice(0,7)===M&&!d.lost).length;return [n,`this month · KPI 13, target 20`]}
+  if(g==="su"){const n=deals.filter(d=>notRowan(d)&&d.signedDate&&d.signedDate.slice(0,7)===M&&!d.lost&&!d.noCount).length;return [n,`this month · KPI 13, target 20`]}
   if(g==="pl"){const n=deals.filter(d=>notRowan(d)&&!d.lost&&!d.archived&&!d.signedDate&&(d.appraisalDate||d.proposalDate)).length;return [n,"appraised or proposal out"]}
   if(g==="lz"){const n=deals.filter(d=>notRowan(d)&&!d.lost&&d.leaseStartDate&&d.leaseStartDate.slice(0,7)===M).length;return [n,"moving in this month"]}
   if(g==="tk"){const n=typeof tkWon==="function"?tkWon().filter(t=>(t.fy||fyOf(t.month))===curFy()).length:0;return [n,"won this FY"]}
@@ -6014,7 +6015,7 @@ function listenParts(){const P=[],h=+new Date().toLocaleString("en-AU",{timeZone
     P.push(left?`${left} ${left===1?"thing is":"things are"} still open, and ${left===1?"it":"they"} can wait until the morning.`:"Your list is clear.");
     const tm=typeof upEv!=="undefined"&&upEv?upEv.filter(e=>melLocal(e.start.dateTime).slice(0,10)>TODAY).sort((a,b)=>a.start.dateTime.localeCompare(b.start.dateTime))[0]:null;
     if(tm)P.push(`First up next time: ${lsTime(tm.start.dateTime)}, ${lsClean(String(tm.summary||"").replace(/\s+[–—-]\s+/g,", "))}.`);
-    const su=deals.filter(d=>notRowan(d)&&d.signedDate&&d.signedDate.slice(0,7)===THIS_M&&!d.lost).length;P.push(su===1?"One sign-up so far this month.":`${su} sign-ups so far this month.`);
+    const su=deals.filter(d=>notRowan(d)&&d.signedDate&&d.signedDate.slice(0,7)===THIS_M&&!d.lost&&!d.noCount).length;P.push(su===1?"One sign-up so far this month.":`${su} sign-ups so far this month.`);
     P.push("Enjoy the evening with Laura and the kids.");return P}
   const st=typeof apptState!=="undefined"&&apptState[TODAY];const nowIso=new Date().toISOString();
   const evs=(st&&st.events||[]).filter(e=>e.start&&e.start.dateTime&&new Date(e.start.dateTime).toISOString()>nowIso&&e.status!=="cancelled").sort((a,b)=>new Date(a.start.dateTime)-new Date(b.start.dateTime));
@@ -6025,7 +6026,7 @@ function listenParts(){const P=[],h=+new Date().toLocaleString("en-AU",{timeZone
   const items=[];(typeof tasks!=="undefined"?tasks:[]).filter(t=>(t.status==="open"||t.status==="waiting")&&t.due&&t.due<=TODAY).forEach(t=>items.push(lsClean(t.text)+(t.address?", at "+lsAddr(t.address):"")));
   deals.filter(d=>notRowan(d)&&!d.lost&&!d.archived&&d.nextActionDate&&d.nextActionDate<=TODAY&&d.nextAction).forEach(d=>items.push(lsClean(d.nextAction)+", at "+lsAddr(d.address)));
   if(items.length){P.push(items.length===1?"One thing on today's list.":`${items.length} things on today's list. Here are the top ${Math.min(3,items.length)}.`);items.slice(0,3).forEach((x,i)=>P.push(`${["One","Two","Three"][i]}. ${x.replace(/\.$/,"")}.`))}
-  const su=deals.filter(d=>notRowan(d)&&d.signedDate&&d.signedDate.slice(0,7)===THIS_M&&!d.lost).length;P.push(su===1?"One sign-up so far this month.":`${su} sign-ups so far this month.`);
+  const su=deals.filter(d=>notRowan(d)&&d.signedDate&&d.signedDate.slice(0,7)===THIS_M&&!d.lost&&!d.noCount).length;P.push(su===1?"One sign-up so far this month.":`${su} sign-ups so far this month.`);
   const s=monthEndInfo();if(s.left<=9&&s.next)P.push(`${s.left} days left in the month. ${s.need} more gets you to the next tier.`);
   P.push("That's it. Drive safe.");return P}
 function listenScript(){return listenParts().join(" ")}
@@ -6533,7 +6534,7 @@ function dshTop(){const t=document.querySelector(".tabs");const b=t?Math.max(0,t
 addEventListener("scroll",dshTop,{passive:true});addEventListener("resize",()=>{dshTop();dockDsh()});PUSH_MQ.addEventListener("change",dockDsh);
 /* L6: glance header */
 function renderGlance(){let g=$("#glance");const bar=document.querySelector(".bar .wrap");if(!bar)return;if(!g){g=document.createElement("div");g.id="glance";g.className="glance";bar.insertBefore(g,bar.querySelector(".barR"))}
-  const su=deals.filter(d=>notRowan(d)&&!d.lost&&d.signedDate&&d.signedDate.slice(0,7)===THIS_M).length;
+  const su=deals.filter(d=>notRowan(d)&&!d.lost&&!d.noCount&&d.signedDate&&d.signedDate.slice(0,7)===THIS_M).length;
   const ap=typeof propAppts==="function"?propAppts(TODAY):null;const pr=(typeof prosp!=="undefined"?prosp:[]).find(p=>p.id===TODAY);const calls=pr?(+pr.calls||0):0;
   const pct=Math.min(100,Math.round(su/SU_KPI*100));
   g.innerHTML=`<button type="button" class="gl" data-gl="track" title="Sign-ups this month"><span class="gr" style="--p:${pct}"></span><b>${su}</b><small>/ ${SU_KPI} sign-ups</small></button>
@@ -7190,11 +7191,11 @@ function propIssues(kind){const out=[],d=deals.find(x=>x.id===propId);const plai
   if(d&&d.owner&&!new RegExp(String(fName(d.owner)||"").replace(/[^a-z]/gi,""),"i").test(plain.slice(0,600))&&fName(d.owner))out.push(["w",`${fName(d.owner)}'s name doesn't appear near the top`]);
   return out}
 function showPropCheck(iss,btnId){let el=$("#propCheck");if(!el){el=document.createElement("div");el.id="propCheck";$("#propOut").prepend(el)}const blk=iss.some(x=>x[0]==="b");
-  el.innerHTML=`<div class="pck ${blk?"blk":""}"><b>${blk?"Fix before sending":"Quick check before it goes"}</b><ul>${iss.map(x=>`<li class="${x[0]}">${x[0]==="b"?"✗":"!"} ${esc(x[1])}</li>`).join("")}</ul>${iss.some(x=>/OWNER NAME/.test(x[1]))?`<div class="pckb"><input id="pckName" placeholder="Owner's first name(s)" value="${esc(greetName((deals.find(x=>x.id===propId)||{}).owner))}" style="flex:1;min-width:140px"><button type="button" class="btn primary" data-pname="${btnId}">Put name in</button></div>`:""}<div class="pckb">${!blk?`<button type="button" class="btn primary" data-pgo="${btnId}">Looks fine, continue</button>`:`<button type="button" class="btn ghost" data-pgo="${btnId}">Send anyway</button>`}<button type="button" class="link" data-pck="0">Close</button></div></div>`;el.scrollIntoView({block:"nearest"})}
+  el.innerHTML=`<div class="pck ${blk?"blk":""}"><b>${blk?"Fix before sending":"Quick check before it goes"}</b><ul>${iss.map(x=>`<li class="${x[0]}">${x[0]==="b"?"✗":"!"} ${esc(x[1])}</li>`).join("")}</ul>${iss.some(x=>/OWNER NAME/.test(x[1]))?`<div class="pckb"><input id="pckName" placeholder="Owner's first name(s)" value="${esc(greetName((deals.find(x=>x.id===propId)||{}).owner))}" style="flex:1;min-width:140px"><button type="button" class="btn primary" data-pname="${btnId}">Put name in</button></div>`:""}<div class="pckb">${!blk?`<button type="button" class="btn primary" data-pgo="${btnId}">${btnId==="propSend"?"Looks fine, send now":"Looks fine, continue"}</button>`:`<button type="button" class="btn ghost" data-pgo="${btnId}">Send anyway</button>`}<button type="button" class="link" data-pck="0">Close</button></div></div>`;el.scrollIntoView({block:"nearest"})}
 document.addEventListener("click",e=>{const b=e.target.closest("#propCopy,#propDraft,#propMail,#propSend,#propPdf,#propGmail");if(!b||propBypass)return;if(b.id==="propSend"&&propSendArm&&Date.now()-propSendArm<6000)return;const kind=b.id==="propCopy"||b.id==="propPdf"||b.id==="propGmail"?"copy":b.id==="propDraft"?"draft":"mail";const iss=propIssues(kind);
   const pc=$("#propCheck");if(!iss.length){if(pc)pc.innerHTML="";return}e.stopImmediatePropagation();e.preventDefault();showPropCheck(iss,b.id)},true);
-document.addEventListener("click",e=>{const g=e.target.closest("[data-pgo]");if(g){const id=g.dataset.pgo;$("#propCheck").innerHTML="";propBypass=true;try{$("#"+id).click()}finally{propBypass=false}return}if(e.target.closest("[data-pck]"))$("#propCheck").innerHTML="";
-  const pn=e.target.closest("[data-pname]");if(pn){const v=($("#pckName").value||"").trim();if(!v){$("#pckName").focus();return}const pv=$("#propPrev");pv.innerHTML=pv.innerHTML.split("[OWNER NAME]").join(esc(v)).split(encodeURIComponent("[OWNER NAME]")).join(encodeURIComponent(v));if(propData)propData.greetingName=v;$("#propCheck").innerHTML="";toast("Name added");$("#"+pn.dataset.pname).click()}});
+document.addEventListener("click",e=>{const g=e.target.closest("[data-pgo]");if(g){const id=g.dataset.pgo;$("#propCheck").innerHTML="";if(id==="propSend")propSendArm=Date.now();propBypass=true;try{$("#"+id).click()}finally{propBypass=false}return}if(e.target.closest("[data-pck]"))$("#propCheck").innerHTML="";
+  const pn=e.target.closest("[data-pname]");if(pn){const v=($("#pckName").value||"").trim();if(!v){$("#pckName").focus();return}const pv=$("#propPrev");pv.innerHTML=pv.innerHTML.split("[OWNER NAME]").join(esc(v)).split(encodeURIComponent("[OWNER NAME]")).join(encodeURIComponent(v));if(propData)propData.greetingName=v;$("#propCheck").innerHTML="";const bid=pn.dataset.pname;if(bid==="propSend"){toast("Name added. Check it, then press Send again");return}const kd=bid==="propCopy"||bid==="propPdf"||bid==="propGmail"?"copy":bid==="propDraft"?"draft":"mail";const left=propIssues(kd);if(left.some(x=>x[0]==="b")){$("#"+bid).click();return}toast("Name added");propBypass=true;try{$("#"+bid).click()}finally{propBypass=false}}});
 /* Q1 fee calculator + yield in the top bar */
 function calcHtml(rent,cur){const opts=[...new Set([6.6,7.7,8.8,cur].filter(x=>x>0).map(x=>Math.round(x*10)/10))].sort((a,b)=>a-b);const extras=99*2+7.9*12+55+379;
   return !rent?`<p class="sub2">Type a weekly rent.</p>`:`<table class="lbt"><thead><tr><th>Fee</th><th class="num">Per week</th><th class="num">Mgmt fee a year</th><th class="num">All-in a year</th></tr></thead><tbody>${opts.map(f=>{const wk=rent*f/100,yr=wk*52;return `<tr${f===cur?' class="on"':""}><td>${f}%</td><td class="num">${money0(wk)}</td><td class="num">${money0(yr)}</td><td class="num">${money0(yr+extras)}</td></tr>`}).join("")}</tbody></table>
@@ -8568,7 +8569,7 @@ function rdrBadge(){if(view==="calls")rdrAttach()}
 
 /* ===== v118 Target celebration: once a month when sign-ups reach the target, and any time from Tools ===== */
 let celebDone=false;
-function celebCount(){return deals.filter(d=>notRowan(d)&&!d.lost&&d.signedDate&&d.signedDate.slice(0,7)===THIS_M).length}
+function celebCount(){return deals.filter(d=>notRowan(d)&&!d.lost&&!d.noCount&&d.signedDate&&d.signedDate.slice(0,7)===THIS_M).length}
 function openCeleb(){const su=celebCount(),mon=new Date(TODAY+"T00:00:00").toLocaleDateString("en-AU",{month:"long"}),hit=su>=SU_TARGET,over=su-SU_KPI;
   let d=$("#celeb");if(!d){d=document.createElement("dialog");d.id="celeb";d.setAttribute("aria-labelledby","celebH");document.body.appendChild(d)}
   const line=hit?`Target hit. That's ${over} over your KPI of ${SU_KPI}.`:su>=SU_KPI?`KPI done, ${over} over. ${SU_TARGET-su} more to your target of ${SU_TARGET}.`:`${SU_TARGET-su} more to your target of ${SU_TARGET}.`;
