@@ -59,7 +59,7 @@ main{max-width:1100px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-le
 .gsign{background:var(--sign);color:#fff;border-radius:12px;border-top:6px solid var(--red);
  padding:12px 16px;margin:2px}
 .gsign .k{font-size:12px;font-weight:800;letter-spacing:.06em;opacity:.85}
-.gsign .v{font-size:clamp(24px,6vw,40px);font-weight:900;line-height:1}
+.gsign .v{font-size:clamp(24px,5.5vw,36px);font-weight:900;line-height:1;white-space:nowrap}
 .gsign .s{font-size:14px;opacity:.9;margin-top:4px}
 
 /* interstate shield */
@@ -99,6 +99,7 @@ main{max-width:1100px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-le
 .dayH{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--card2);border-bottom:1px solid var(--rule)}
 .dnum{font-family:var(--m);font-weight:700;font-size:12px;color:var(--dim);width:44px;flex:none;text-align:center;line-height:1.15}
 .dnum b{display:block;font-size:20px;color:var(--ink);font-family:var(--f);font-weight:900}
+.dayH>div:not(.dnum){flex:1}
 .dayH h3{font-size:17px;font-weight:800}
 .dayH .c{font-size:12px;font-weight:800;color:#fff;background:var(--sign);padding:2px 8px;border-radius:5px;white-space:nowrap;margin-left:auto}
 .dayH .c.sea{background:#2f6fa6}.dayH .c.air{background:#6b7489}.dayH .c.drive{background:var(--red)}
@@ -244,7 +245,7 @@ table{border-collapse:collapse;width:100%}
 {"d":"2027-06-11","c":"FLY","k":"air","t":"New York to Orlando","i":[["Midday","Fly to Orlando (MCO), about 2.5 h."],["Evening","Check in, then Disney Springs for dinner."]],"s":"Orlando"},
 {"d":"2027-06-12","c":"ORLANDO","t":"Magic Kingdom","i":[["Rope drop","Be at the gate before opening. Seven Dwarfs, TRON, Space Mountain early."],["Heat","Midday break back at the hotel pool."],["Night","Fireworks over the castle."]],"s":"Orlando"},
 {"d":"2027-06-13","c":"ORLANDO","t":"Epic Universe","i":[["Early","Ministry of Magic (Harry Potter) and Super Nintendo World first."],["Day","How to Train Your Dragon, Dark Universe, Stardust Racers."],["Tip","Coasters here make you leave loose items in free lockers."]],"s":"Orlando"},
-{"d":"2027-06-14","c":"ORLANDO","t":"Hollywood Studios","i":[["Rope drop","Star Wars: Rise of the Resistance, Slinky Dog Dash."],["Day","Tower of Terror, Rock 'n' Roller Coaster, Galaxy's Edge."],["Night","Fantasmic! if it's on."]],"s":"Orlando"},
+{"d":"2027-06-14","c":"ORLANDO","t":"Hollywood Studios","i":[["Rope drop","Star Wars: Rise of the Resistance, Slinky Dog Dash."],["Day","Tower of Terror, Rock 'n' Roller Coaster Starring The Muppets, Galaxy's Edge."],["Night","Fantasmic! if it's on."]],"s":"Orlando"},
 {"d":"2027-06-15","c":"ORLANDO","t":"Universal Studios and Islands of Adventure","i":[["Morning","Islands of Adventure: VelociCoaster, Hagrid's (queue early)."],["Midday","Hogwarts Express across to Universal Studios (needs park-to-park)."],["Afternoon","Diagon Alley, Gringotts, Revenge of the Mummy."]],"s":"Orlando"},
 {"d":"2027-06-16","c":"ORLANDO","t":"EPCOT","i":[["Morning","Guardians of the Galaxy: Cosmic Rewind, Test Track."],["Afternoon","World Showcase: drink and snack around the world."],["Night","Fireworks over the lagoon, then pack."]],"s":"Orlando"},
 {"d":"2027-06-17","c":"FLY","k":"air","t":"Orlando to home","i":[["Morning","American Airlines Orlando to LA (or Dallas)."],["Evening","Qantas home to Melbourne. Amy is arranging; see Money for the options."]],"s":"In the air"},
@@ -304,11 +305,11 @@ table{border-collapse:collapse;width:100%}
 {"g":"Documents","i":["Passports","Driver licence and IDP","Printed ESTA approvals","Insurance policy details","Cruise boarding passes"]}
 ],
 "places":[
-{"k":"chi","n":"Chicago","tag":"4 nights. Architecture, lake, blues and pizza.","do":["Chicago Architecture Center river cruise","Millennium Park and Cloud Gate","Willis Tower Skydeck Ledge or 360 Chicago","Art Institute of Chicago","Navy Pier and the Riverwalk","Wrigley Field if the Cubs are home"],"eat":["Deep dish: Lou Malnati's, Pequod's, Giordano's","Chicago hot dog: Portillo's","Italian beef: Al's #1 or Portillo's","Garrett Popcorn (Chicago Mix)"],"tips":["The L train from O'Hare (Blue Line) is cheap and avoids traffic.","Late May can still be cool by the lake: bring a layer.","Memorial Day weekend is the week after, so you miss the peak crowds."]},
-{"k":"nash","n":"Nashville","tag":"2 nights. Country music, honky-tonks, hot chicken.","do":["Country Music Hall of Fame and Museum","Ryman Auditorium tour","Grand Ole Opry (check dates)","Lower Broadway honky-tonks: Robert's Western World, Tootsie's","Johnny Cash Museum"],"eat":["Hot chicken: Hattie B's, Prince's","Biscuits: Loveless Cafe","Meat-and-three: Arnold's Country Kitchen"],"tips":["Most honky-tonks have no cover; tip the band.","Hot chicken heat levels are no joke: order mild or medium first."]},
+{"k":"chi","n":"Chicago","tag":"4 nights. Architecture, lake, blues and pizza.","do":["Chicago Architecture Center river cruise","Millennium Park and Cloud Gate","Willis Tower Skydeck Ledge or 360 Chicago","Art Institute of Chicago","Navy Pier and the Riverwalk","Wrigley Field if the Cubs are home"],"eat":["Deep dish: Lou Malnati's, Pequod's, Giordano's","Chicago hot dog: Portillo's","Italian beef: Al's #1 or Portillo's","Garrett Popcorn (Chicago Mix)"],"tips":["The L train from O'Hare (Blue Line) is cheap and avoids traffic.","360 Chicago is running on one lift until mid-2027, so entry times are limited: book a timed ticket ahead.","Late May can still be cool by the lake: bring a layer.","Memorial Day weekend is the week after, so you miss the peak crowds."]},
+{"k":"nash","n":"Nashville","tag":"2 nights. Country music, honky-tonks, hot chicken.","do":["Country Music Hall of Fame and Museum","Ryman Auditorium tour","Grand Ole Opry (check dates)","Lower Broadway honky-tonks: Robert's Western World, Tootsie's","Johnny Cash Museum"],"eat":["Hot chicken: Hattie B's, Prince's","Biscuits: Loveless Cafe","Southern breakfast: Biscuit Love"],"tips":["Most honky-tonks have no cover; tip the band.","Hot chicken heat levels are no joke: order mild or medium first."]},
 {"k":"mem","n":"Memphis and Graceland","tag":"2 nights. Elvis, blues and barbecue.","do":["Graceland mansion and Elvis Presley's Memphis complex","Elvis's planes: Lisa Marie and Hound Dog II","Sun Studio","Peabody duck march (11:00 and 17:00)","Beale Street","National Civil Rights Museum"],"eat":["Dry-rub ribs: Rendezvous","Pulled pork: Central BBQ","Gus's Fried Chicken"],"tips":["Graceland is about 15 min south of downtown.","Give Graceland a full day: the mansion is only part of it.","The Guest House at Graceland is the closest stay."]},
 {"k":"nola","n":"New Orleans","tag":"1 night before, 3 after the cruise. Jazz, food, streetcars.","do":["French Quarter and Jackson Square","National WWII Museum","St Charles streetcar to the Garden District","Frenchmen Street jazz","Preservation Hall","Swamp tour"],"eat":["Beignets: Cafe du Monde","Po'boys: Parkway Bakery","Gumbo and Creole: Commander's Palace","Muffuletta: Central Grocery"],"tips":["June is hot and humid; plan outdoor stuff early.","Bourbon Street is loud and messy at night; Frenchmen Street is the music.","Carnival boards at Erato Street, a short taxi from the Warehouse District."]},
-{"k":"cruise","n":"Carnival Dream","tag":"5 nights, 29 May to 3 June. New Orleans, Cozumel, Progreso.","do":["Aft balcony: wake views at sail-away","Serenity adults-only deck","Comedy club and the main shows","Steakhouse night (extra cost)","Cozumel: snorkelling or a beach club","Progreso: Mayan ruins (Uxmal is closer than Chichen Itza)"],"eat":["Guy's Burger Joint (free)","BlueIguana Cantina (free)","Main dining room most nights","Pizza 24/7"],"tips":["Daily gratuities are added to your onboard account; check Carnival's current rate.","Drinks are not included unless you buy a package (both adults must buy it).","Take a non-surge power board; surge protectors are confiscated.","Keep passports for the Mexican ports."]},
+{"k":"cruise","n":"Carnival Dream","tag":"5 nights, 29 May to 3 June. New Orleans, Cozumel, Progreso.","do":["Aft balcony: wake views at sail-away","Serenity adults-only deck","Comedy club and the main shows","Chef's Art Steakhouse night (extra cost)","Cozumel: snorkelling or a beach club","Progreso: Mayan ruins (Uxmal is closer than Chichen Itza)"],"eat":["Guy's Burger Joint (free)","Guy's Pig & Anchor Smokehouse (free)","BlueIguana Cantina (free)","Main dining room most nights","Pizza 24/7"],"tips":["Daily gratuities are added to your onboard account; check Carnival's current rate.","Drinks are not included unless you buy a package (both adults must buy it).","Take a non-surge power board; surge protectors are confiscated.","Keep passports for the Mexican ports."]},
 {"k":"nyc","n":"New York","tag":"5 nights. Statue, skyline, Broadway, parks.","do":["Statue of Liberty and Ellis Island","9/11 Memorial and Museum","Central Park","The Met","Top of the Rock or SUMMIT","High Line and Chelsea Market","Brooklyn Bridge and DUMBO","Broadway show"],"eat":["Pizza: Joe's, Juliana's","Bagels: Russ and Daughters","Pastrami: Katz's","Cheesecake: Junior's"],"tips":["Tap a contactless card or phone at the subway gate (OMNY); fares cap weekly.","Book the Statue pedestal or crown well ahead.","Broadway: TodayTix app for deals and lotteries."]},
 {"k":"orl","n":"Orlando parks","tag":"6 nights. Disney and Universal, including Epic Universe.","do":["Magic Kingdom: TRON, Seven Dwarfs, Space Mountain","EPCOT: Guardians of the Galaxy, Test Track","Hollywood Studios: Rise of the Resistance, Slinky Dog","Epic Universe: Ministry of Magic, Super Nintendo World, Stardust Racers","Islands of Adventure: VelociCoaster, Hagrid's","Universal Studios: Diagon Alley, Gringotts"],"eat":["Dole Whip at Magic Kingdom","Butterbeer in the Wizarding Worlds","EPCOT World Showcase snacking","Disney Springs for dinner"],"tips":["June is peak heat and busy: rope drop, then a pool break mid-afternoon.","Universal's big coasters make you use free lockers for loose items; metal detectors at some.","Glasses: wear a strap on coasters and water rides.","Afternoon thunderstorms are near daily; outdoor rides pause for lightning.","Hogwarts Express between the Universal parks needs a park-to-park ticket."]}
 ],
@@ -433,8 +434,7 @@ function vMap(){
    ['road','NASHVILLE','<b>760 km, about 7.5 h</b> on I-65 South via Indianapolis. 2 nights','<span class="shield">40</span>'],
    ['road','MEMPHIS','<b>340 km, about 3 h</b> on I-40 West. Graceland. 2 nights','<span class="shield">55</span>'],
    ['road','NEW ORLEANS','<b>630 km, about 6 h</b> on I-55 South. Drop the car. 1 night',''],
-   ['sea','COZUMEL','Carnival Dream, from 29 May','5 nt'],
-   ['sea','PROGRESO','Yucatan. Port order to confirm',''],
+   ['sea','CARNIVAL DREAM','5 nights from 29 May: a sea day, Cozumel and Progreso (check the order in the Carnival app), then a sea day home',''],
    ['sea','NEW ORLEANS','Back 3 June. 3 nights',''],
    ['air','NEW YORK','Fly 6 June, about 3 h. 5 nights',''],
    ['air','ORLANDO','Fly 11 June, about 2.5 h. 6 nights',''],
@@ -491,7 +491,8 @@ function vDocs(){
 const VIEWS={home:vHome,today:vToday,plan:vPlan,places:vPlaces,map:vMap,stays:vStays,money:vMoney,kit:vKit,docs:vDocs};
 
 function render(){
-  document.getElementById('view').innerHTML=VIEWS[cur]()+`<p class="sync">${live?'Synced between your phones.':loaded?'Offline: changes stay on this screen.':'Connecting&hellip;'}</p>`;
+  const off=window.annettSync&&!(window.annettSync.config()||{}).url;
+  document.getElementById('view').innerHTML=VIEWS[cur]()+`<p class="sync">${off?'Sync is off on this phone, so changes stay here. Tap the Sync badge to turn it on.':live?'Synced between your phones.':loaded?'Offline: changes stay on this screen.':'Connecting&hellip;'}</p>`;
   document.querySelectorAll('#nav button').forEach(b=>{if(b.dataset.tab===cur)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
   document.getElementById('whoBtn').textContent=me()||'Who?';
   const cv=document.getElementById('cvU');
@@ -504,7 +505,8 @@ addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(VIEWS[h]&&h
 
 let tt;function toast(m){const e=document.getElementById('toast');e.textContent=m;e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>e.hidden=true,2400)}
 function clock(){const t=trip();const off=t.phase==='during'?(TZ[t.day.c]??-5):-5;
-  const x=new Date(Date.now()+off*3600e3);document.getElementById('clk').innerHTML=`${String(x.getUTCHours()).padStart(2,'0')}:${String(x.getUTCMinutes()).padStart(2,'0')}<br>${off===-4?'Eastern':'Central'}`}
+  const x=new Date(Date.now()+off*3600e3);const where=t.phase!=='during'?'In Chicago':({CHICAGO:'Chicago',NASHVILLE:'Nashville',MEMPHIS:'Memphis','NEW ORLEANS':'New Orleans','NEW YORK':'New York',ORLANDO:'Orlando',CRUISE:'Ship time','ON THE ROAD':'Central',FLY:'Central',HOME:'Melbourne'})[t.day.c]||'Local';
+  document.getElementById('clk').innerHTML=`${String(x.getUTCHours()).padStart(2,'0')}:${String(x.getUTCMinutes()).padStart(2,'0')}<br>${where}`}
 clock();setInterval(clock,30000);
 
 /* --- writes --- */
