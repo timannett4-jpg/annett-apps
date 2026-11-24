@@ -2031,6 +2031,7 @@ body.focus #rail{display:none!important}body.focus.wide #v-results{margin-right:
   <div id="kmDays"></div>
   <div class="kmfoot">
     <button class="btn primary" id="kmCopy">Copy the log</button>
+    <button class="btn ghost" id="kmRecheck" type="button">Re-check calendar</button>
     <a class="btn ghost" id="kmBook" target="_blank" rel="noopener">Open the KM Log Book</a>
     <span class="sub2" id="kmState"></span>
   </div>
@@ -2103,6 +2104,8 @@ body.focus #rail{display:none!important}body.focus.wide #v-results{margin-right:
 #v-tax table.txt .dt{color:var(--muted);white-space:nowrap}
 #v-tax .lbl{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;border:1px solid var(--line);background:var(--sand);color:var(--ink)}
 #v-tax .tag{display:inline-block;margin-top:3px;font-size:10.5px;padding:1px 6px;border-radius:4px;border:1px solid var(--line);color:var(--muted);text-decoration:none}
+#v-tax .tag.dup{background:#fde8e1;border-color:#f6c4b3;color:var(--down);font-weight:700}
+#v-tax tr.dup td{background:#fff6f2}
 #v-tax .tag.chk{background:var(--amber);border-color:var(--amber);color:#fff;font-weight:700}
 #v-tax .rn{font-size:11.5px;color:var(--amber);margin-top:3px}
 #v-tax .ra{display:flex;gap:4px}
@@ -6133,9 +6136,12 @@ const KM_TRIP_RE=/\b(appraisal|inspection|pre-?settlement|settlement|handover|ha
 const KM_ADDR_RE=/(?:(?:lots?|unit|u)\s*[\d&,\s]+[,\s]*)?\b\d+[a-z]?(?:\s*[\/&-]\s*\d+[a-z]?)*\s+[a-z][a-z' ]{1,30}?\s(?:st|street|rd|road|ave|avenue|dr|drive|ct|crt|court|pl|place|pde|parade|cres|crescent|way|lane|ln|tce|terrace|hwy|highway|cct|circuit|cl|close|gr|grove|blvd|boulevard|retreat|promenade|rise|track)\b(?:[ ,]+[a-z][a-z ]{2,24})?/i;
 function kmTripOf(ev){const s=ev.start&&ev.start.dateTime;if(!s||ev.status==="cancelled"||(ev.attendees||[]).some(a=>a.self&&a.responseStatus==="declined"))return null;
   const t=String(ev.summary||""),loc=String(ev.location||""),txt=t+" "+loc;
-  if(/\b(in[- ]room|drawing room)\b/i.test(txt)||(/\bauction\b/i.test(t)&&!/pre[- ]auction/i.test(t)))return {place:"The Drawing Room, Quarry Hill VIC 3550",what:t,auction:true};
+  if(/\b(in[- ]room|drawing room)\b/i.test(txt)||(/\bauction\b/i.test(t)&&!/pre[- ]auction|auction prep/i.test(t)))return {place:"The Drawing Room, Quarry Hill VIC 3550",what:t,auction:true};
   if(/27 queen st/i.test(txt)||/^(lunch|massage|gym|school|prospecting|team meeting|sales meeting|zoom|teams)\b/i.test(t))return null;
-  const m=(loc.match(KM_ADDR_RE)||t.match(KM_ADDR_RE));if(!m&&!KM_TRIP_RE.test(t))return null;if(!m)return null;
+  if(/^\s*(drive|travel|trip)\b.*\b(home|back)\b|^\s*travel (home )?from\b/i.test(t)){const o=t.replace(/^\s*(travel|drive|trip)\s*(home|back)?\s*(from|to)?\s*/i,"").trim()||t;return {place:o,what:t,travel:true}}
+  let m=(loc.match(KM_ADDR_RE)||t.match(KM_ADDR_RE));
+  if(!m){const dsc=String(ev.description||"").replace(/<[^>]*>/g," ").replace(/&nbsp;/g," ").replace(/\s+/g," ");if(!/^(daily prospecting|bdm|referral|leasing|pmc|pm team|connect|kitchen|webinar|nurture|project)/i.test(t)){const dm=dsc.match(KM_ADDR_RE);if(dm&&dm.index<120){const w=dm[0].split(" "),ST=/^(st|street|rd|road|ave|avenue|dr|drive|ct|crt|court|pl|place|pde|parade|cres|crescent|way|lane|ln|tce|terrace|hwy|highway|cct|circuit|cl|close|gr|grove|blvd|boulevard|retreat|promenade|rise|track)$/i;let i=w.findIndex((x,j)=>j>0&&ST.test(x));if(i<0)i=w.length-1;const out=w.slice(0,i+1);for(let j=i+1;j<w.length&&j<i+3&&/^[A-Z]/.test(w[j]);j++)out.push(w[j]);m=[out.join(" ")]}}}
+  if(!m)return null;
   let a=m[0].replace(/\s+/g," ").trim();if(!/,/.test(a)&&loc&&loc.toLowerCase().includes(a.toLowerCase()))a=loc.split(",").slice(0,2).join(",").trim();
   return {place:a,what:t}}
 async function kmLoadEv(p){const k=p.s;if(kmEv[k]||kmLoading[k]||!mcp)return;kmLoading[k]=true;
@@ -6143,7 +6149,9 @@ async function kmLoadEv(p){const k=p.s;if(kmEv[k]||kmLoading[k]||!mcp)return;kmL
     const pl=r&&(r.payload||r.structuredContent)||{};kmEv[k]=pl.events||[]}catch(e){kmEv[k]={err:mcpErr(e,"Google Calendar")}}kmLoading[k]=false;renderKmc()}
 function kmBookTrips(){return kmDoc&&Array.isArray(kmDoc.trips)?kmDoc.trips:[]}
 let _kbpSig=null,_kbp={};function kmBookPlaces(){const l=kmDoc&&Array.isArray(kmDoc.places)?kmDoc.places:[];if(_kbpSig===l)return _kbp;_kbpSig=l;_kbp={};l.forEach(x=>{if(x&&x.place&&+x.km>0)_kbp[kmKey(x.place)]=+x.km});return _kbp}
-function kmDist(key){const mine=kmPlaces[key];if(mine&&mine.km>0)return {km:+mine.km,src:"you"};const b=kmBookPlaces()[key];if(b>0)return {km:+b,src:"log book"};return null}
+const KM_SUB=[["melbourne airport",150],["tullamarine",150],["maiden gully",25],["jackass flat",18],["california gully",13],["kangaroo flat",16.5],["east bendigo",5],["west bendigo",5],["north bendigo",6],["white hills",6],["flora hill",5],["golden square",8],["quarry hill",4],["long gully",7.5],["strathfieldsaye",22],["sailors gully",30],["spring gully",7],["junortoun",22],["strathdale",10],["kennington",9],["eaglehawk",16],["ironbark",8],["huntly",28.5],["marong",40],["epsom",20],["bagshot",35],["heathcote",93]];
+function kmEstKey(key){const k=String(key||"");const h=KM_SUB.find(x=>k.includes(x[0]));return h?h[1]:null}
+function kmDist(key){const mine=kmPlaces[key];if(mine&&mine.km>0)return {km:+mine.km,src:"you"};const b=kmBookPlaces()[key];if(b>0)return {km:+b,src:"log book"};const e=kmEstKey(key);if(e)return {km:e,src:"est"};return null}
 function kmBuild(p){const evs=kmEv[p.s];if(!Array.isArray(evs))return null;const book=kmBookTrips();const days={};
   evs.forEach(ev=>{const tr=kmTripOf(ev);if(!tr)return;const dt=String(ev.start.dateTime).slice(0,10);if(dt>TODAY&&kmOff>=0&&p.s<=TODAY&&TODAY<=p.e){}/* future trips in the current fortnight still listed */
     const ids=[ev.iCalUID,ev.id].filter(Boolean);const bk=book.find(b=>b.eventId&&ids.some(i=>String(b.eventId)===String(i)));
@@ -6167,7 +6175,7 @@ function renderKmc(){const dl=$("#kmc");if(!dl||!(dl.open||view==="km"))return;c
     return `<div class="kmday"><div class="h"><b>${esc(new Date(d.dt+"T00:00:00").toLocaleDateString("en-AU",{weekday:"long",day:"numeric",month:"long"}))}</b><span class="${g?"part":""}">${g?g+" to measure":sum.toFixed(1)+" km"}</span></div>
      ${d.trips.map(t=>`<div class="leg"><span>${esc(t.time?t.time+" · ":"")}${esc(t.what)}</span><span class="lk">${t.dist?`${t.dist.km.toFixed(1)}${t.dist.src==="you"?`<button class="link kmed" data-kmedit="${esc(t.key)}" data-place="${esc(t.place)}" aria-label="Change distance">edit</button>`:""}`:"—"}</span></div>`).join("")}</div>`}).join(""):`<p class="sub2">No trips found in your calendar for this fortnight.</p>`}
 function kmLogText(){const p=kmPeriod(kmOff);const days=kmBuild(p)||[];const L=["KILOMETRE LOG","Tim Annett – Ray White Bendigo",kmLbl(p.s,p.e),""];let g=0,miss=0;
-  days.forEach(d=>{let s=0,gp=0;const body=d.trips.map(t=>{if(t.dist)s+=t.dist.km;else{gp++;miss++}return `   Office to ${t.place} and return   ${t.dist?t.dist.km.toFixed(1)+" km":"[not measured]"}`});g+=s;
+  days.forEach(d=>{let s=0,gp=0;const body=d.trips.map(t=>{if(t.dist)s+=t.dist.km;else{gp++;miss++}return `   ${t.travel?t.what:"Office to "+t.place+" and return"}   ${t.dist?t.dist.km.toFixed(1)+" km":"[not measured]"}`});g+=s;
     L.push(new Date(d.dt+"T00:00:00").toLocaleDateString("en-AU",{weekday:"long",day:"numeric",month:"long"})+(gp?`   [${gp} not measured]`:`   ${s.toFixed(1)} km`));L.push(...body,"")});
   L.push(`TOTAL FOR THE FORTNIGHT   ${g.toFixed(1)} km${miss?`   (incomplete – ${miss} still to measure)`:""}`);return L.join("\n")}
 async function kmSave(key,place,km){if(!db||!canWrite)return;try{await db.collection("kmplaces").doc(key.replace(/[\/\s]+/g,"-").slice(0,120)||"x").set({key,place,km:+km,updatedAt:new Date().toISOString()});}catch{toast("Couldn't save that distance")}}
@@ -8157,6 +8165,13 @@ async function autoAppt(id,b){if(!mcp||!sampleFn||!canWrite||!b)return;
   const yr=e=>{const f=e.frequency||"once";const p=(e.periods==null||e.periods==="")?per(f):n(e.periods);return n(e.amount)*(f==="once"?1:p)};
   const ded=e=>catL(e.category)==="—"?0:yr(e)*((e.workPct==null||e.workPct==="")?1:n(e.workPct)/100);
   const chk=e=>!!e.needsReview;
+  const dupMap=()=>{const m={};const L=T.exp.filter(e=>n(e.amount)>0);const dd=x=>{const t=Date.parse((x||"")+"T00:00:00");return isNaN(t)?null:t};
+    for(let i=0;i<L.length;i++)for(let j=i+1;j<L.length;j++){const a=L[i],b=L[j];const ra=String(a.ref||"").trim().toLowerCase(),rb=String(b.ref||"").trim().toLowerCase();
+      const sameRef=ra&&ra===rb;const ta=dd(a.date),tb=dd(b.date);const near=ta!=null&&tb!=null&&Math.abs(ta-tb)<=7*864e5;
+      const sameAmt=Math.round(n(a.amount)*100)===Math.round(n(b.amount)*100);
+      if(sameAmt&&(sameRef||near)){(m[a._id]=m[a._id]||[]).push(b);(m[b._id]=m[b._id]||[]).push(a)}}
+    return m};
+  const isDup=(e,m)=>!!(m&&m[e._id]);
   const logKm=()=>T.set.useKmLog&&typeof kmDoc!=="undefined"&&kmDoc&&kmDoc.fyKm!=null?n(kmDoc.fyKm):0;
   const tripKm=()=>T.trips.reduce((s,t)=>s+n(t.km),0);
   const allKm=()=>logKm()+tripKm();
@@ -8193,19 +8208,19 @@ async function autoAppt(id,b){if(!mcp||!sampleFn||!canWrite||!b)return;
     s.innerHTML=head+body+foot;
     if(keep!=null){const q=$("#taxQ");if(q){q.focus();try{q.setSelectionRange(keep,keep)}catch(e){}}}
   }
-  function expHtml(){const k=T.exp.filter(chk).length;if(T.f==="CHECK"&&!k)T.f="ALL";
-    const chips=[["ALL","All",T.exp.length]].concat(k?[["CHECK","To check",k]]:[]).concat(["D2","D3","D4","D5"].map(c=>[c,c,T.exp.filter(e=>catL(e.category)===c).length]));
+  function expHtml(){const k=T.exp.filter(chk).length;if(T.f==="CHECK"&&!k)T.f="ALL";const DM=dupMap();const dk=T.exp.filter(e=>isDup(e,DM)).length;if(T.f==="DUP"&&!dk)T.f="ALL";
+    const chips=[["ALL","All",T.exp.length]].concat(dk?[["DUP","Possible duplicates",dk]]:[]).concat(k?[["CHECK","To check",k]]:[]).concat(["D2","D3","D4","D5"].map(c=>[c,c,T.exp.filter(e=>catL(e.category)===c).length]));
     let rows=T.exp.slice().sort((a,b)=>(chk(b)-chk(a))||String(b.date||"").localeCompare(String(a.date||""))||String(b._id).localeCompare(String(a._id)));
-    if(T.f==="CHECK")rows=rows.filter(chk);else if(T.f!=="ALL")rows=rows.filter(e=>catL(e.category)===T.f);
+    if(T.f==="DUP")rows=rows.filter(e=>isDup(e,DM)).sort((a,b)=>(n(b.amount)-n(a.amount))||String(a.date||"").localeCompare(String(b.date||"")));else if(T.f==="CHECK")rows=rows.filter(chk);else if(T.f!=="ALL")rows=rows.filter(e=>catL(e.category)===T.f);
     if(T.q){const q=T.q.toLowerCase();rows=rows.filter(e=>[e.desc,e.supplier,e.category,e.notes,e.ref].some(v=>String(v||"").toLowerCase().includes(q)))}
-    let h=`<div class="txbar"><input type="search" id="taxQ" placeholder="Search description, supplier, notes…" value="${esc(T.q)}">${chips.map(([v,l,c])=>`<button type="button" class="txchip ${v==="CHECK"?"chk":""}" data-txf="${v}" aria-pressed="${T.f===v}">${l}${v!=="ALL"?` ${c}`:""}</button>`).join("")}</div>
+    let h=(dk?`<div class="notice" style="margin:0 0 12px"><b>${dk} expenses look like possible duplicates</b> (same amount within 7 days, or same amount and reference). Check them and delete any that were logged twice. <button type="button" class="sentbtn" data-txf="DUP">Show them</button></div>`:"")+`<div class="txbar"><input type="search" id="taxQ" placeholder="Search description, supplier, notes…" value="${esc(T.q)}">${chips.map(([v,l,c])=>`<button type="button" class="txchip ${v==="CHECK"||v==="DUP"?"chk":""}" data-txf="${v}" aria-pressed="${T.f===v}">${l}${v!=="ALL"?` ${c}`:""}</button>`).join("")}</div>
       <div class="txcard"><header><h3>Expenses</h3><span class="sub2">${rows.length} shown · ${m2(rows.reduce((s,e)=>s+ded(e),0))} deductible</span></header>`;
     if(!rows.length)return h+`<div class="empty">${T.exp.length?"No expenses match this filter.":"No expenses yet. Claude adds receipts from your email here, or tap + Add expense. To bring in your old ledger, open the old file, tap Backup (JSON), then use “Add entries from a ledger backup” below."}</div></div>`;
     h+=`<div class="txscroll"><table class="txt"><thead><tr><th>Date</th><th>Description</th><th class="hide-sm">Supplier</th><th class="hide-sm">Category</th><th>Label</th><th class="num">Amount</th><th class="num hide-sm">Work %</th><th class="num">Deductible</th><th></th></tr></thead><tbody>`;
     rows.forEach(e=>{const f=e.frequency||"once";const em=okUrl(e.emailUrl);
-      h+=`<tr class="${chk(e)?"needs":""}"><td class="dt">${esc(d8(e.date))}</td>
+      h+=`<tr class="${chk(e)?"needs":""}${isDup(e,DM)?" dup":""}"><td class="dt">${esc(d8(e.date))}</td>
         <td>${esc(e.desc)||"—"}${e.receipt==="No"?` <span title="No receipt recorded" style="color:var(--down)">⚠</span>`:""}${f!=="once"?`<div class="sub2">${esc(flab(f))} ×${esc(e.periods||per(f))} · ${m2(yr(e))} a year</div>`:""}
-          ${chk(e)||e.source==="email"?"<br>":""}${chk(e)?`<span class="tag chk">To check</span> `:""}${e.source==="email"?(em?`<a class="tag" href="${esc(em)}" target="_blank" rel="noopener">From email ↗</a>`:`<span class="tag">From email</span>`):""}
+          ${chk(e)||e.source==="email"||isDup(e,DM)?"<br>":""}${isDup(e,DM)?`<span class="tag dup" title="${esc("Looks like: "+DM[e._id].map(x=>d8(x.date)+" "+(x.desc||x.supplier||"")+" "+m2(n(x.amount))).join("; "))}">Possible duplicate</span> `:""}${chk(e)?`<span class="tag chk">To check</span> `:""}${e.source==="email"?(em?`<a class="tag" href="${esc(em)}" target="_blank" rel="noopener">From email ↗</a>`:`<span class="tag">From email</span>`):""}
           ${chk(e)&&e.reviewNote?`<div class="rn">${esc(e.reviewNote)}</div>`:""}</td>
         <td class="hide-sm">${esc(e.supplier)}</td><td class="hide-sm">${esc(e.category)}</td><td><span class="lbl">${catL(e.category)}</span></td>
         <td class="num">${n(e.amount)?m2(e.amount):`<span style="color:var(--amber)">—</span>`}</td><td class="num hide-sm">${(e.workPct==null||e.workPct==="")?100:esc(e.workPct)}%</td><td class="num">${m2(ded(e))}</td>
@@ -10343,13 +10358,14 @@ let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(renderChart
 
   /* ---------- caravans: every address in the entry is one run from the office and back ---------- */
   const STOP_RE=/^(?:lots?\s*)?\d+[a-z]?(?:\s*[\/&-]\s*\d+[a-z]?)*\s+[a-z]/i;
-  function kmStops(ev){const raw=String(ev.location||"")+"\n"+stripHtml(ev.description||"");const out=[],seen=new Set();
+  function kmStops(ev){const od=stripHtml(ev.description||"").replace(/\s+/g," ").trim();if(OFFICE_RUN.test(od)){const body=od.replace(/^\s*office to\s+/i,"").replace(/[,.]?\s*(?:and\s+)?back to (?:the )?office\.?\s*$/i,"");const seen=new Set(),out=[];body.split(/\s+to\s+/i).map(x=>x.replace(/[,.\s]+$/,"").trim()).filter(Boolean).forEach(x=>{const k=kmKey(x);if(k&&!seen.has(k)){seen.add(k);out.push(x)}});if(out.length)return out}
+    const raw=String(ev.location||"")+"\n"+stripHtml(ev.description||"");const out=[],seen=new Set();
     raw.split(/\n|;|•|→|\|/).forEach(line=>{let l=line.replace(/\s+/g," ").trim().replace(/^\d{1,2}[.)]\s+(?=\d)/,"");
       if(!STOP_RE.test(l)||/^\d{1,2}(:\d{2})?\s*(am|pm)\b/i.test(l)||/^\d{4}\b/.test(l))return;
       l=l.split(/\s+[-–—]\s+|\s*\(/)[0].replace(/[,.\s]+$/,"").trim().slice(0,80);
       const k=kmKey(l);if(!k||seen.has(k))return;seen.add(k);out.push(l)});
     return out}
-  const isCaravan=ev=>/caravan/i.test(String(ev.summary||""));
+  const OFFICE_RUN=/^\s*office to\s+.+\s+to\s+.+/i;const isCaravan=ev=>/caravan/i.test(String(ev.summary||""))||OFFICE_RUN.test(stripHtml(ev.description||"").replace(/\s+/g," ").trim());
   const _trip=kmTripOf;
   kmTripOf=function(ev){const s=ev.start&&ev.start.dateTime;if(!s||ev.status==="cancelled"||(ev.attendees||[]).some(a=>a.self&&a.responseStatus==="declined"))return null;
     if(isCaravan(ev)){const stops=kmStops(ev);return {place:stops.length?stops.join(" → "):"Caravan (no addresses in the calendar entry)",stops,what:String(ev.summary||"Caravan"),caravan:true}}
@@ -10359,13 +10375,19 @@ let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(renderChart
 
   /* ---------- the calendar, also when the app has no calendar connection ---------- */
   function slimEvents(evs){return (evs||[]).filter(ev=>{try{return ev&&ev.start&&ev.start.dateTime&&!!kmTripOf(ev)}catch(e){return false}}).map(ev=>({id:ev.id||"",iCalUID:ev.iCalUID||"",recurringEventId:ev.recurringEventId||"",summary:String(ev.summary||"").slice(0,160),location:String(ev.location||"").slice(0,200),
-    description:isCaravan(ev)?stripHtml(ev.description).replace(/[ \t]+/g," ").slice(0,900):"",start:{dateTime:ev.start.dateTime},status:ev.status||"",attendees:(ev.attendees||[]).some(a=>a.self&&a.responseStatus==="declined")?[{self:true,responseStatus:"declined"}]:[]}))}
+    description:isCaravan(ev)?stripHtml(ev.description).replace(/[ \t]+/g," ").slice(0,900):((KM_ADDR_RE.test(String(ev.location||""))||KM_ADDR_RE.test(String(ev.summary||"")))?"":stripHtml(ev.description||"").replace(/\s+/g," ").trim().slice(0,300)),start:{dateTime:ev.start.dateTime},status:ev.status||"",attendees:(ev.attendees||[]).some(a=>a.self&&a.responseStatus==="declined")?[{self:true,responseStatus:"declined"}]:[]}))}
   const _load=kmLoadEv;
   kmLoadEv=async function(p){
     if(!live()){const c=kmCal[p.s];if(c&&Array.isArray(c.events)&&!kmEv[p.s]){kmEv[p.s]=c.events;setTimeout(()=>{try{renderKmc()}catch(e){}},0)}return}
     await _load(p);
     try{const evs=kmEv[p.s];if(Array.isArray(evs)&&db&&canWrite&&p.s>=kmPeriod(-1).s){const slim=slimEvents(evs);const sig=JSON.stringify(slim);const old=kmCal[p.s];
       if(!old||JSON.stringify(old.events)!==sig)await db.collection("kmcal").doc(p.s).set({periodStart:p.s,periodEnd:p.e,events:slim,at:nowIso(),by:"dashboard"})}}catch(e){}};
+  document.addEventListener("click",async e=>{const b=e.target.closest("#kmRecheck");if(!b)return;if(!mcp){toast("No calendar connection here");return}b.disabled=true;b.textContent="Checking…";
+    try{const p=kmPeriod(kmOff);const r=await mcp.callTool("Google Calendar","list_events",{startTime:p.s+"T00:00:00",endTime:addDays(p.e,1)+"T00:00:00",timeZone:"Australia/Melbourne",orderBy:"startTime",pageSize:250},{cache:{staleTime:0}});
+      const pl=r&&(r.payload||r.structuredContent)||{};kmEv[p.s]=pl.events||[];
+      try{if(db&&canWrite&&p.s>=kmPeriod(-1).s)await db.collection("kmcal").doc(p.s).set({periodStart:p.s,periodEnd:p.e,events:slimEvents(kmEv[p.s]),at:nowIso(),by:"dashboard"})}catch(e2){}
+      renderKmc();toast("Calendar re-checked")}
+    catch(err){toast("Couldn't read the calendar. Try again.")}finally{b.disabled=false;b.textContent="Re-check calendar"}});
 
   /* ---------- the claim, with Tim's edits ---------- */
   const evIds=ev=>[ev.id,ev.iCalUID].filter(Boolean).map(String);
@@ -10448,13 +10470,13 @@ let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(renderChart
   /* ---------- drawing ---------- */
   function paint(){try{if(!(view==="km"||($("#kmc")&&$("#kmc").open)))return;const p=kmPeriod(kmOff);let all=kmAll(p),noCal=false;
     if(!all){if(live())return;noCal=true;all=[];$("#kmSub").textContent="Your calendar trips for this fortnight haven't reached this device yet. Claude copies them across every hour; you can still add trips and lodge.";}
-    const need={};all.filter(t=>!t.hidden&&!t.dist&&t.key).forEach(t=>{(need[t.key]=need[t.key]||{place:t.place,stops:t.stops,n:0}).n++});
+    const need={};all.filter(t=>!t.hidden&&(!t.dist||t.dist.src==="est")&&t.key).forEach(t=>{(need[t.key]=need[t.key]||{place:t.place,stops:t.stops,n:0}).n++});
     const nk=Object.entries(need);
-    $("#kmMeasure").innerHTML=nk.length?`<section class="kmneed"><h4>Measure these once</h4><p class="sub2">Tap Maps for the drive from the office and back, read the total and type it in. Saved for every future claim.</p>
+    $("#kmMeasure").innerHTML=nk.length?`<section class="kmneed"><h4>Measure or confirm these once</h4><p class="sub2">Places marked estimated are already counted using a typical distance for the suburb. Tap Maps for the real drive from the office and back (or home, for travel trips), read the total and type it in. Saved for every future claim.</p>
       ${nk.map(([k,v])=>`<div class="kmrow"><div class="w"><b>${esc(v.place)}</b><small>${v.stops&&v.stops.length>1?`One run: office → ${v.stops.length} stops → office · `:""}${v.n} trip${v.n===1?"":"s"} this fortnight</small></div>${v.stops&&!v.stops.length?"":`<a class="btn ghost" href="${v.stops&&v.stops.length>1?routeMaps(v.stops):kmMaps(v.place)}" target="_blank" rel="noopener">Maps</a>`}<input type="number" inputmode="decimal" step="0.1" min="0" placeholder="km return" data-kmset="${esc(k)}" data-place="${esc(v.place)}"></div>`).join("")}</section>`:"";
     const byDay={};all.forEach(t=>{(byDay[t.dt]=byDay[t.dt]||[]).push(t)});const W=canWrite&&db;
     const leg=t=>{const k=t.dist?t.dist.km.toFixed(1):"—";const id=esc(t.evKey);
-      const tags=(t.caravan||(t.stops&&t.stops.length>1)?`<span class="kmtag car">${t.stops&&t.stops.length?t.stops.length+" stops, one run":"caravan"}</span>`:"")+(t.added?`<span class="kmtag nw">${t.calState==="done"||t.calId?"added · in calendar":"added · calendar on next sync"}</span>`:"")+(t.fixed?`<span class="kmtag nw">${t.calState==="done"?"address added · in calendar":"address added · calendar on next sync"}</span>`:"")+(t.inBook&&!t.hidden?`<span class="kmtag ok">in log book</span>`:"");
+      const tags=(t.caravan||(t.stops&&t.stops.length>1)?`<span class="kmtag car">${t.stops&&t.stops.length?t.stops.length+" stops, one run":"caravan"}</span>`:"")+(t.added?`<span class="kmtag nw">${t.calState==="done"||t.calId?"added · in calendar":"added · calendar on next sync"}</span>`:"")+(t.fixed?`<span class="kmtag nw">${t.calState==="done"?"address added · in calendar":"address added · calendar on next sync"}</span>`:"")+(t.dist&&t.dist.src==="est"&&!t.hidden?`<span class="kmtag nw">estimated</span>`:"")+(t.travel?`<span class="kmtag nw">travel, one way</span>`:"")+(t.inBook&&!t.hidden?`<span class="kmtag ok">in log book</span>`:"");
       const sub=t.caravan||(t.stops&&t.stops.length>1)?`<small>Office → ${esc((t.stops||[]).join(" → ")||"no addresses found")} → Office</small>`:`<small>${esc(t.place||"")}</small>`;
       const btns=!W||t.book?"":t.hidden?`<button class="kmx" data-kmrestore="${id}">Put back</button>`:`<button class="kmx" data-kmkm="${id}" aria-label="Change the km">Edit</button><button class="kmx warn" data-kmhide="${id}" aria-label="Remove this trip">${t.added?"Delete":"Remove"}</button>`;
       const ed=editKey===t.evKey&&!t.hidden?`<div class="kmedit"><input type="number" inputmode="decimal" step="0.1" min="0" value="${t.dist?t.dist.km:""}" data-kmkmin="${id}" aria-label="Km for this trip, there and back"><button class="btn primary" data-kmkmok="${id}">Save km</button><button class="kmx" data-kmkmx="1">Cancel</button>${t.dist&&t.dist.src==="edited"&&!t.added?`<button class="kmx" data-kmkmreset="${id}">Use the measured distance</button>`:""}</div>`:"";
