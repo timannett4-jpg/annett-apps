@@ -1542,7 +1542,7 @@ body.focus #rail{display:none!important}body.focus.wide #v-results{margin-right:
 <div class="bar"><div class="wrap">
   <div class="mark"><i></i>Ray White Bendigo <span>· Investment Specialist</span></div>
   <div class="barR"><button class="sbtn" id="srchBtn" type="button" aria-label="Search properties, owners, phone numbers"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="stx">Search</span><kbd>/</kbd></button>
-  <button class="sbtn" id="runDash" type="button" title="Run the BDM dashboard update now">⟳ Update</button><button class="sbtn" id="runLeads" type="button" title="Check email for new leads now">⟳ Leads</button>
+  <button class="sbtn" id="runDash" type="button" title="Run the BDM dashboard update now">⟳ Update</button><button class="sbtn" id="runLeads" type="button" title="Sweep email and Slack for new leads now">⟳ Leads</button>
   <button class="sbtn" id="themeBtn" type="button" aria-label="Night mode">☾</button><button class="add apn" id="apNewTop" type="button">＋ Appraisal</button><button class="add" id="addBtn" hidden>+ <span class="xs-hide">Add </span>lead</button></div>
 </div></div>
 <div class="ticker" id="ticker" hidden aria-label="Latest wins"></div>
@@ -10939,7 +10939,7 @@ let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(renderChart
 </script>
 <script>
 (function(){
-  var RUNS={runDash:{id:"trig_01QxjKiLU6NfFtruvbT2otaW",btn:"⟳ Update"},runLeads:{id:"trig_01QeCdY2uhapjNxGRoPixJpw",btn:"⟳ Leads"}};
+  var RUNS={runDash:{id:"trig_01QxjKiLU6NfFtruvbT2otaW",btn:"⟳ Update"},runLeads:{id:"trig_01QeCdY2uhapjNxGRoPixJpw",btn:"⟳ Leads",text:"ON DEMAND: Tim tapped the Leads button. Sweep email and Slack now and send the on-demand notification."}};
   function setBtn(b,txt,ms){b.textContent=txt;setTimeout(function(){b.textContent=RUNS[b.id].btn;b.disabled=false},ms)}
   async function run(b){
     var cfg=RUNS[b.id];
@@ -10947,8 +10947,9 @@ let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(renderChart
     try{
       var mcp=(window.claude&&window.claude.use)?await window.claude.use("mcp"):null;
       if(!mcp){setBtn(b,"Open in Claude",3000);return}
-      await mcp.callTool("Claude Code Remote","fire_trigger",{trigger_id:cfg.id});
-      setBtn(b,"Started ✓",3000);
+      var args={trigger_id:cfg.id};if(cfg.text)args.text=cfg.text;
+      await mcp.callTool("Claude Code Remote","fire_trigger",args);
+      setBtn(b,cfg.text?"Sweeping… ✓":"Started ✓",4000);
     }catch(e){
       var code=e&&e.code;
       setBtn(b,(code==="not_granted"||code==="consent_required")?"Allow, then retry":"Failed",4000);
