@@ -306,6 +306,8 @@ textarea{min-height:70px;resize:vertical}
 .la .lai{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--la);color:#fff;font-size:10.5px;letter-spacing:.02em}
 
 .pc .row2{display:flex;justify-content:space-between;align-items:center;margin-top:6px;gap:6px}
+.tb{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.04em;border-radius:5px;padding:1px 6px;margin-right:5px;vertical-align:1px;border:1px solid transparent}
+.tb-nb{background:#e6eefb;color:#1f4f99;border-color:#c7d7f2}.tb-mto{background:#efe6fb;color:#5b2d9a;border-color:#dccaf3}.tb-too{background:#e3f4ea;color:#16794a;border-color:#bfe3cc}.tb-unk{background:var(--amber-bg);color:var(--amber);border-color:var(--gold-soft)}
 .pc .ns{font-size:12px;color:var(--ink);margin-top:6px;border-top:1px dashed var(--line);padding-top:6px}
 .tgl{flex-direction:row;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:500}
 .tgl input{min-height:auto;width:16px;height:16px}
@@ -3944,6 +3946,7 @@ function dueHtml(dt){if(!dt)return"";const n=daysBetween(TODAY,dt);
   if(n===1) return `<span class="due">Tomorrow</span>`;
   return `<span class="due">${esc(new Date(dt+"T00:00:00").toLocaleDateString("en-AU",{weekday:"short",day:"numeric",month:"short"}))}</span>`}
 const typeShort=t=>t==="Management takeover"?"Takeover":t==="Transfer of ownership"?"Transfer":t==="New business"?"New business":"";
+const typeBadge=d=>{const t=d.mgmtType||"";const k=t==="Management takeover"?["mto","MTO","Management takeover"]:t==="Transfer of ownership"?["too","TOO","Transfer of ownership"]:t==="New business"?["nb","NB","New business (needs leasing)"]:["unk","Type?","Type not set: open the deal and set NB, MTO or TOO"];return `<span class="tb tb-${k[0]}" title="${k[2]}">${k[1]}</span>`};
 
 function setView(v){view=v;try{if(!["appraise","owner","week","me","plan","leave","fyr"].includes(v))localStorage.setItem("crmView",v)}catch{}
   document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===v));
@@ -4066,7 +4069,7 @@ function renderBoard(){
   $("#board").innerHTML=COLS.map(([k,l])=>{const cs=list.filter(d=>stageOf(d)===k).sort(k==="listed"?(a,b)=>(a.listedDate||"9").localeCompare(b.listedDate||"9"):(a,b)=>(a.nextActionDate||"9").localeCompare(b.nextActionDate||"9")||touch(b).localeCompare(touch(a)));
     return `<div class="col"><h3>${l}<span>${cs.length}</span></h3>${cs.map(d=>{const sd=stageDate(d,k);const age=sd&&sd<=TODAY?daysBetween(sd,TODAY)+"d":"";
       const la=(k==="listed"||k==="leased")&&d.leasingAgent?agentBadge(d.leasingAgent):"";
-      return `<button class="pc" data-open="${esc(d.id)}"><div class="addr">${esc(d.address||"Untitled")}</div>${d.owner?`<div class="sub2">${esc(d.owner)}</div>`:""}<div class="row2"><span class="sub2 lwrap">${la}${esc([typeShort(d.mgmtType),d.rentPw?money(d.rentPw)+"/wk":""].filter(Boolean).join(" · "))}</span><span class="sub2">${age}</span></div>${d.settlementDate&&d.settlementDate>=TODAY?`<div class="sub2">Settles ${fmtD(d.settlementDate)}</div>`:d.unconDate&&d.unconDate>=TODAY?`<div class="sub2">Uncon ${fmtD(d.unconDate)}</div>`:""}${d.nextAction||d.nextActionDate?`<div class="ns">${dueHtml(d.nextActionDate)} ${esc(d.nextAction||"")}</div>`:""}</button>`}).join("")||`<div class="sub2" style="padding:6px 4px">None</div>`}</div>`}).join("");
+      return `<button class="pc" data-open="${esc(d.id)}"><div class="addr">${esc(d.address||"Untitled")}</div>${d.owner?`<div class="sub2">${esc(d.owner)}</div>`:""}<div class="row2"><span class="sub2 lwrap">${la}${typeBadge(d)}${esc([d.rentPw?money(d.rentPw)+"/wk":""].filter(Boolean).join(" · "))}</span><span class="sub2">${age}</span></div>${d.settlementDate&&d.settlementDate>=TODAY?`<div class="sub2">Settles ${fmtD(d.settlementDate)}</div>`:d.unconDate&&d.unconDate>=TODAY?`<div class="sub2">Uncon ${fmtD(d.unconDate)}</div>`:""}${d.nextAction||d.nextActionDate?`<div class="ns">${dueHtml(d.nextActionDate)} ${esc(d.nextAction||"")}</div>`:""}</button>`}).join("")||`<div class="sub2" style="padding:6px 4px">None</div>`}</div>`}).join("");
 }
 $("#board").addEventListener("click",e=>{const c=e.target.closest("[data-open]");if(c)openDeal(c.dataset.open)});
 $("#showQuiet").addEventListener("change",renderBoard);
